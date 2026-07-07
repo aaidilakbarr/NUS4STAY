@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #344E2B; /* Dark Green Olive */
+  --color-primary-container: #46693B;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #f1f6f0;
+  --color-primary-fixed: #d4e7d0;
+  --color-primary-fixed-dim: #b6d4b0;
+  --color-on-primary-fixed: #101f0d;
+  --color-on-primary-fixed-variant: #243c1e;
+
+  --color-secondary: #4f554c; /* Slate Olive */
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #f1f3f0;
+  --color-on-secondary-container: #3a3f37;
+  --color-secondary-fixed: #f1f3f0;
+  --color-secondary-fixed-dim: #cbd0c8;
+  --color-on-secondary-fixed: #1b1e19;
+  --color-on-secondary-fixed-variant: #4f554c;
+
+  --color-tertiary: #D97706; /* Amber Gold for Ratings and Highlights */
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #fef3c7;
+  --color-on-tertiary-container: #78350f;
+  --color-tertiary-fixed: #fef3c7;
+  --color-tertiary-fixed-dim: #fde68a;
+  --color-on-tertiary-fixed: #78350f;
+  --color-on-tertiary-fixed-variant: #d97706;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-background: #fafbf9; /* Light premium Olive-tinted Off-White */
+  --color-on-background: #171c15;
+
+  --color-surface: #ffffff; /* Clean white containers */
+  --color-surface-dim: #fafbf9;
+  --color-surface-bright: #ffffff;
+  --color-surface-variant: #e5e7e2;
+  --color-on-surface: #171c15;
+  --color-on-surface-variant: #464a43;
+
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #fafbf9;
+  --color-surface-container: #f1f3f0;
+  --color-surface-container-high: #e5e7e2;
+  --color-surface-container-highest: #cbd0c8;
+
+  --color-inverse-surface: #171c15;
+  --color-inverse-on-surface: #f1f3f0;
+  --color-inverse-primary: #b6d4b0;
+
+  --color-outline: #727970;
+  --color-outline-variant: #e5e7e2;
+  --color-surface-tint: #344E2B;
+
+  --border-radius-DEFAULT: 0.25rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  --border-radius-3xl: 1.5rem;
+  --border-radius-full: 9999px;
+
+  --spacing-margin-desktop: 64px;
+  --spacing-margin-mobile: 20px;
+  --spacing-container-max: 1280px;
+  --spacing-gutter: 24px;
+  --spacing-card-gap: 24px;
+  --spacing-section-gap: 80px;
+}
+
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: 'Inter', system-ui, sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Material Symbols settings */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-outlined.fill-1 {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* Custom elevations and layer styles based on Stitch design tokens */
+.shadow-level-1 {
+  box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.03);
+}
+
+.shadow-level-2 {
+  box-shadow: 0px 10px 32px rgba(15, 23, 42, 0.06);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.hero-gradient {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.2) 100%);
+}
+
+/* Typography styles matching designTheme specs exactly but using Playfair Display for display */
+.font-headline-xl {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-xl-mobile {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+}
+
+.font-headline-lg {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+}
+
+.font-headline-md {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+.font-body-lg {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 28px;
+}
+
+.font-body-md {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.font-label-md {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+}
+
+.font-price-display {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+}

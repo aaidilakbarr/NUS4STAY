@@ -1,0 +1,294 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>LuxeStay - Search Results</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "background": "#f9f9ff",
+                        "on-primary-fixed-variant": "#004d62",
+                        "surface": "#f9f9ff",
+                        "secondary": "#5c5f61",
+                        "primary-fixed": "#b9eaff",
+                        "primary": "#005a71",
+                        "outline-variant": "#bec8cd",
+                        "tertiary-fixed": "#ffddb8",
+                        "inverse-on-surface": "#ecf1ff",
+                        "tertiary": "#764900",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#ffe9d4",
+                        "primary-container": "#0e7490",
+                        "surface-container": "#e7eeff",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#3f484c",
+                        "secondary-fixed": "#e0e3e5",
+                        "primary-fixed-dim": "#81d1f0",
+                        "on-surface": "#111c2d",
+                        "surface-dim": "#cfdaf2",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#444749",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-container": "#d3f1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "inverse-surface": "#263143",
+                        "secondary-container": "#e0e3e5",
+                        "tertiary-container": "#965f00",
+                        "on-primary-fixed": "#001f29",
+                        "outline": "#6f787d",
+                        "secondary-fixed-dim": "#c4c7c9",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-container": "#626567",
+                        "surface-container-high": "#dee8ff",
+                        "surface-container-low": "#f0f3ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-tint": "#006781",
+                        "on-secondary-fixed": "#191c1e",
+                        "inverse-primary": "#81d1f0",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#d8e3fb",
+                        "on-background": "#111c2d",
+                        "surface-variant": "#d8e3fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "card-gap": "24px",
+                        "section-gap": "80px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Manrope"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "price-display": ["Manrope"],
+                        "headline-xl": ["Manrope"],
+                        "headline-xl-mobile": ["Manrope"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "price-display": ["20px", { "lineHeight": "24px", "fontWeight": "700" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-xl-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill-1 {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        .shadow-level-1 { box-shadow: 0px 4px 20px rgba(0,0,0,0.04); }
+        .shadow-level-2 { box-shadow: 0px 10px 32px rgba(0,0,0,0.08); }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky z-50 bg-surface dark:bg-on-background shadow-sm">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<a class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed" href="{{DATA:SCREEN:SCREEN_8}}">LuxeStay</a>
+<nav class="hidden md:flex gap-6">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors cursor-pointer active:scale-95 transition-transform hover:opacity-90 transition-all" href="{{DATA:SCREEN:SCREEN_8}}">Discover</a>
+<a class="font-label-md text-label-md text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 cursor-pointer active:scale-95 transition-transform hover:opacity-90 transition-all" href="#">Villas</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors cursor-pointer active:scale-95 transition-transform hover:opacity-90 transition-all" href="#">Hotels</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors cursor-pointer active:scale-95 transition-transform hover:opacity-90 transition-all" href="#">Deals</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-container-lowest rounded-full px-4 py-2 shadow-level-1 border border-outline-variant focus-within:border-primary focus-within:shadow-level-2 transition-all">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md w-48 outline-none ml-2" placeholder="Search destinations..." type="text">
+</div>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:scale-95 transition-transform hover:opacity-90 transition-all">Sign In</button>
+<button class="font-label-md text-label-md bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary-container transition-colors cursor-pointer active:scale-95 transition-transform hover:opacity-90 transition-all">List Property</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 flex flex-col md:flex-row gap-gutter">
+<!-- SideNavBar (Filters) -->
+<aside class="hidden md:flex flex-col w-full max-w-[280px] flex-shrink-0">
+<div class="bg-surface-container-low dark:bg-surface-container border border-outline-variant shadow-sm h-full rounded-xl flex flex-col gap-4 p-6 sticky top-28">
+<div class="mb-2">
+<h2 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed">Refine Search</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Narrow down your results</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 font-label-md text-label-md text-primary font-bold bg-primary-fixed/20 rounded-lg p-2 active:scale-98 hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">filter_list</span>
+                        Filters
+                    </a>
+<a class="flex items-center gap-3 font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant p-2 active:scale-98 hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">location_on</span>
+                        Location
+                    </a>
+<a class="flex items-center gap-3 font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant p-2 active:scale-98 hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+                        Price Range
+                    </a>
+<a class="flex items-center gap-3 font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant p-2 active:scale-98 hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">pool</span>
+                        Amenities
+                    </a>
+<a class="flex items-center gap-3 font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant p-2 active:scale-98 hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">star</span>
+                        Rating
+                    </a>
+</nav>
+<div class="mt-auto pt-6">
+<button class="w-full font-label-md text-label-md bg-primary text-on-primary py-3 rounded-lg hover:bg-primary-container transition-colors active:scale-95 shadow-sm" onclick="this.innerText='Filters Applied!'; setTimeout(() =&gt; this.innerText='Apply Filters', 2000)">Apply Filters</button>
+</div>
+</div>
+</aside>
+<!-- Search Results -->
+<section class="flex-grow flex flex-col gap-6">
+<!-- Quick Search / Overview Bar -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-level-1 flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="bg-primary/10 p-2 rounded-full text-primary">
+<span class="material-symbols-outlined">search</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-on-surface">Villas in Bali</h1>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Oct 12 - Oct 19 • 2 Guests</p>
+</div>
+</div>
+<button class="w-full sm:w-auto font-label-md text-label-md border-1.5 border-primary text-primary px-6 py-2 rounded-lg hover:bg-primary/5 transition-colors">Change Search</button>
+</div>
+<!-- Active Filters Chips -->
+<div class="flex flex-wrap gap-2 items-center">
+<span class="font-label-md text-label-md text-on-surface-variant mr-2">Active:</span>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-label-md flex items-center gap-1 cursor-pointer hover:bg-primary/20 transition-colors">
+                    Private Pool <span class="material-symbols-outlined text-[16px]">close</span>
+</span>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-label-md flex items-center gap-1 cursor-pointer hover:bg-primary/20 transition-colors">
+                    5 Stars <span class="material-symbols-outlined text-[16px]">close</span>
+</span>
+</div>
+<!-- Results Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-card-gap">
+<!-- Property Card 1 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant shadow-level-1 hover:shadow-level-2 transition-all duration-300 group flex flex-col h-full">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A breathtaking view of a modern luxury villa in Bali, featuring an infinity pool overlooking a lush green jungle valley. The architecture is minimal with large floor-to-ceiling glass windows. Bright, natural sunlight illuminates the pristine white lounging areas and warm teak wood decks. The mood is tranquil, exclusive, and highly aspirational." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS2BrqLRChcEc3yEkK6pwd-LOqr9P4SUtuKEiJLgWG3jFToV81DRWaQ-5J-SuKG12794k8YMsI4CaWN-JFC6Yga0ZQN2izchSZxheXj32RhYxtZ7z9QlCL8glu_Opyr8AFa18FmjiySJrEYSIN5NtghuRxVqwoclDow4Acfn5wOPDeH9CYxLiwyYQNROclN_lpn7REJrAmj8eNvE0mgZuUD6R3tHeh7I55zxJ5WxM10aCOetjtshw6">
+<div class="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-tertiary-fixed-dim fill-1 text-[18px]">star</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Uluwatu Cliffside Retreat</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span> Uluwatu, Bali
+                                </p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-4 mb-6">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold">Private Pool</span>
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold">Ocean View</span>
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold">Butler</span>
+</div>
+<div class="mt-auto flex justify-between items-end border-t border-outline-variant/30 pt-4">
+<div><p class="font-body-md text-body-md text-on-surface-variant text-sm mb-1">Total: Rp 3.200.000</p><p class="font-price-display text-price-display text-on-surface">Rp 450.000 <span class="font-body-md text-body-md text-on-surface-variant font-normal">/ malam</span></p></div>
+<a href="{{DATA:SCREEN:SCREEN_7}}" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2.5 rounded-lg hover:bg-primary-container transition-colors inline-block text-center">View Details</a>
+</div>
+</div>
+</article>
+<!-- Property Card 2 -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant shadow-level-1 hover:shadow-level-2 transition-all duration-300 group flex flex-col h-full">
+<div class="relative w-full aspect-[4/3] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A serene, minimalist bedroom interior in a high-end resort. The room features a king-size bed with crisp white linens, light oak wood paneling, and sheer curtains blowing gently in the breeze. A large window frames a pristine white sand beach and turquoise ocean. The lighting is soft, morning light creating a calm and inviting atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5a96Ez_o6G9OTpkxY0dlbl-rdCClW3Dcn9RDOQTythNNPemaU2vKnER2IGjJeKwV657vS03n0DWQdTWVCmH6vHa0k6tfPaZ_MFB3rYyMk6rPZJuVtJWlJTy4VYnZxKFa5MayqnDyz3F_xeeRi9ps89kjDeKaAJYHTYV1Xgjgy8Pnp9nV7OZGRRBoIc_46uCcHSm6DK3rhj2yihtS0G1FlqI3byUfPJ-8FTt8Lr-iQi-lYw5hHApwJ">
+<div class="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-tertiary-fixed-dim fill-1 text-[18px]">star</span>
+<span class="font-label-md text-label-md font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<div class="p-6 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">The Seminyak Sands</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span> Seminyak, Bali
+                                </p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-4 mb-6">
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold">Beachfront</span>
+<span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold">Spa</span>
+</div>
+<div class="mt-auto flex justify-between items-end border-t border-outline-variant/30 pt-4">
+<div><p class="font-body-md text-body-md text-on-surface-variant text-sm mb-1">Total: Rp 2.450.000</p><p class="font-price-display text-price-display text-on-surface">Rp 350.000 <span class="font-body-md text-body-md text-on-surface-variant font-normal">/ malam</span></p></div>
+<a href="{{DATA:SCREEN:SCREEN_7}}" class="font-label-md text-label-md bg-primary text-on-primary px-6 py-2.5 rounded-lg hover:bg-primary-container transition-colors inline-block text-center">View Details</a>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination (Simplified) -->
+<div class="flex justify-center items-center gap-2 mt-8">
+<button class="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="w-10 h-10 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center justify-center">1</button>
+<button class="w-10 h-10 rounded-lg hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center">2</button>
+<button class="w-10 h-10 rounded-lg hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center">3</button>
+<span class="text-on-surface-variant">...</span>
+<button class="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-section-gap bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">LuxeStay</span>
+<p class="font-body-md text-body-md text-on-surface-variant">© 2024 LuxeStay Global. All rights reserved.</p>
+</div>
+<div class="col-span-1 md:col-span-3 flex flex-wrap gap-x-8 gap-y-4 justify-start md:justify-end">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">About Us</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Careers</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Help Center</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Contact</a>
+</div>
+</div>
+</footer>
+
+
+</body></html>

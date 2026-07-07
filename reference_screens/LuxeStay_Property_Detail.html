@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>LuxeStay - Villa Serenity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "background": "#f9f9ff",
+                      "on-primary-fixed-variant": "#004d62",
+                      "surface": "#f9f9ff",
+                      "secondary": "#5c5f61",
+                      "primary-fixed": "#b9eaff",
+                      "primary": "#005a71",
+                      "outline-variant": "#bec8cd",
+                      "tertiary-fixed": "#ffddb8",
+                      "inverse-on-surface": "#ecf1ff",
+                      "tertiary": "#764900",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#ffe9d4",
+                      "primary-container": "#0e7490",
+                      "surface-container": "#e7eeff",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#3f484c",
+                      "secondary-fixed": "#e0e3e5",
+                      "primary-fixed-dim": "#81d1f0",
+                      "on-surface": "#111c2d",
+                      "surface-dim": "#cfdaf2",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#444749",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#f9f9ff",
+                      "on-primary-container": "#d3f1ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed": "#2a1700",
+                      "inverse-surface": "#263143",
+                      "secondary-container": "#e0e3e5",
+                      "tertiary-container": "#965f00",
+                      "on-primary-fixed": "#001f29",
+                      "outline": "#6f787d",
+                      "secondary-fixed-dim": "#c4c7c9",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-secondary-container": "#626567",
+                      "surface-container-high": "#dee8ff",
+                      "surface-container-low": "#f0f3ff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-tint": "#006781",
+                      "on-secondary-fixed": "#191c1e",
+                      "inverse-primary": "#81d1f0",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#d8e3fb",
+                      "on-background": "#111c2d",
+                      "surface-variant": "#d8e3fb"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "margin-mobile": "20px",
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "card-gap": "24px",
+                      "section-gap": "80px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Manrope", "sans-serif"],
+                      "label-md": ["Inter", "sans-serif"],
+                      "headline-lg": ["Manrope", "sans-serif"],
+                      "body-md": ["Inter", "sans-serif"],
+                      "price-display": ["Manrope", "sans-serif"],
+                      "headline-xl": ["Manrope", "sans-serif"],
+                      "headline-xl-mobile": ["Manrope", "sans-serif"],
+                      "body-lg": ["Inter", "sans-serif"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                      "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased font-body-md text-body-md">
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-surface dark:bg-on-background text-primary dark:text-primary-fixed font-headline-md text-headline-md w-full top-0 sticky z-50 shadow-sm transition-all duration-300">
+<div class="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Brand -->
+<a class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed" href="{{DATA:SCREEN:SCREEN_8}}">LuxeStay</a>
+<!-- Navigation Links (Hidden on mobile) -->
+<ul class="hidden md:flex gap-8 items-center">
+<li class=""><a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors hover:opacity-90 transition-all cursor-pointer active:scale-95 transition-transform" href="#">Discover</a></li>
+<li class=""><a class="text-primary dark:text-primary-fixed border-b-2 border-primary dark:border-primary-fixed pb-1 hover:opacity-90 transition-all cursor-pointer active:scale-95 transition-transform" href="#">Villas</a></li>
+<li class=""><a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors hover:opacity-90 transition-all cursor-pointer active:scale-95 transition-transform" href="#">Hotels</a></li>
+<li class=""><a class="text-on-surface-variant dark:text-outline-variant hover:text-primary transition-colors hover:opacity-90 transition-all cursor-pointer active:scale-95 transition-transform" href="#">Deals</a></li>
+</ul>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="hidden md:block text-primary dark:text-primary-fixed font-label-md text-label-md hover:opacity-90 transition-all">Sign In</button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-sm">List Property</button>
+</div>
+</div>
+</nav>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8">
+<!-- Photo Gallery (Bento Grid) -->
+<section class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[50vh] md:h-[60vh] mb-12 rounded-xl overflow-hidden">
+<div class="md:col-span-2 md:row-span-2 h-full w-full relative group">
+<img alt="Main Villa Image" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A wide, sweeping exterior shot of an ultra-luxury modern villa set against a stunning coastal cliffside at sunset. The architectural style features extensive glass walls, minimalist concrete planes, and warm wood accents, bathed in golden hour light. An infinity pool reflects the sky. The image should convey high-end aspirational travel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNIxP4RweSZ88lyd1YW6eauFeiXloBXBjNosUIPRL23lrNZR6ZsTnifXlug3XPTJ1BwdWv67T7feCiOOCLsLLFpus-KfqC2NG6vk9acBesFTayGIGAHmKk4lzzZdcZ7Sd6Go4oV_uQwyB0SVzGEFwupjsP03PdadlgNNOHa9-IgPXVbsO7ECzt5iRiG2-C9ZUGa0uHe1YB5oTbabfeEh48wCc-BYH7ZRFlxhQjGZtCPG5tzXDG1UzG">
+<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500"></div>
+</div>
+<div class="hidden md:block h-full w-full relative overflow-hidden group">
+<img alt="Living Room" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A bright, airy, and meticulously designed modern living room inside a luxury villa. Floor-to-ceiling windows offer a panoramic ocean view. The furnishings are high-end, minimalist, featuring neutral tones, natural textures, and a plush white sofa. The lighting is soft and natural, emphasizing the spacious and pristine environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCet7zuWfdMKpIdlPkNfUSXM2dAKQktZA_j2B9V0vRs3nwjrbBisSQSPQml96pbVKDShA0nskNDheaclkr-smSW-sZQnOLCdsvvb9QY_tjRpkI8eMEmxZKTl3JGjljUc1eNWSCBvjhvVYpkuluaLvjEWcwoA29Xf3Csn3MVam2eC3KmFQLEZoDR18ULqFjFv4ypzAvr03UfjJyX3ji8spcT49--Ilfy9Riu3Sk7l_QPGDStFOYibs5Z">
+</div>
+<div class="hidden md:block h-full w-full relative overflow-hidden group">
+<img alt="Bedroom Detail" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A close-up detail shot of an elegant master bedroom in a luxury villa. Features a king-sized bed with crisp white luxury linens, modern minimalist bedside lamps emitting a warm glow, and sheer curtains catching a gentle breeze. The color palette is serene, with soft whites and muted earthy tones, emphasizing comfort and tranquility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoyL7jgjbjPpNsRo8vtMyEoQHdK9KXKyaf5L4Wl8DyKnDaWM0nniT2cwTw5UTNUK91V5RjX7mRY9B6ESOZzX_waRB4BiepfUw1x3Wc6yCtFoL825sLN26UNCf_s9DCpcpfxd6tEGQ0aAXbn532nXyZ2Q-7-PUN6VOeQdweX5HaYi7AItwLv1X1a01mtBpuYwYwfEY6hp3GZ2F67IpUbGFLOnTqxWeGXcyfCJIE6_V5CKEtqxEcMZe4">
+</div>
+<div class="hidden md:block h-full w-full relative overflow-hidden group">
+<img alt="Outdoor Terrace" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A beautifully styled outdoor terrace of a luxury villa featuring a modern, sleek dining set positioned under a minimal pergola. The table is set for an intimate dinner with fine glassware and subtle candlelight. The background shows an expansive ocean view during twilight. The mood is exclusive, romantic, and refined." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCQKGhRtTZgValHnHDiWhf-7e0_q0e0qTvdRU6eONoCXeRUr8TrDIgekqZgCFMw_KFmz4fQAHM0ojos8WhqZOGv01kEmzzpgK0n3LY0-AG-GbrIybETdN3J9R7blpgEiKQ57_5QI6bXm8hJRMcHPD8ph4EPCYv_JEish1PGZfOBvrsN1ldHntSH86QtanitZxRbgOlJs6by2KjTxSmB3vYsEpfyvXdpxTiUeApNs3JLGU7MtDMqLFq">
+</div>
+<div class="hidden md:block h-full w-full relative overflow-hidden group">
+<img alt="Luxury Bathroom" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A pristine, spa-like luxury bathroom featuring a freestanding deep soaking tub next to a large window overlooking lush tropical foliage. The walls are clad in smooth, light-colored stone or marble, with high-end brushed nickel fixtures. The lighting is bright yet soft, creating an atmosphere of ultimate relaxation and premium quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAijTnv1NQGf3xNZ1hdosH7uqMhSf1uZMhLNbPOYZKhA2moBLIR2yvjCz5egTuSihOM4EX2H1MedqM9dYeiCwmiN2l_cqSoIzWB7-JTdUGAObyq2PRbaUN8qkgGhCrF23j1356YSbXcMz615_ab5MIp-ILrMNkmPoZJKefRsblW8_ZueF34eDfbSIAbHvGXZU8rC5rikOLhoSe5oXd6xgZkjK7IfJ5iYTwTI2C2kp4GHUdj4cVqjQnn">
+<button class="absolute bottom-4 right-4 bg-surface text-on-surface px-4 py-2 rounded-lg font-label-md text-label-md shadow-md flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">grid_view</span> Show all photos
+                </button>
+</div>
+</section>
+<!-- Main Content Layout -->
+<div class="flex flex-col lg:flex-row gap-gutter">
+<!-- Left Column: Details -->
+<div class="flex-1 space-y-12">
+<!-- Header Info -->
+<section>
+<div class="flex justify-between items-start mb-2">
+<h1 class="font-headline-xl text-headline-xl-mobile md:text-headline-xl text-on-surface">Villa Serenity Cliffside</h1>
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors text-outline">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant font-body-md text-body-md flex-wrap">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-on-surface">4.96</span>
+<span class="underline cursor-pointer">(128 reviews)</span>
+</div>
+<span class="">·</span>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="underline cursor-pointer">Amalfi Coast, Italy</span>
+</div>
+<span class="">·</span>
+<span class="">Entire Villa · 8 Guests · 4 Bedrooms · 5 Baths</span>
+</div>
+</section>
+<hr class="border-outline-variant/30">
+<!-- Facilities -->
+<section>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-6">Premium Amenities</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px] text-primary">pool</span>
+<span class="font-body-lg text-body-lg">Infinity Pool</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px] text-primary">wifi</span>
+<span class="font-body-lg text-body-lg">Fast Wi-Fi</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px] text-primary">restaurant</span>
+<span class="font-body-lg text-body-lg">Chef's Kitchen</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px] text-primary">directions_car</span>
+<span class="font-body-lg text-body-lg">Free Parking</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px] text-primary">ac_unit</span>
+<span class="font-body-lg text-body-lg">Air Conditioning</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px] text-primary">fitness_center</span>
+<span class="font-body-lg text-body-lg">Private Gym</span>
+</div>
+</div>
+<button class="mt-8 px-6 py-3 border-[1.5px] border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-primary-fixed/20 transition-colors">Show all 32 amenities</button>
+</section>
+<hr class="border-outline-variant/30">
+<!-- Room Types (Bento Style) -->
+<section>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-6">Available Arrangements</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Room Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Master Suite</h3>
+<p class="text-on-surface-variant">1 King Bed · Ocean View</p>
+</div>
+<span class="material-symbols-outlined text-primary">king_bed</span>
+</div>
+<div class="flex gap-2 flex-wrap mb-6">
+<span class="px-3 py-1 bg-primary-fixed/20 text-primary rounded-full font-label-md text-[12px]">En-suite Bathroom</span>
+<span class="px-3 py-1 bg-primary-fixed/20 text-primary rounded-full font-label-md text-[12px]">Private Balcony</span>
+</div>
+<button class="w-full py-2 bg-surface-container-low text-primary rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">Select Room</button>
+</div>
+<!-- Room Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Guest Villa Wing</h3>
+<p class="text-on-surface-variant">2 Queen Beds · Garden View</p>
+</div>
+<span class="material-symbols-outlined text-primary">bed</span>
+</div>
+<div class="flex gap-2 flex-wrap mb-6">
+<span class="px-3 py-1 bg-primary-fixed/20 text-primary rounded-full font-label-md text-[12px]">Shared Bathroom</span>
+<span class="px-3 py-1 bg-primary-fixed/20 text-primary rounded-full font-label-md text-[12px]">Direct Pool Access</span>
+</div>
+<button class="w-full py-2 bg-surface-container-low text-primary rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">Select Room</button>
+</div>
+</div>
+</section>
+<hr class="border-outline-variant/30">
+<!-- Location Map -->
+<section>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-6">Where you'll be</h2>
+<div class="w-full h-80 rounded-xl overflow-hidden bg-surface-container-low relative">
+<!-- Placeholder for map, using data-location as instructed -->
+<img alt="Map of Location" class="w-full h-full object-cover opacity-80" data-alt="A highly detailed, clean, modern map interface showing a coastal region with a pinpoint indicating a luxury villa location on the Amalfi Coast. The map style should be light, minimalist, and integrate seamlessly with a high-end UI design, utilizing soft grays, muted blues for water, and a distinct primary-colored teal marker." data-location="Amalfi Coast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBabr9dA4xZutHUBwUnui0n0TE9v0Vhrz8sEJKpO012KIILdMdwdvjsYXfj9N3S6xmMDL2J-C_BDnV0XLMs22fJ6Yya-NZMA0keOixey1WwCuIT-KGUTxQ7frR9lhxMOht1oStWkOZ8_OW_CYtOm1vwvyqw9SMAUlM71D4LZBntF_OG0_AYuUV_5CihzitTQiECl_WbZMZxvyDbFuzK3tqYEOIWHIlr_E1qmKXjPcjswRxBsUHgHgC-">
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
+<div class="w-4 h-4 bg-primary rounded-full shadow-lg"></div>
+</div>
+</div>
+</div>
+<p class="mt-4 text-on-surface-variant font-body-md text-body-md">Perched on the cliffs of the Amalfi Coast, offering uninterrupted views of the Tyrrhenian Sea. A short 10-minute drive to the town center.</p>
+</section>
+</div>
+<!-- Right Column: Sidebar / Booking Widget -->
+<div class="w-full lg:w-[400px]">
+<div class="sticky top-28 glass-panel rounded-2xl p-6 shadow-lg">
+<div class="flex justify-between items-baseline mb-6"><div class=""><span class="font-price-display text-price-display text-on-surface">Rp 1.450.000</span><span class="text-on-surface-variant font-body-md text-body-md"> / malam</span></div></div>
+<div class="border border-outline-variant rounded-xl overflow-hidden mb-6">
+<div class="flex border-b border-outline-variant">
+<div class="p-3 w-1/2 border-r border-outline-variant cursor-pointer hover:bg-surface-container-lowest transition-colors">
+<div class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Check-in</div>
+<div class="text-on-surface font-body-md text-body-md">Add date</div>
+</div>
+<div class="p-3 w-1/2 cursor-pointer hover:bg-surface-container-lowest transition-colors">
+<div class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Check-out</div>
+<div class="text-on-surface font-body-md text-body-md">Add date</div>
+</div>
+</div>
+<div class="p-3 cursor-pointer hover:bg-surface-container-lowest transition-colors flex justify-between items-center">
+<div>
+<div class="font-label-md text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Guests</div>
+<div class="text-on-surface font-body-md text-body-md">1 guest</div>
+</div>
+<span class="material-symbols-outlined text-outline">expand_more</span>
+</div>
+</div>
+<a href="{{DATA:SCREEN:SCREEN_5}}" class="w-full bg-primary text-on-primary py-4 rounded-xl font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-md text-lg flex items-center justify-center">Reserve</a>
+<p class="text-center text-on-surface-variant font-body-md text-[14px] mt-4">You won't be charged yet</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant w-full py-section-gap transition-colors duration-300">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">LuxeStay</span>
+</div>
+<div class="col-span-1 md:col-span-3 flex flex-wrap gap-x-8 gap-y-4 justify-start md:justify-end">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">About Us</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Careers</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Help Center</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary underline decoration-primary/30 transition-opacity duration-200" href="#">Contact</a>
+</div>
+<div class="col-span-1 md:col-span-4 mt-8 pt-8 border-t border-outline-variant/30 text-center md:text-left">
+<p class="font-body-md text-body-md text-primary dark:text-primary-fixed-dim">© 2024 LuxeStay Global. All rights reserved.</p>
+</div>
+</div>
+</footer>
+
+
+</body></html>

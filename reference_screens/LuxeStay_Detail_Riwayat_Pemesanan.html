@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detail Riwayat Pemesanan - LuxeStay</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#d8e3fb",
+                    "on-primary-container": "#d3f1ff",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed-dim": "#c4c7c9",
+                    "background": "#f9f9ff",
+                    "on-secondary-fixed-variant": "#444749",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#006781",
+                    "primary-container": "#0e7490",
+                    "outline": "#6f787d",
+                    "inverse-primary": "#81d1f0",
+                    "surface-bright": "#f9f9ff",
+                    "tertiary": "#764900",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#965f00",
+                    "primary": "#005a71",
+                    "surface-container-high": "#dee8ff",
+                    "on-primary-fixed-variant": "#004d62",
+                    "inverse-on-surface": "#ecf1ff",
+                    "primary-fixed": "#b9eaff",
+                    "surface-variant": "#d8e3fb",
+                    "secondary-container": "#e0e3e5",
+                    "primary-fixed-dim": "#81d1f0",
+                    "surface": "#f9f9ff",
+                    "inverse-surface": "#263143",
+                    "on-secondary-container": "#626567",
+                    "surface-dim": "#cfdaf2",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed": "#001f29",
+                    "on-tertiary-container": "#ffe9d4",
+                    "on-surface": "#111c2d",
+                    "on-secondary-fixed": "#191c1e",
+                    "outline-variant": "#bec8cd",
+                    "surface-container-low": "#f0f3ff",
+                    "secondary-fixed": "#e0e3e5",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-container": "#e7eeff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-surface-variant": "#3f484c",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-background": "#111c2d",
+                    "on-error": "#ffffff",
+                    "secondary": "#5c5f61"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "section-gap": "80px",
+                    "margin-desktop": "64px",
+                    "gutter": "24px",
+                    "margin-mobile": "20px",
+                    "card-gap": "24px"
+            },
+            "fontFamily": {
+                    "price-display": [
+                            "Manrope"
+                    ],
+                    "headline-xl": [
+                            "Manrope"
+                    ],
+                    "headline-lg": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Manrope"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "headline-xl-mobile": [
+                            "Manrope"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "price-display": [
+                            "20px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-xl": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-xl-mobile": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- TopNavBar (Suppressed due to contextual flow rule for detail/transactional screens) -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12">
+<!-- Header & Back Action -->
+<header class="flex items-center gap-4 mb-8">
+<button aria-label="Kembali ke Daftar Riwayat" class="p-2 rounded-full hover:bg-surface-variant transition-colors flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-headline-lg text-headline-lg md:font-headline-xl md:text-headline-xl text-on-surface">Detail Pemesanan</h1>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-card-gap">
+<!-- Left Column: Primary Details -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- Status & Booking ID Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-surface-container-high">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant mb-1">ID Pemesanan</p>
+<p class="font-headline-md text-headline-md text-on-surface">LX-8492-ST</p>
+</div>
+<div class="inline-flex items-center gap-2 bg-[#e6f4ea] text-[#137333] px-4 py-2 rounded-full font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Confirmed
+                    </div>
+</section>
+<!-- Property Details Bento Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-surface-container-high group">
+<div class="flex flex-col sm:flex-row">
+<div class="w-full sm:w-1/3 h-48 sm:h-auto relative overflow-hidden">
+<img alt="Villa Serenity Cliffside" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A luxurious modern villa perched on a cliffside in Santorini, Greece. The architecture features pristine white walls and smooth curves characteristic of Cycladic design. A pristine infinity pool reflects the bright, sunny Mediterranean sky. The scene is bathed in high-key natural light, evoking a premium, composed, and aspirational travel aesthetic perfect for a high-end hospitality platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmOlrqemplpAPeXCYxIfMLmhTyD6eRePYGJeoUYBCS6Jbi9BealEUrS20Vb4wUB8Y7P5_g6abCGI-bMjAvwQl3IoWGTsHqTLNPedeATH4NuElyEUvckR32b2X-nmBmMX89xoQPaykP9v3uBifbh7O5-2iyXgASYPVfomj3fuOULPiAaUx_toUeE4HzG7_9MO-pBZ8IVPvHIRwOziCr5nUc82rF4lzGJ74jQJI30fHoJiKvpBWHj-Ns"/>
+</div>
+<div class="p-6 flex flex-col justify-center sm:w-2/3">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Villa Serenity Cliffside</h2>
+<div class="flex items-start gap-2 text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-[20px] mt-0.5">location_on</span>
+<p class="font-body-md text-body-md">Oia 847 02, Santorini, Yunani<br/><span class="font-label-md text-label-md text-primary hover:underline cursor-pointer">Lihat di Peta</span></p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1 bg-surface-container-highest text-on-surface px-3 py-1 rounded-full font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">pool</span> Kolam Pribadi</span>
+<span class="inline-flex items-center gap-1 bg-surface-container-highest text-on-surface px-3 py-1 rounded-full font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">wifi</span> Free Wi-Fi</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Guest & Dates Details -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-surface-container-high grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">calendar_month</span> Jadwal Menginap
+                        </h3>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center pb-4 border-b border-surface-container-high">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Check-in</p>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold mt-1">15 Okt 2024</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Mulai 14:00</p>
+</div>
+<div class="bg-surface-container p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
+</div>
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface-variant">Check-out</p>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold mt-1">18 Okt 2024</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Hingga 12:00</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant"><span class="font-semibold text-on-surface">Durasi:</span> 3 Malam</p>
+</div>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">group</span> Detail Tamu
+                        </h3>
+<div class="flex flex-col gap-4">
+<div class="pb-4 border-b border-surface-container-high">
+<p class="font-label-md text-label-md text-on-surface-variant">Tamu Utama</p>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold mt-1">Budi Santoso</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">+62 812-3456-7890</p>
+</div>
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined">person</span>
+<p class="font-body-md text-body-md">2 Dewasa</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Actions / Utilities -->
+<section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-primary-container transition-colors shadow-sm hover:shadow-md">
+<span class="material-symbols-outlined text-[20px]">download</span> Unduh E-Tiket
+                    </button>
+<button class="bg-surface-container-lowest border-2 border-primary text-primary font-label-md text-label-md py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-container-low transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">qr_code_2</span> Tampilkan Barcode
+                    </button>
+<button class="bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-[20px]">help</span> Bantuan
+                    </button>
+</section>
+</div>
+<!-- Right Column: Payment Summary -->
+<div class="lg:col-span-4">
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-surface-container-high sticky top-24">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-6 flex items-center gap-2 border-b border-surface-container-high pb-4">
+<span class="material-symbols-outlined text-primary">receipt_long</span> Rincian Pembayaran
+                    </h3>
+<div class="flex flex-col gap-4 mb-6 text-on-surface font-body-md text-body-md">
+<div class="flex justify-between items-center">
+<span>Harga Kamar (3 Malam)</span>
+<span>Rp 3.000.000</span>
+</div>
+<div class="flex justify-between items-center">
+<span>Biaya Layanan &amp; Pajak</span>
+<span>Rp 450.000</span>
+</div>
+</div>
+<div class="border-t border-surface-container-high pt-4 mb-6">
+<div class="flex justify-between items-center">
+<span class="font-headline-md text-headline-md text-on-surface">Total</span>
+<span class="font-price-display text-price-display text-primary">Rp 3.450.000</span>
+</div>
+<p class="text-right text-sm text-on-surface-variant mt-1">Termasuk semua pajak</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex items-center gap-4">
+<div class="bg-surface-container-highest p-2 rounded-md">
+<span class="material-symbols-outlined text-primary">credit_card</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Metode Pembayaran</p>
+<p class="font-body-md text-body-md text-on-surface font-semibold">Kartu Kredit (Berakhir 12/25)</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-section-gap px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-gutter bg-surface-container-high dark:bg-surface-dim border-t border-outline-variant dark:border-outline opacity-90 hover:opacity-100 mt-12">
+<div class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">LuxeStay</div>
+<nav class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant dark:text-on-secondary-container font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-on-secondary-container font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-on-secondary-container font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Support Center</a>
+<a class="text-on-surface-variant dark:text-on-secondary-container font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Investor Relations</a>
+<a class="text-on-surface-variant dark:text-on-secondary-container font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Sustainability</a>
+</nav>
+<div class="text-on-surface-variant dark:text-on-secondary-container font-body-md text-body-md">
+            © 2024 LuxeStay Global Hospitality. All rights reserved.
+        </div>
+</footer>
+</body></html>
