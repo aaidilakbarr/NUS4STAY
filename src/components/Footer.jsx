@@ -9,7 +9,7 @@ export default function Footer() {
             <img
               src="/logo_nus4stay.svg"
               alt=""
-              className="h-9 w-9 object-contain"
+              className="h-25 w-25 object-contain"
             />
             <span className="font-headline-md text-headline-md font-bold text-primary">NUS4STAY</span>
           </div>

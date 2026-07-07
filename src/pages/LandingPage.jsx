@@ -10,12 +10,11 @@ export default function LandingPage() {
 
   useEffect(() => {
     async function loadData() {
-      const dests = await db.getDestinations();
       const props = await db.getProperties();
-      setDestinations(dests);
-      // Filter out serenity-cliffside from the main 3 featured on landing if we want,
-      // or just show the first 3 properties (Maldives, Swiss, Tuscany)
-      setFeaturedProperties(props.filter(p => p.id !== 'serenity-cliffside').slice(0, 3));
+      const topRated = props.sort((a, b) => b.rating - a.rating).slice(0, 4);
+      setDestinations(topRated);
+      const featured = props.sort((a, b) => b.rating - a.rating).slice(0, 3);
+      setFeaturedProperties(featured);
     }
     loadData();
   }, []);
@@ -76,7 +75,7 @@ export default function LandingPage() {
               <label className="font-label-md text-label-md text-on-surface-variant mb-1 uppercase text-[10px]">Check in - Check out</label>
               <input 
                 className="w-full bg-transparent border-none p-0 focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-outline outline-none" 
-                placeholder="Add dates (e.g. 12 - 19 Oct)" 
+                placeholder="Add dates" 
                 type="text"
                 value={searchDates}
                 onChange={(e) => setSearchDates(e.target.value)}
@@ -103,9 +102,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Popular Destinations (Bento Grid) */}
+      {/* Top-Rated Villas (Bento Grid) */}
       <section className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-8 text-left">Popular Destinations</h2>
+        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-8 text-left">Top Picked Villas</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-card-gap md:h-[600px] h-[1200px]">
           {destinations.map((dest, idx) => {
             // Determine bento layout classes based on index
@@ -117,7 +116,7 @@ export default function LandingPage() {
             return (
               <div 
                 key={dest.id}
-                className={bentoClass}
+                className={`${bentoClass} animate-fade-in-up transition-smooth ${idx === 0 ? 'stagger-1' : idx === 1 ? 'stagger-2' : idx === 2 ? 'stagger-3' : 'stagger-4'}`}
                 onClick={() => handleDestinationClick(dest.id)}
               >
                 <img 
@@ -142,7 +141,7 @@ export default function LandingPage() {
       <section className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto bg-surface-container-low rounded-[2rem] my-10">
         <div className="flex justify-between items-end mb-8 text-left">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Top-Rated Villas</h2>
+            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Top Rated Villas</h2>
             <p className="font-body-md text-body-md text-on-surface-variant">Handpicked luxury for your next getaway.</p>
           </div>
           <a 
@@ -156,7 +155,7 @@ export default function LandingPage() {
           {featuredProperties.map((prop) => (
             <div 
               key={prop.id}
-              className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all duration-300 group flex flex-col text-left"
+              className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-smooth group flex flex-col text-left animate-scale-in"
             >
               <div className="relative aspect-[4/3] overflow-hidden cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
                 <img 
@@ -203,7 +202,7 @@ export default function LandingPage() {
                     <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
                   </div>
                   <a 
-                    className="font-label-md text-label-md bg-transparent border border-primary text-primary px-5 py-2.5 rounded-full hover:bg-primary-fixed/10 transition-colors flex items-center justify-center font-bold active:scale-95 transition-transform" 
+                    className="font-label-md text-label-md bg-transparent border border-primary text-primary px-5 py-2.5 rounded-full hover:bg-primary-fixed/10 hover:-translate-y-0.5 transition-bounce flex items-center justify-center font-bold active:scale-95" 
                     href={`#/detail/${prop.id}`}
                   >
                     Book

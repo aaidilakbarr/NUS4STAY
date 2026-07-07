@@ -14,13 +14,13 @@ export default function Navbar({ currentPage }) {
           <a
             aria-label="NUS4STAY home"
             title="NUS4STAY"
-            className="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-outline-variant/60 bg-surface shadow-[0_8px_24px_rgba(23,28,21,0.06)] transition hover:-translate-y-0.5 hover:border-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95"
+            className="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-outline-variant/60 bg-surface shadow-[0_8px_24px_rgba(23,28,21,0.06)] transition-all hover:-translate-y-0.5 hover:scale-105 hover:border-primary/30 hover:shadow-[0_12px_32px_rgba(23,28,21,0.1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95"
             href="#/"
           >
             <img
               src="/logo_nus4stay.svg"
               alt=""
-              className="h-8 w-8 object-contain"
+              className="h-20 w-20 object-contain transition-transform duration-500 group-hover:rotate-[8deg]"
             />
             <span className="sr-only">NUS4STAY</span>
           </a>
@@ -35,10 +35,10 @@ export default function Navbar({ currentPage }) {
                 <a
                   key={item.href}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`font-label-md rounded-full px-4 py-2 text-xs transition ${
+                  className={`font-label-md rounded-full px-4 py-2 text-xs transition-all duration-300 ${
                     isActive
                       ? 'bg-surface text-primary shadow-sm ring-1 ring-outline-variant/50'
-                      : 'text-on-surface-variant hover:bg-surface/75 hover:text-on-surface'
+                      : 'text-on-surface-variant hover:bg-surface/75 hover:text-on-surface hover:translate-y-[-1px]'
                   }`}
                   href={item.href}
                 >
@@ -57,7 +57,7 @@ export default function Navbar({ currentPage }) {
             <span className="material-symbols-outlined text-[20px]">receipt_long</span>
             <span className="font-label-md hidden text-xs sm:inline">My Bookings</span>
           </a>
-          <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
+          <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
             <span className="material-symbols-outlined text-[19px]">add_home</span>
             <span className="font-label-md hidden text-xs sm:inline">List Property</span>
           </button>

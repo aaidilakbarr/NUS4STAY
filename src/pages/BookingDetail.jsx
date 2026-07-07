@@ -49,6 +49,211 @@ export default function BookingDetail() {
     return nights > 0 ? nights : 1;
   };
 
+  const getPaymentMethodLabel = (method) => {
+    if (method === 'transfer') return 'Transfer Bank';
+    if (method === 'card') return 'Kartu Kredit';
+    return 'E-Wallet';
+  };
+
+  const escapeHtml = (value) => {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  const handlePrintInvoice = () => {
+    if (!booking) return;
+
+    const invoiceNights = calculateNights(booking.checkIn, booking.checkOut);
+    const paymentMethod = getPaymentMethodLabel(booking.paymentMethod);
+    const issuedAt = new Intl.DateTimeFormat('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }).format(new Date());
+
+    const invoiceWindow = window.open('', '_blank', 'width=900,height=1200');
+    if (!invoiceWindow) {
+      alert('Pop-up diblokir. Izinkan pop-up untuk mencetak invoice.');
+      return;
+    }
+
+    invoiceWindow.document.write(`
+      <!doctype html>
+      <html lang="id">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Invoice ${escapeHtml(booking.id)} - NUS4STAY</title>
+          <style>
+            @page { size: A4; margin: 18mm; }
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              color: #171c15;
+              background: #ffffff;
+              font-family: Inter, Arial, sans-serif;
+              font-size: 13px;
+              line-height: 1.5;
+            }
+            .invoice { max-width: 760px; margin: 0 auto; }
+            .header {
+              display: flex;
+              align-items: flex-start;
+              justify-content: space-between;
+              gap: 24px;
+              padding-bottom: 24px;
+              border-bottom: 1px solid #dfe5dc;
+            }
+            .brand { display: flex; align-items: center; gap: 12px; }
+            .brand img { width: 46px; height: 46px; object-fit: contain; }
+            .brand-title { font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: #344E2B; }
+            .muted { color: #657060; }
+            .invoice-title { text-align: right; }
+            .invoice-title h1 { margin: 0 0 4px; font-size: 28px; color: #344E2B; }
+            .invoice-title p { margin: 0; }
+            .section { padding: 22px 0; border-bottom: 1px solid #edf0eb; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+            .label { margin: 0 0 4px; color: #657060; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+            .value { margin: 0; font-weight: 700; }
+            .property { display: grid; grid-template-columns: 128px 1fr; gap: 18px; align-items: center; }
+            .property img { width: 128px; height: 96px; border-radius: 10px; object-fit: cover; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th {
+              padding: 10px 0;
+              border-bottom: 1px solid #dfe5dc;
+              color: #657060;
+              font-size: 11px;
+              letter-spacing: 0.08em;
+              text-align: left;
+              text-transform: uppercase;
+            }
+            td { padding: 14px 0; border-bottom: 1px solid #edf0eb; vertical-align: top; }
+            .amount { text-align: right; font-weight: 700; }
+            .total-row td {
+              border-bottom: 0;
+              color: #344E2B;
+              font-size: 18px;
+              font-weight: 800;
+            }
+            .note {
+              margin-top: 24px;
+              padding: 14px 16px;
+              border: 1px solid #dfe5dc;
+              border-radius: 10px;
+              background: #fafbf9;
+              color: #4f554c;
+            }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <main class="invoice">
+            <header class="header">
+              <div class="brand">
+                <img src="/logo_nus4stay.svg" alt="NUS4STAY" />
+                <div>
+                  <div class="brand-title">NUS4STAY</div>
+                  <p class="muted" style="margin: 2px 0 0;">Premium Hotel & Villa Booking</p>
+                </div>
+              </div>
+              <div class="invoice-title">
+                <h1>Invoice</h1>
+                <p class="muted">Tanggal terbit: ${escapeHtml(issuedAt)}</p>
+                <p class="value">#${escapeHtml(booking.id)}</p>
+              </div>
+            </header>
+
+            <section class="section grid">
+              <div>
+                <p class="label">Ditagihkan kepada</p>
+                <p class="value">${escapeHtml(booking.guestName)}</p>
+                <p class="muted">${escapeHtml(booking.guestEmail)}</p>
+                <p class="muted">${escapeHtml(booking.guestPhone)}</p>
+              </div>
+              <div>
+                <p class="label">Status pembayaran</p>
+                <p class="value">${escapeHtml(booking.status)}</p>
+                <p class="muted">${escapeHtml(paymentMethod)}</p>
+              </div>
+            </section>
+
+            <section class="section property">
+              <img src="${escapeHtml(booking.propertyImage)}" alt="${escapeHtml(booking.propertyName)}" />
+              <div>
+                <p class="label">Properti</p>
+                <p class="value">${escapeHtml(booking.propertyName)}</p>
+                <p class="muted">${escapeHtml(booking.propertyLocation)}</p>
+                <p class="muted">${escapeHtml(booking.roomName)} · ${escapeHtml(booking.guests)}</p>
+              </div>
+            </section>
+
+            <section class="section grid">
+              <div>
+                <p class="label">Check-in</p>
+                <p class="value">${escapeHtml(booking.checkIn)}</p>
+                <p class="muted">Dari 14:00</p>
+              </div>
+              <div>
+                <p class="label">Check-out</p>
+                <p class="value">${escapeHtml(booking.checkOut)}</p>
+                <p class="muted">Sebelum 12:00</p>
+              </div>
+            </section>
+
+            <section class="section">
+              <p class="label">Rincian pembayaran</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Deskripsi</th>
+                    <th class="amount">Jumlah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <strong>Harga kamar</strong><br />
+                      <span class="muted">${escapeHtml(invoiceNights)} malam · ${escapeHtml(booking.roomName)}</span>
+                    </td>
+                    <td class="amount">${escapeHtml(formatPrice(booking.totalPrice))}</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <strong>Pajak & Biaya Layanan</strong><br />
+                      <span class="muted">Termasuk dalam total pembayaran</span>
+                    </td>
+                    <td class="amount">Rp 0</td>
+                  </tr>
+                  <tr class="total-row">
+                    <td>Total terbayar</td>
+                    <td class="amount">${escapeHtml(formatPrice(booking.totalPrice))}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <p class="note">
+              Invoice ini diterbitkan otomatis oleh NUS4STAY untuk bukti pemesanan dan pembayaran.
+            </p>
+          </main>
+          <script>
+            window.addEventListener('load', () => {
+              window.print();
+              setTimeout(() => window.close(), 500);
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    invoiceWindow.document.close();
+  };
+
   if (loading) {
     return <div className="py-20 text-center font-body-md text-on-surface-variant">Loading booking details...</div>;
   }
@@ -173,31 +378,25 @@ export default function BookingDetail() {
 
         </div>
 
-        {/* Right Column: QR Boarding Pass & Invoice Summary */}
+        {/* Right Column: Invoice Actions & Summary */}
         <aside className="lg:col-span-4 space-y-6">
-          
-          {/* Ticket Pass QR Mock */}
-          {booking.status === 'Confirmed' && (
-            <div className="bg-primary text-on-primary rounded-2xl p-6 shadow-sm flex flex-col items-center text-center space-y-6">
+          <div className="bg-primary text-on-primary rounded-2xl p-6 shadow-sm space-y-5">
+            <div className="flex items-start gap-3">
+              <span className="material-symbols-outlined text-[28px]">receipt_long</span>
               <div>
-                <h3 className="font-headline-md text-base font-bold">NUS4STAY Boarding Pass</h3>
-                <p className="text-xs opacity-80 mt-1">Scan kode QR ini saat check-in di properti</p>
-              </div>
-
-              {/* QR Mockup Box */}
-              <div className="bg-white p-4 rounded-xl shadow-inner flex items-center justify-center aspect-square w-40">
-                {/* SVG mock QR code for high premium detail */}
-                <svg className="w-full h-full text-primary" viewBox="0 0 100 100">
-                  <path fill="currentColor" d="M0 0h30v30H0zm40 0h20v20H40zm30 0h30v30H70zM10 10v10h10V10zm70 0v10h10V10zM0 40h20v25H0zm30 40h10v20H30zm50 0h20v20H80zM0 70h30v30H0zm10 10v10h10V100zm60-30h10v10H70zm20 0h10v20H90zm-40-5h20v10H50zm10 20h20v10H60zM40 30h10v20H40zm25 15h10v10H65zm15-15h20v10H80zm-15 45h10v10H65z" />
-                </svg>
-              </div>
-
-              <div className="border-t border-white/20 w-full pt-4 text-xs font-mono">
-                <p>N4-TICKET-SERIAL</p>
-                <p className="mt-1 font-bold">{booking.id}</p>
+                <h3 className="font-headline-md text-base font-bold">Invoice Pemesanan</h3>
+                <p className="text-xs opacity-80 mt-1">#{booking.id}</p>
               </div>
             </div>
-          )}
+
+            <button
+              onClick={handlePrintInvoice}
+              className="w-full bg-on-primary text-primary py-3 rounded-xl font-label-md text-xs font-bold hover:bg-primary-fixed transition-colors active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+              Cetak Invoice PDF
+            </button>
+          </div>
 
           {/* Pricing Invoice Summary */}
           <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 shadow-sm space-y-4">
@@ -222,7 +421,7 @@ export default function BookingDetail() {
 
             <div className="bg-surface rounded-lg p-3 border border-outline-variant/20 flex items-center gap-2 text-xs text-on-surface-variant mt-4">
               <span className="material-symbols-outlined text-primary text-base">verified</span>
-              <span>Lunas via {booking.paymentMethod === 'transfer' ? 'Transfer Bank' : booking.paymentMethod === 'card' ? 'Kartu Kredit' : 'E-Wallet'}</span>
+              <span>Lunas via {getPaymentMethodLabel(booking.paymentMethod)}</span>
             </div>
           </div>
 

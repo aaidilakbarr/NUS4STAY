@@ -11,6 +11,7 @@ export default function SearchResults() {
   const [ratingFilter, setRatingFilter] = useState(0);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [tempSearchInput, setTempSearchInput] = useState('');
+  const [debouncedSearchInput, setDebouncedSearchInput] = useState('');
 
   // Extract query from Hash URL
   useEffect(() => {
@@ -49,6 +50,28 @@ export default function SearchResults() {
     return () => window.removeEventListener('hashchange', parseHash);
   }, [priceFilter, ratingFilter, selectedAmenities]);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchInput(tempSearchInput.trim());
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [tempSearchInput]);
+
+  useEffect(() => {
+    const query = new URLSearchParams();
+
+    if (debouncedSearchInput) {
+      query.set('search', debouncedSearchInput);
+    }
+
+    const nextHash = query.toString() ? `#/search?${query.toString()}` : '#/search';
+
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    }
+  }, [debouncedSearchInput]);
+
   const handleApplyFilters = () => {
     // When filters are clicked, the dependencies trigger reload automatically,
     // but we can also display a notification or toast
@@ -57,7 +80,6 @@ export default function SearchResults() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    window.location.hash = `#/search?search=${tempSearchInput}`;
   };
 
   const toggleAmenity = (amenity) => {
