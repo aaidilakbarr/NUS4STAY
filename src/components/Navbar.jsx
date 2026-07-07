@@ -4,6 +4,7 @@ const navItems = [
   { href: '#/', page: 'landing', label: 'Discover' },
   { href: '#/search', page: 'search', label: 'Search' },
   { href: '#/history', page: 'history', label: 'My Bookings' },
+  { href: '#/login', page: 'login', label: 'Login' },
 ];
 
 export default function Navbar({ currentPage }) {
@@ -57,10 +58,10 @@ export default function Navbar({ currentPage }) {
             <span className="material-symbols-outlined text-[20px]">receipt_long</span>
             <span className="font-label-md hidden text-xs sm:inline">My Bookings</span>
           </a>
-          <button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
-            <span className="material-symbols-outlined text-[19px]">add_home</span>
-            <span className="font-label-md hidden text-xs sm:inline">List Property</span>
-          </button>
+          <a href="#/login" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
+            <span className="material-symbols-outlined text-[19px]">login</span>
+            <span className="font-label-md hidden text-xs sm:inline">Login</span>
+          </a>
         </div>
       </div>
     </header>

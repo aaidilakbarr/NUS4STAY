@@ -9,6 +9,8 @@ import Checkout from './pages/Checkout';
 import PendingPayment from './pages/PendingPayment';
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
+import LoginPage from './pages/LoginPage';
+import { getRouteInfo } from './routes/getRouteInfo';
 
 function App() {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#/');
@@ -28,32 +30,7 @@ function App() {
   }, []);
 
   // Parse page from hash path
-  const getPageInfo = () => {
-    const path = currentRoute.split('?')[0]; // Strip query params
-    
-    if (path.startsWith('#/detail/')) {
-      return { page: 'detail', showNav: true, showFooter: true };
-    }
-    if (path.startsWith('#/room/')) {
-      return { page: 'room', showNav: true, showFooter: true };
-    }
-    if (path.startsWith('#/checkout/')) {
-      return { page: 'checkout', showNav: true, showFooter: false };
-    }
-    if (path.startsWith('#/pending/')) {
-      return { page: 'pending', showNav: false, showFooter: false };
-    }
-    if (path.startsWith('#/history-detail/')) {
-      return { page: 'history-detail', showNav: false, showFooter: true };
-    }
-    if (path === '#/history') {
-      return { page: 'history', showNav: true, showFooter: true };
-    }
-    if (path.startsWith('#/search')) {
-      return { page: 'search', showNav: true, showFooter: true };
-    }
-    return { page: 'landing', showNav: true, showFooter: true };
-  };
+  const getPageInfo = () => getRouteInfo(currentRoute);
 
   const { page, showNav, showFooter } = getPageInfo();
 
@@ -75,6 +52,8 @@ function App() {
         return <BookingHistory />;
       case 'history-detail':
         return <BookingDetail />;
+      case 'login':
+        return <LoginPage />;
       default:
         return <LandingPage />;
     }
