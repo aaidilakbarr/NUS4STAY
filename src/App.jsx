@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import RoleGuard from './components/RoleGuard';
 import LandingPage from './pages/LandingPage';
 import SearchResults from './pages/SearchResults';
 import PropertyDetail from './pages/PropertyDetail';
@@ -10,7 +11,21 @@ import PendingPayment from './pages/PendingPayment';
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
 import LoginPage from './pages/LoginPage';
+import AdminProperties from './pages/AdminProperties';
 import { getRouteInfo } from './routes/getRouteInfo';
+
+const pageComponents = {
+  landing: LandingPage,
+  search: SearchResults,
+  detail: PropertyDetail,
+  room: RoomDetail,
+  checkout: Checkout,
+  pending: PendingPayment,
+  history: BookingHistory,
+  'history-detail': BookingDetail,
+  login: LoginPage,
+  'admin-properties': AdminProperties,
+};
 
 function App() {
   const [currentRoute, setCurrentRoute] = useState(window.location.hash || '#/');
@@ -20,7 +35,6 @@ function App() {
       setCurrentRoute(window.location.hash || '#/');
     };
 
-    // Ensure we start with a hash route
     if (!window.location.hash) {
       window.location.hash = '#/';
     }
@@ -29,42 +43,22 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Parse page from hash path
-  const getPageInfo = () => getRouteInfo(currentRoute);
+  const { page, showNav, showFooter, protected: isProtected, roles } = getRouteInfo(currentRoute);
 
-  const { page, showNav, showFooter } = getPageInfo();
+  const PageComponent = pageComponents[page] ?? LandingPage;
 
-  const renderPage = () => {
-    switch (page) {
-      case 'landing':
-        return <LandingPage />;
-      case 'search':
-        return <SearchResults />;
-      case 'detail':
-        return <PropertyDetail />;
-      case 'room':
-        return <RoomDetail />;
-      case 'checkout':
-        return <Checkout />;
-      case 'pending':
-        return <PendingPayment />;
-      case 'history':
-        return <BookingHistory />;
-      case 'history-detail':
-        return <BookingDetail />;
-      case 'login':
-        return <LoginPage />;
-      default:
-        return <LandingPage />;
-    }
-  };
+  const pageContent = isProtected ? (
+    <RoleGuard roles={roles}>
+      <PageComponent />
+    </RoleGuard>
+  ) : (
+    <PageComponent />
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background font-body-md text-body-md text-on-background">
       {showNav && <Navbar currentPage={page} />}
-      <div className="flex-grow">
-        {renderPage()}
-      </div>
+      <div className="flex-grow">{pageContent}</div>
       {showFooter && <Footer />}
     </div>
   );

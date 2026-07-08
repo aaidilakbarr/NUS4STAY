@@ -1,4 +1,6 @@
 import React from 'react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/useAuth';
 
 const navItems = [
   { href: '#/', page: 'landing', label: 'Discover' },
@@ -7,6 +9,13 @@ const navItems = [
 ];
 
 export default function Navbar({ currentPage }) {
+  const { isAuthenticated, user, role } = useAuth();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.hash = '#/';
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-outline-variant/40 bg-surface/85 text-on-surface shadow-[0_12px_40px_rgba(23,28,21,0.04)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-container-max items-center justify-between gap-4 px-margin-mobile md:px-margin-desktop">
@@ -49,6 +58,16 @@ export default function Navbar({ currentPage }) {
           </nav>
         </div>
         <div className="flex items-center gap-2 md:gap-3">
+          {role === 'admin' && (
+            <a
+              href="#/admin/properties"
+              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary/40 bg-primary-fixed/20 px-3 text-primary transition hover:border-primary hover:bg-primary-fixed/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 sm:px-3"
+              aria-label="Admin Panel"
+            >
+              <span className="material-symbols-outlined icon-pro text-[18px]">admin_panel_settings</span>
+              <span className="font-label-md hidden text-xs sm:inline">Admin</span>
+            </a>
+          )}
           <a
             href="#/history"
             className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-transparent px-2 text-on-surface-variant transition hover:border-outline-variant/60 hover:bg-surface-container-low hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 sm:px-3"
@@ -59,10 +78,21 @@ export default function Navbar({ currentPage }) {
             </span>
             <span className="font-label-md hidden text-xs sm:inline">My Bookings</span>
           </a>
-          <a href="#/login" className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
-            <span className="material-symbols-outlined icon-pro text-[19px]">login</span>
-            <span className="font-label-md hidden text-xs sm:inline">Login</span>
-          </a>
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4"
+            >
+              <span className="material-symbols-outlined icon-pro text-[19px]">logout</span>
+              <span className="font-label-md hidden text-xs sm:inline">{user?.email ?? 'Logout'}</span>
+            </button>
+          ) : (
+            <a href="#/login" className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
+              <span className="material-symbols-outlined icon-pro text-[19px]">login</span>
+              <span className="font-label-md hidden text-xs sm:inline">Login</span>
+            </a>
+          )}
         </div>
       </div>
     </header>

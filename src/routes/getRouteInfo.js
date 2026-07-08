@@ -1,29 +1,21 @@
+const routes = [
+  { pattern: /^#\/detail\//,              page: 'detail',          showNav: true,  showFooter: true, protected: false, roles: [] },
+  { pattern: /^#\/room\//,                page: 'room',            showNav: true,  showFooter: true, protected: false, roles: [] },
+  { pattern: /^#\/checkout\//,            page: 'checkout',        showNav: true,  showFooter: false, protected: true, roles: ['guest'] },
+  { pattern: /^#\/pending\//,             page: 'pending',         showNav: false, showFooter: false, protected: true, roles: ['guest'] },
+  { pattern: /^#\/history-detail\//,      page: 'history-detail',  showNav: false, showFooter: true, protected: true, roles: ['guest'] },
+  { pattern: /^#\/login$/,                page: 'login',           showNav: true,  showFooter: false, protected: false, roles: [] },
+  { pattern: /^#\/history$/,              page: 'history',         showNav: true,  showFooter: true, protected: true, roles: ['guest'] },
+  { pattern: /^#\/search/,                page: 'search',          showNav: true,  showFooter: true, protected: false, roles: [] },
+  { pattern: /^#\/admin\/properties$/,    page: 'admin-properties',showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
+];
+
 export function getRouteInfo(currentRoute) {
   const path = currentRoute.split('?')[0];
-
-  if (path.startsWith('#/detail/')) {
-    return { page: 'detail', showNav: true, showFooter: true };
+  for (const route of routes) {
+    if (route.pattern.test(path)) {
+      return { ...route };
+    }
   }
-  if (path.startsWith('#/room/')) {
-    return { page: 'room', showNav: true, showFooter: true };
-  }
-  if (path.startsWith('#/checkout/')) {
-    return { page: 'checkout', showNav: true, showFooter: false };
-  }
-  if (path.startsWith('#/pending/')) {
-    return { page: 'pending', showNav: false, showFooter: false };
-  }
-  if (path.startsWith('#/history-detail/')) {
-    return { page: 'history-detail', showNav: false, showFooter: true };
-  }
-  if (path === '#/login') {
-    return { page: 'login', showNav: true, showFooter: false };
-  }
-  if (path === '#/history') {
-    return { page: 'history', showNav: true, showFooter: true };
-  }
-  if (path.startsWith('#/search')) {
-    return { page: 'search', showNav: true, showFooter: true };
-  }
-  return { page: 'landing', showNav: true, showFooter: true };
+  return { page: 'landing', showNav: true, showFooter: true, protected: false };
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/useAuth';
 import heroImage from '../assets/hero.png';
 
 const modeContent = {
@@ -46,6 +47,7 @@ export default function LoginPage() {
   const [messageType, setMessageType] = useState('info');
   const [registerModal, setRegisterModal] = useState({ open: false, success: false, text: '' });
   const modalCloseRef = useRef(null);
+  useAuth();
 
   const currentContent = modeContent[mode];
 
