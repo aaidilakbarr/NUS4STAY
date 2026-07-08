@@ -113,7 +113,7 @@ export default function SearchResults() {
           <form onSubmit={handleSearchSubmit} className="flex flex-col gap-2">
             <label className="font-label-md text-label-md text-on-surface font-semibold">Change Destination</label>
             <div className="flex items-center bg-surface rounded-lg px-3 py-2 border border-outline-variant focus-within:border-primary">
-              <span className="material-symbols-outlined text-outline text-lg">search</span>
+              <span className="material-symbols-outlined icon-pro text-lg text-outline">search</span>
               <input 
                 className="bg-transparent border-none text-sm w-full outline-none ml-2 focus:ring-0" 
                 placeholder="Where to?" 
@@ -150,13 +150,18 @@ export default function SearchResults() {
                   key={rating}
                   type="button"
                   onClick={() => setRatingFilter(rating)}
-                  className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
+                  className={`flex-1 inline-flex h-9 cursor-pointer items-center justify-center gap-1 rounded-lg border text-xs font-semibold transition-all ${
                     ratingFilter === rating
                       ? 'bg-primary text-on-primary border-primary'
                       : 'bg-surface border-outline-variant hover:bg-surface-container-low text-on-surface'
                   }`}
                 >
-                  {rating === 0 ? 'Any' : `${rating}★`}
+                  {rating === 0 ? 'Any' : (
+                    <>
+                      {rating}
+                      <span className="material-symbols-outlined icon-pro fill-1 text-[14px] text-tertiary-fixed-dim">star</span>
+                    </>
+                  )}
                 </button>
               ))}
             </div>
@@ -196,8 +201,8 @@ export default function SearchResults() {
         {/* Results Header Bar */}
         <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-level-1 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="bg-primary/10 p-2 rounded-full text-primary flex items-center justify-center">
-              <span className="material-symbols-outlined">search</span>
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/10 bg-primary-fixed/35 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
+              <span className="material-symbols-outlined icon-pro text-[21px]">search</span>
             </div>
             <div>
               <h1 className="font-headline-md text-headline-md text-on-surface capitalize">Stays in {titleLocation}</h1>
@@ -218,7 +223,7 @@ export default function SearchResults() {
                 onClick={() => clearAmenity(amenity)}
                 className="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1 cursor-pointer hover:bg-primary/20 transition-all font-semibold"
               >
-                {amenity} <span className="material-symbols-outlined text-[14px]">close</span>
+                {amenity} <span className="material-symbols-outlined icon-pro text-[14px]">close</span>
               </span>
             ))}
             <button 
@@ -235,7 +240,9 @@ export default function SearchResults() {
           <div className="py-20 text-center font-body-md text-on-surface-variant">Loading properties...</div>
         ) : properties.length === 0 ? (
           <div className="bg-surface-container-low rounded-xl p-12 text-center border border-dashed border-outline-variant">
-            <span className="material-symbols-outlined text-[48px] text-outline mb-2">hotel</span>
+            <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface text-outline shadow-sm">
+              <span className="material-symbols-outlined icon-pro text-[32px]">hotel</span>
+            </span>
             <h3 className="font-headline-md text-lg text-on-surface mb-1 font-bold">No stays found</h3>
             <p className="font-body-md text-sm text-on-surface-variant max-w-sm mx-auto">
               Try adjusting your price filters, selecting fewer amenities, or searching for a different destination.
@@ -256,7 +263,7 @@ export default function SearchResults() {
                     src={prop.image} 
                   />
                   <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                    <span className="material-symbols-outlined text-tertiary-fixed-dim text-sm fill-1">star</span>
+                    <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
                     <span className="font-label-md text-label-md text-on-surface">{prop.rating}</span>
                   </div>
                 </div>
@@ -271,7 +278,7 @@ export default function SearchResults() {
                       {prop.name}
                     </h3>
                     <div className="flex items-center gap-1 text-on-surface-variant mb-4 mt-2">
-                      <span className="material-symbols-outlined text-[16px]">location_on</span>
+                      <span className="material-symbols-outlined icon-pro text-[16px] text-primary">location_on</span>
                       <span className="font-body-md text-body-md text-sm">{prop.location}</span>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -298,6 +305,7 @@ export default function SearchResults() {
                       href={`#/detail/${prop.id}`}
                     >
                       View Details
+                      <span className="material-symbols-outlined icon-pro ml-1 text-[16px]">arrow_forward</span>
                     </a>
                   </div>
                 </div>

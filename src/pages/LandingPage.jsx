@@ -95,7 +95,7 @@ export default function LandingPage() {
               type="submit"
               className="w-full md:w-auto bg-primary hover:bg-surface-tint text-on-primary rounded-full px-8 py-4 flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 shadow-md"
             >
-              <span className="material-symbols-outlined fill-1 text-[20px]">search</span>
+              <span className="material-symbols-outlined icon-pro fill-1 text-[20px]">search</span>
               <span className="font-label-md text-label-md">Search</span>
             </button>
           </form>
@@ -148,7 +148,7 @@ export default function LandingPage() {
             href="#/search" 
             className="hidden md:flex items-center gap-2 text-primary font-label-md text-label-md hover:opacity-80 transition-all font-semibold"
           >
-            View All <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            View All <span className="material-symbols-outlined icon-pro text-[18px]">arrow_forward</span>
           </a>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-card-gap">
@@ -164,7 +164,7 @@ export default function LandingPage() {
                   src={prop.image} 
                 />
                 <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                  <span className="material-symbols-outlined text-tertiary-fixed-dim text-sm fill-1">star</span>
+                  <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
                   <span className="font-label-md text-label-md text-on-surface">{prop.rating}</span>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function LandingPage() {
                     {prop.name}
                   </h3>
                   <div className="flex items-center gap-1 text-on-surface-variant mb-4 mt-2">
-                    <span className="material-symbols-outlined text-[16px]">location_on</span>
+                    <span className="material-symbols-outlined icon-pro text-[16px] text-primary">location_on</span>
                     <span className="font-body-md text-body-md text-sm">{prop.location}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-6">
@@ -186,7 +186,7 @@ export default function LandingPage() {
                         key={index}
                         className="bg-primary-fixed/20 text-primary px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1"
                       >
-                        <span className="material-symbols-outlined text-[14px]">
+                        <span className="material-symbols-outlined icon-pro text-[14px]">
                           {amenity.toLowerCase().includes('pool') ? 'pool' : 'waves'}
                         </span> 
                         {amenity}
