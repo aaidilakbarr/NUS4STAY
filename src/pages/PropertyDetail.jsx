@@ -27,6 +27,10 @@ export default function PropertyDetail() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price).replace("IDR", "Rp");
   };
 
+  const galleryImages = property?.images?.length
+    ? property.images
+    : [property?.image].filter(Boolean);
+
   if (loading) {
     return <div className="py-20 text-center font-body-md text-on-surface-variant">Loading property details...</div>;
   }
@@ -70,23 +74,31 @@ export default function PropertyDetail() {
           <img 
             className="w-full h-full object-cover" 
             alt={property.name} 
-            src={property.image} 
+            src={galleryImages[0] || property.image} 
           />
         </div>
         {/* Secondary images */}
         <div className="relative rounded-xl overflow-hidden shadow-sm hidden md:block">
-          <img 
-            className="w-full h-full object-cover" 
-            alt="Secondary View" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsc5jf1_kaXY_cBC2FjtybWt36Y6otnwwFTG-mVetccMP0id9p14q2aOSPH_evhzlsgrsjALLRzEhv_vlZqAcNs7hh19BAf0Lzw1FPa-Oi7rJ35k0OjobgUkhS81SyxzNK8P1k7Pur0G5H2NUtE9L5sXXc1tXXJxivrhrdGOBYWn7jOBKY4uIncKxJFxEv67qiN6qMXWUIpW8RZdLv9I5Px51DnqLEXkOytpwyMuG22wTSfbvxBY0D" 
-          />
+          {galleryImages[1] ? (
+            <img 
+              className="w-full h-full object-cover" 
+              alt={`${property.name} secondary view`} 
+              src={galleryImages[1]} 
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-surface-container-low text-sm text-outline">Belum ada gambar pendukung</div>
+          )}
         </div>
         <div className="relative rounded-xl overflow-hidden shadow-sm hidden md:block">
-          <img 
-            className="w-full h-full object-cover" 
-            alt="Tertiary View" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqAAEkV9HUXIDbdwIEPmJqnpANFv-r6bw7XX1RMJgZby53nw7als7yY5Nlb8uL1wt5Whq1xAEelgVoSO3BGJBWi2FhDEdqoPrhzFQqM3IuJJ4BEA_-nkP4Ac_y9DzmmpbV8uQeQ7na7de4rzVXS_S54WttB-33wfzDuY-WWN_bJ7hSnHKL8cL-ZXwP2Du--ABkorNPK00_uTTfJyrW_bUSgCcsgnM7_4PnX2F4weRAgT_8GyPlNiRi" 
-          />
+          {galleryImages[2] ? (
+            <img 
+              className="w-full h-full object-cover" 
+              alt={`${property.name} tertiary view`} 
+              src={galleryImages[2]} 
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-surface-container-low text-sm text-outline">Belum ada gambar pendukung</div>
+          )}
         </div>
       </div>
 

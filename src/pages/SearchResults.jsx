@@ -7,7 +7,7 @@ export default function SearchResults() {
   const [searchParams, setSearchParams] = useState({ search: '', region: '' });
   
   // Local Filter States
-  const [priceFilter, setPriceFilter] = useState(2000000);
+  const [priceFilter, setPriceFilter] = useState(3000000);
   const [ratingFilter, setRatingFilter] = useState(0);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [tempSearchInput, setTempSearchInput] = useState('');

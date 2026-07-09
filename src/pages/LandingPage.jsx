@@ -28,8 +28,18 @@ export default function LandingPage() {
     window.location.hash = `#/search?${query.toString()}`;
   };
 
-  const handleDestinationClick = (region) => {
-    window.location.hash = `#/search?region=${region}`;
+  const handleDestinationClick = (property) => {
+    const region = property.region?.trim();
+    const search = property.location?.trim() || property.name?.trim() || '';
+    const query = new URLSearchParams();
+
+    if (region) {
+      query.set('region', region);
+    } else if (search) {
+      query.set('search', search);
+    }
+
+    window.location.hash = `#/search?${query.toString()}`;
   };
 
   const formatPrice = (price) => {
@@ -117,7 +127,7 @@ export default function LandingPage() {
               <div 
                 key={dest.id}
                 className={`${bentoClass} animate-fade-in-up transition-smooth ${idx === 0 ? 'stagger-1' : idx === 1 ? 'stagger-2' : idx === 2 ? 'stagger-3' : 'stagger-4'}`}
-                onClick={() => handleDestinationClick(dest.id)}
+                onClick={() => handleDestinationClick(dest)}
               >
                 <img 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 

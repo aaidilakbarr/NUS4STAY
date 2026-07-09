@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { useAuth } from '../contexts/useAuth';
 
 export default function BookingHistory() {
+  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -9,16 +11,15 @@ export default function BookingHistory() {
     async function loadBookings() {
       setLoading(true);
       const data = await db.getBookingHistory();
-      // Sort: newest bookings first
       data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setBookings(data);
       setLoading(false);
     }
-    
+
     loadBookings();
     window.addEventListener('hashchange', loadBookings);
     return () => window.removeEventListener('hashchange', loadBookings);
-  }, []);
+  }, [user?.id]);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price).replace("IDR", "Rp");

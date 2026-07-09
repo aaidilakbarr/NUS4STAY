@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { useAuth } from '../contexts/useAuth';
 
 export default function BookingDetail() {
+  const { user } = useAuth();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -263,6 +265,7 @@ export default function BookingDetail() {
       <div className="py-20 text-center text-on-surface-variant">
         <span className="material-symbols-outlined text-[48px] text-error mb-2">warning</span>
         <h3 className="font-headline-md text-lg font-bold mb-1">Booking Not Found</h3>
+        <p className="mb-4 text-sm">Data booking tidak ditemukan untuk akun ini.</p>
         <a href="#/history" className="text-primary underline">Return to Booking History</a>
       </div>
     );
