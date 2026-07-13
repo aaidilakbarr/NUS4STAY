@@ -22,6 +22,8 @@ const mapPropertyRecord = (property, rooms = property.rooms) => {
   return {
     ...propertyWithoutRooms,
     price: getLowestRoomPrice(normalizedRooms, property.price),
+    rating: Number(property.rating || 0),
+    reviewCount: Number(property.review_count || 0),
     amenities: Array.isArray(property.amenities) ? property.amenities : [],
     images: Array.isArray(property.images) && property.images.length > 0
       ? property.images
@@ -82,6 +84,7 @@ const BOOKING_SELECT = `
   total_price,
   booking_status,
   payment_status,
+  paid_at,
   expires_at,
   expired_at,
   inventory_released_at,
@@ -89,7 +92,8 @@ const BOOKING_SELECT = `
   created_at,
   updated_at,
   properties(name, location, image, images),
-  rooms(name, image)
+  rooms(name, image),
+  property_reviews(review_id, rating, comment, created_at)
 `;
 
 const BOOKING_STATUS_LABELS = {
@@ -100,11 +104,34 @@ const BOOKING_STATUS_LABELS = {
   cancelled: 'Dibatalkan',
 };
 
+const normalizeReviewRecord = (record) => {
+  if (!record) return null;
+
+  return {
+    ...record,
+    id: record.review_id,
+    reviewId: record.review_id,
+    bookingId: record.booking_id,
+    propertyId: record.property_id,
+    rating: Number(record.rating || 0),
+    comment: record.comment || '',
+    reviewerLabel: record.reviewer_label || 'Tamu terverifikasi',
+    stayedAt: record.stayed_at || null,
+    createdAt: record.created_at,
+    propertyRating: record.property_rating == null ? null : Number(record.property_rating),
+    propertyReviewCount: record.property_review_count == null ? null : Number(record.property_review_count),
+  };
+};
+
 const normalizeBookingRecord = (record) => {
   if (!record) return null;
 
   const property = record.properties || {};
   const room = record.rooms || {};
+  const reviewRelation = Array.isArray(record.property_reviews)
+    ? record.property_reviews[0]
+    : record.property_reviews;
+  const review = normalizeReviewRecord(reviewRelation);
   const bookingStatus = record.booking_status || 'pending_payment';
   const guestCount = Number(record.guest_count || 1);
 
@@ -115,6 +142,7 @@ const normalizeBookingRecord = (record) => {
     bookingCode: record.booking_code || record.id,
     bookingStatus,
     paymentStatus: record.payment_status || 'unpaid',
+    paidAt: record.paid_at || null,
     status: BOOKING_STATUS_LABELS[bookingStatus] || bookingStatus,
     expiresAt: record.expires_at || null,
     serverNow: record.server_now || null,
@@ -137,6 +165,8 @@ const normalizeBookingRecord = (record) => {
     propertyImage: property.image || property.images?.[0] || '',
     roomName: room.name,
     roomImage: room.image,
+    review,
+    hasReview: Boolean(review),
   };
 };
 
@@ -157,6 +187,11 @@ const getBookingErrorCode = (error) => {
     'BOOKING_EXPIRED',
     'INVALID_STATUS_TRANSITION',
     'PAYMENT_ALREADY_PROCESSED',
+    'INVALID_REVIEW_RATING',
+    'INVALID_REVIEW_COMMENT',
+    'REVIEW_NOT_ALLOWED',
+    'STAY_NOT_COMPLETED',
+    'REVIEW_ALREADY_SUBMITTED',
     'FORBIDDEN',
   ].includes(code)) || null;
 };
@@ -175,6 +210,11 @@ const BOOKING_ERROR_MESSAGES = {
   BOOKING_EXPIRED: 'Batas waktu booking sudah berakhir. Silakan buat booking baru.',
   INVALID_STATUS_TRANSITION: 'Aksi ini tidak tersedia untuk status booking saat ini.',
   PAYMENT_ALREADY_PROCESSED: 'Pembayaran ini sudah pernah diproses.',
+  INVALID_REVIEW_RATING: 'Pilih rating antara 1 sampai 5 bintang.',
+  INVALID_REVIEW_COMMENT: 'Ulasan maksimal 1.000 karakter.',
+  REVIEW_NOT_ALLOWED: 'Rating hanya tersedia untuk booking yang sudah lunas dan dikonfirmasi.',
+  STAY_NOT_COMPLETED: 'Rating dapat diberikan setelah tanggal check-out.',
+  REVIEW_ALREADY_SUBMITTED: 'Rating untuk booking ini sudah pernah dikirim.',
   FORBIDDEN: 'Kamu tidak memiliki akses untuk melakukan aksi ini.',
 };
 
@@ -231,7 +271,7 @@ export const db = {
   getProperties: async (filters = {}) => {
     const { data, error } = await supabase
       .from('properties')
-      .select('id, name, location, region, price, rating, image, images, description, amenities, is_active, rooms(price, is_active)')
+      .select('id, name, location, region, price, rating, review_count, image, images, description, amenities, is_active, rooms(price, is_active)')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
@@ -249,7 +289,7 @@ export const db = {
   getPropertyById: async (id) => {
     const { data: property, error: propertyError } = await supabase
       .from('properties')
-      .select('id, name, location, region, price, rating, image, images, description, amenities, is_active')
+      .select('id, name, location, region, price, rating, review_count, image, images, description, amenities, is_active')
       .eq('id', id)
       .eq('is_active', true)
       .single();
@@ -263,12 +303,19 @@ export const db = {
       .eq('is_active', true)
       .order('created_at', { ascending: true });
 
+    const { data: reviewData, error: reviewError } = await supabase.rpc('get_property_reviews', {
+      p_property_id: id,
+      p_limit: 12,
+    });
+
+    const reviews = reviewError ? [] : (reviewData ?? []).map(normalizeReviewRecord);
+
     if (roomsError) {
-      return { ...mapPropertyRecord(property, []), rooms: [] };
+      return { ...mapPropertyRecord(property, []), rooms: [], reviews };
     }
 
     const normalizedRooms = normalizeRooms(rooms);
-    return { ...mapPropertyRecord(property, normalizedRooms), rooms: normalizedRooms };
+    return { ...mapPropertyRecord(property, normalizedRooms), rooms: normalizedRooms, reviews };
   },
 
   getBookingHistory: async () => {
@@ -329,5 +376,16 @@ export const db = {
 
     if (error) throw mapBookingError(error);
     return normalizeBookingRecord(readRpcRow(data));
+  },
+
+  submitPropertyReview: async ({ bookingId, rating, comment }) => {
+    const { data, error } = await supabase.rpc('submit_property_review', {
+      p_booking_id: bookingId,
+      p_rating: rating,
+      p_comment: comment || null,
+    });
+
+    if (error) throw mapBookingError(error);
+    return normalizeReviewRecord(readRpcRow(data));
   },
 };

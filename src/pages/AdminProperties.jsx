@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import AdminNavigation from '../components/AdminNavigation';
 import { adminProperties } from '../services/admin';
 
 const AMENITY_OPTIONS = [
@@ -303,6 +304,8 @@ export default function AdminProperties() {
   return (
     <main className="page-shell py-8 text-left md:py-12">
       <div className="flex flex-col gap-6">
+        <AdminNavigation current="properties" />
+
         <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-level-1 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-label-md text-xs uppercase tracking-[0.18em] text-tertiary">Admin Console</p>

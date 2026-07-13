@@ -23,22 +23,23 @@ Avoid introducing a second visual language for new screens. Admin tools can be d
 
 | Audience | Need | Core experience |
 | --- | --- | --- |
-| Guest | Find a suitable stay and book with confidence | Discover → Search → Property → Room → Checkout → Payment → Booking history |
+| Guest | Find a suitable stay and book with confidence | Discover → Search → Property → Room → Checkout → Payment → Stay → Verified review |
 | Admin | Keep properties and rooms accurate | Admin navigation → Property list → Search/filter → Create or edit property → Manage rooms |
 | Manager | Monitor performance and reporting | Planned role; use the same system with denser data views |
 
 ### Current application areas
 
-- **Discover:** Hero search, featured stays, destinations, and curated property cards.
+- **Discover:** Hero search, featured stays, destinations, and Top Rated Villas ranked from verified guest reviews.
 - **Search:** Search by location or region, filter by price/rating/amenities, and scan result cards.
-- **Property detail:** Gallery, location, description, amenities, room options, rating, and booking summary.
+- **Property detail:** Gallery, location, description, amenities, room options, aggregate rating, public verified guestbook, and booking summary.
 - **Room detail:** Room-specific information and a booking hand-off.
 - **Checkout:** Guest information, payment method selection, stay summary, and total price.
 - **Pending payment:** Payment instructions, booking details, and next-step actions.
 - **Booking history:** Status-led list of a guest’s bookings with payment or detail actions.
-- **Booking detail:** Booking information, guest information, invoice summary, and PDF invoice action.
+- **Booking detail:** Booking information, guest information, invoice summary, PDF invoice action, and one post-check-out review per paid booking.
 - **Login / register:** Secure account access with a split visual panel on larger screens.
 - **Admin properties:** Searchable property management, image previews, amenities, room types, and active status.
+- **Admin payment verification:** Review queue, private proof preview, booking cross-check, and explicit approve/reject actions.
 
 ### Roles and access
 
@@ -64,6 +65,7 @@ The current role model is `guest`, `admin`, and `manager`, loaded through Supaba
 | `#/history` | Booking history | Authenticated guest |
 | `#/history-detail/:bookingId` | Booking detail and invoice | Authenticated guest |
 | `#/admin/properties` | Property management | Authenticated admin |
+| `#/admin/payments` | Payment verification | Authenticated admin |
 
 ## Color palette
 

@@ -2,6 +2,30 @@ import { supabase } from '../lib/supabase';
 import { getLowestRoomPrice } from '../utils/pricing';
 
 const PROPERTY_BUCKET = 'property-images';
+const PAYMENT_PROOF_BUCKET = 'payment-proofs';
+
+const ADMIN_PAYMENT_SELECT = `
+  booking_id,
+  booking_code,
+  user_id,
+  guest_name,
+  guest_email,
+  guest_phone,
+  check_in,
+  check_out,
+  guest_count,
+  total_price,
+  payment_method,
+  booking_status,
+  payment_status,
+  expires_at,
+  paid_at,
+  created_at,
+  updated_at,
+  properties(name, location, image),
+  rooms(name, image),
+  payments!inner(status, proof_url, submitted_at, paid_at, reviewed_at, reviewed_by, updated_at)
+`;
 
 const mapAdminError = (error, context = 'property') => {
   const message = error?.message ?? 'Terjadi kesalahan saat memproses data.';
@@ -19,6 +43,66 @@ const mapAdminError = (error, context = 'property') => {
   }
 
   return new Error(message);
+};
+
+const mapPaymentVerificationError = (error) => {
+  const rawMessage = [error?.message, error?.details, error?.hint].filter(Boolean).join(' ');
+
+  if (/FORBIDDEN|row-level security|permission denied/i.test(rawMessage)) {
+    return new Error('Akses verifikasi ditolak. Pastikan akun yang digunakan memiliki role admin.');
+  }
+
+  if (/INVALID_STATUS_TRANSITION/i.test(rawMessage)) {
+    return new Error('Status pembayaran sudah berubah. Muat ulang antrean sebelum mengambil keputusan.');
+  }
+
+  if (/BOOKING_NOT_FOUND/i.test(rawMessage)) {
+    return new Error('Booking tidak ditemukan atau sudah tidak tersedia.');
+  }
+
+  if (/PAYMENT_ALREADY_PROCESSED/i.test(rawMessage)) {
+    return new Error('Pembayaran ini sudah pernah diproses.');
+  }
+
+  return new Error(error?.message || 'Verifikasi pembayaran gagal diproses.');
+};
+
+const getSingleRelation = (relation) => (Array.isArray(relation) ? relation[0] : relation) || {};
+
+const mapPaymentRecord = (record) => {
+  const property = getSingleRelation(record.properties);
+  const room = getSingleRelation(record.rooms);
+  const payment = getSingleRelation(record.payments);
+
+  return {
+    bookingId: record.booking_id,
+    bookingCode: record.booking_code,
+    userId: record.user_id,
+    guestName: record.guest_name,
+    guestEmail: record.guest_email,
+    guestPhone: record.guest_phone,
+    checkIn: record.check_in,
+    checkOut: record.check_out,
+    guestCount: Number(record.guest_count || 1),
+    totalPrice: Number(record.total_price || 0),
+    paymentMethod: record.payment_method,
+    bookingStatus: record.booking_status,
+    paymentStatus: record.payment_status,
+    expiresAt: record.expires_at,
+    paidAt: record.paid_at || payment.paid_at,
+    createdAt: record.created_at,
+    updatedAt: record.updated_at,
+    propertyName: property.name || 'Property',
+    propertyLocation: property.location || '',
+    propertyImage: property.image || '',
+    roomName: room.name || 'Kamar',
+    roomImage: room.image || '',
+    proofPath: payment.proof_url,
+    proofStatus: payment.status,
+    submittedAt: payment.submitted_at,
+    reviewedAt: payment.reviewed_at,
+    reviewedBy: payment.reviewed_by,
+  };
 };
 
 const normalizeAmenities = (amenities) => {
@@ -246,5 +330,55 @@ export const adminProperties = {
 
     if (error) throw mapAdminError(error);
     return true;
+  },
+};
+
+export const adminPayments = {
+  list: async () => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select(ADMIN_PAYMENT_SELECT)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw mapPaymentVerificationError(error);
+
+    return (data ?? [])
+      .map(mapPaymentRecord)
+      .filter((record) => Boolean(record.proofPath));
+  },
+
+  createProofUrl: async (proofPath) => {
+    if (!proofPath) {
+      throw new Error('Bukti pembayaran belum tersedia untuk booking ini.');
+    }
+
+    const { data, error } = await supabase.storage
+      .from(PAYMENT_PROOF_BUCKET)
+      .createSignedUrl(proofPath, 10 * 60);
+
+    if (error || !data?.signedUrl) {
+      throw new Error('Bukti pembayaran tidak dapat dibuka. Muat ulang halaman lalu coba lagi.');
+    }
+
+    return data.signedUrl;
+  },
+
+  approve: async (bookingId) => {
+    const { data, error } = await supabase.rpc('approve_payment', {
+      p_booking_id: bookingId,
+      p_provider_event_id: null,
+    });
+
+    if (error) throw mapPaymentVerificationError(error);
+    return Array.isArray(data) ? data[0] : data;
+  },
+
+  reject: async (bookingId) => {
+    const { data, error } = await supabase.rpc('reject_payment', {
+      p_booking_id: bookingId,
+    });
+
+    if (error) throw mapPaymentVerificationError(error);
+    return Array.isArray(data) ? data[0] : data;
   },
 };

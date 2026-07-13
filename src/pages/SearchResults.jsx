@@ -272,7 +272,9 @@ export default function SearchResults() {
                   />
                   <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                     <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
-                    <span className="font-label-md text-label-md text-on-surface">{prop.rating}</span>
+                    <span className="font-label-md text-label-md text-on-surface">
+                      {prop.reviewCount > 0 ? prop.rating.toFixed(1) : 'Baru'}
+                    </span>
                   </div>
                 </div>
 
@@ -289,6 +291,12 @@ export default function SearchResults() {
                       <span className="material-symbols-outlined icon-pro text-[16px] text-primary">location_on</span>
                       <span className="font-body-md text-body-md text-sm">{prop.location}</span>
                     </div>
+                    <p className="mb-4 flex items-center gap-1.5 text-xs text-on-surface-variant">
+                      <span className="material-symbols-outlined text-[16px] text-tertiary" aria-hidden="true">reviews</span>
+                      {prop.reviewCount > 0
+                        ? `${prop.reviewCount} ulasan tamu terverifikasi`
+                        : 'Belum ada ulasan tamu'}
+                    </p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {prop.amenities.map((amenity, index) => (
                         <span 

@@ -12,6 +12,7 @@ import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
 import LoginPage from './pages/LoginPage';
 import AdminProperties from './pages/AdminProperties';
+import AdminVerification from './pages/AdminVerification';
 import { getRouteInfo } from './routes/getRouteInfo';
 
 const pageComponents = {
@@ -25,6 +26,7 @@ const pageComponents = {
   'history-detail': BookingDetail,
   login: LoginPage,
   'admin-properties': AdminProperties,
+  'admin-payments': AdminVerification,
 };
 
 function App() {

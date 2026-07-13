@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import RoomBookingModal from '../components/RoomBookingModal';
+import StarRating from '../components/StarRating';
 
 export default function PropertyDetail() {
   const [property, setProperty] = useState(null);
@@ -27,6 +28,15 @@ export default function PropertyDetail() {
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price).replace("IDR", "Rp");
+  };
+
+  const formatReviewDate = (value) => {
+    if (!value) return '';
+    return new Intl.DateTimeFormat('id-ID', {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).format(new Date(`${value}T00:00:00Z`));
   };
 
   const galleryImages = property?.images?.length
@@ -59,14 +69,27 @@ export default function PropertyDetail() {
       </div>
 
       {/* Title Header */}
-      <div className="mb-6">
-        <h1 className="font-headline-xl text-headline-xl-mobile md:text-3xl text-primary font-bold mb-2">
-          {property.name}
-        </h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-xl">location_on</span>
-          {property.location}
-        </p>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="font-headline-xl text-headline-xl-mobile md:text-3xl text-primary font-bold mb-2">
+            {property.name}
+          </h1>
+          <p className="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary text-xl">location_on</span>
+            {property.location}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}
+          className="inline-flex w-fit items-center gap-2 rounded-xl border border-tertiary/20 bg-tertiary-container/60 px-3.5 py-2 text-sm text-on-tertiary-container transition-colors hover:bg-tertiary-container"
+        >
+          <span className="material-symbols-outlined fill-1 text-[19px] text-tertiary" aria-hidden="true">star</span>
+          <span className="font-bold">{property.reviewCount > 0 ? property.rating.toFixed(1) : 'Baru'}</span>
+          <span className="text-xs opacity-75">
+            {property.reviewCount > 0 ? `${property.reviewCount} ulasan` : 'Belum ada ulasan'}
+          </span>
+        </button>
       </div>
 
       {/* Image Gallery Bento Grid */}
@@ -135,6 +158,68 @@ export default function PropertyDetail() {
                   <span className="font-body-md text-sm text-on-surface font-medium">{amenity}</span>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Public verified reviews */}
+          <section id="reviews" className="scroll-mt-28">
+            <div className="mb-6 flex flex-col gap-2 border-b border-surface-container-highest pb-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-tertiary">Guestbook terverifikasi</p>
+                <h2 className="mt-1 font-headline-lg text-2xl font-bold text-primary">Cerita setelah menginap</h2>
+              </div>
+              <p className="text-xs text-on-surface-variant">Hanya dari booking yang sudah lunas dan selesai.</p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-[220px_minmax(0,1fr)]">
+              <aside className="relative overflow-hidden rounded-2xl bg-primary p-5 text-on-primary shadow-level-1">
+                <div className="absolute inset-y-0 left-0 w-1.5 bg-tertiary" aria-hidden="true" />
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-on-primary/65">Nilai tamu</p>
+                <p className="mt-3 font-headline-xl text-5xl font-bold leading-none">
+                  {property.reviewCount > 0 ? property.rating.toFixed(1) : '—'}
+                </p>
+                <div className="mt-3">
+                  <StarRating value={property.rating} readOnly size="sm" />
+                </div>
+                <p className="mt-3 text-xs leading-5 text-on-primary/75">
+                  {property.reviewCount > 0
+                    ? `Dirangkum dari ${property.reviewCount} pengalaman menginap.`
+                    : 'Jadilah tamu pertama yang meninggalkan jejak setelah check-out.'}
+                </p>
+              </aside>
+
+              {property.reviews?.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {property.reviews.map((review) => (
+                    <article
+                      key={review.reviewId}
+                      className="flex min-h-48 flex-col rounded-2xl border border-outline-variant/40 bg-surface p-5 shadow-[0_8px_24px_rgba(23,28,21,0.045)]"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <StarRating value={review.rating} readOnly size="sm" />
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary-fixed/35 px-2.5 py-1 text-[10px] font-bold text-primary">
+                          <span className="material-symbols-outlined text-[14px]" aria-hidden="true">verified</span>
+                          Tamu terverifikasi
+                        </span>
+                      </div>
+                      <blockquote className="mt-4 flex-1 font-headline-md text-base leading-7 text-on-surface">
+                        “{review.comment || `Memberikan ${review.rating} bintang untuk pengalaman menginap ini.`}”
+                      </blockquote>
+                      <p className="mt-4 border-t border-outline-variant/35 pt-3 text-[11px] text-on-surface-variant">
+                        Menginap hingga {formatReviewDate(review.stayedAt)}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-outline-variant bg-surface-container-low px-6 text-center">
+                  <span className="material-symbols-outlined text-[38px] text-outline" aria-hidden="true">auto_stories</span>
+                  <h3 className="mt-3 text-base font-bold text-on-surface">Guestbook masih kosong</h3>
+                  <p className="mt-1 max-w-sm text-xs leading-5 text-on-surface-variant">
+                    Ulasan pertama akan muncul setelah tamu menyelesaikan masa inapnya.
+                  </p>
+                </div>
+              )}
             </div>
           </section>
 
@@ -217,7 +302,9 @@ export default function PropertyDetail() {
             </div>
             <div className="bg-surface px-3 py-1.5 rounded-lg border border-outline-variant/30 flex items-center gap-1">
               <span className="material-symbols-outlined text-tertiary-fixed-dim text-sm fill-1">star</span>
-              <span className="font-label-md text-sm text-on-surface font-bold">{property.rating}</span>
+              <span className="font-label-md text-sm text-on-surface font-bold">
+                {property.reviewCount > 0 ? property.rating.toFixed(1) : 'Baru'}
+              </span>
             </div>
           </div>
 

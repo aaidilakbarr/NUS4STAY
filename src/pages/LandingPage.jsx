@@ -11,10 +11,16 @@ export default function LandingPage() {
   useEffect(() => {
     async function loadData() {
       const props = await db.getProperties();
-      const topRated = props.sort((a, b) => b.rating - a.rating).slice(0, 4);
-      setDestinations(topRated);
-      const featured = props.sort((a, b) => b.rating - a.rating).slice(0, 3);
-      setFeaturedProperties(featured);
+      const rankedProperties = [...props].sort((a, b) => {
+        const reviewedDifference = Number(b.reviewCount > 0) - Number(a.reviewCount > 0);
+        if (reviewedDifference !== 0) return reviewedDifference;
+        if (b.rating !== a.rating) return b.rating - a.rating;
+        if (b.reviewCount !== a.reviewCount) return b.reviewCount - a.reviewCount;
+        return a.name.localeCompare(b.name);
+      });
+
+      setDestinations(rankedProperties.slice(0, 4));
+      setFeaturedProperties(rankedProperties.slice(0, 3));
     }
     loadData();
   }, []);
@@ -144,8 +150,11 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
                 <div className="absolute bottom-0 left-0 p-6 text-left">
                   <span className="font-headline-md mb-1 block text-headline-md text-white">{dest.name}</span>
-                  <span className="font-body-md block text-body-md text-white/80">
-                    {dest.propertiesCount} properties
+                  <span className="mt-1 flex items-center gap-1.5 font-body-md text-sm text-white/85">
+                    <span className="material-symbols-outlined fill-1 text-[17px] text-tertiary-fixed-dim" aria-hidden="true">star</span>
+                    {dest.reviewCount > 0
+                      ? `${dest.rating.toFixed(1)} · ${dest.reviewCount} ulasan terverifikasi`
+                      : 'Pilihan baru · Belum ada ulasan'}
                   </span>
                 </div>
               </button>
@@ -182,7 +191,9 @@ export default function LandingPage() {
                 />
                 <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                   <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
-                  <span className="font-label-md text-label-md text-on-surface">{prop.rating}</span>
+                  <span className="font-label-md text-label-md text-on-surface">
+                    {prop.reviewCount > 0 ? prop.rating.toFixed(1) : 'Baru'}
+                  </span>
                 </div>
               </div>
               <div className="p-6 flex-grow flex flex-col justify-between">
@@ -197,6 +208,12 @@ export default function LandingPage() {
                     <span className="material-symbols-outlined icon-pro text-[16px] text-primary">location_on</span>
                     <span className="font-body-md text-body-md text-sm">{prop.location}</span>
                   </div>
+                  <p className="mb-4 flex items-center gap-1.5 text-xs text-on-surface-variant">
+                    <span className="material-symbols-outlined text-[16px] text-tertiary" aria-hidden="true">reviews</span>
+                    {prop.reviewCount > 0
+                      ? `${prop.reviewCount} ulasan dari tamu terverifikasi`
+                      : 'Belum ada ulasan tamu'}
+                  </p>
                   <div className="flex flex-wrap gap-2 mb-6">
                     {prop.amenities.slice(0, 2).map((amenity, index) => (
                       <span 

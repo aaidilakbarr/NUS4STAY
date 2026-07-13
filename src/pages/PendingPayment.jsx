@@ -110,9 +110,8 @@ export default function PendingPayment() {
     setProofUploading(true);
     setError('');
     try {
-      const updatedBooking = await db.uploadPaymentProof(booking.id, proofFile);
-      setBooking((current) => ({ ...current, ...updatedBooking, bookingStatus: 'payment_review' }));
-      setProofFile(null);
+      await db.uploadPaymentProof(booking.id, proofFile);
+      window.location.hash = '#/';
     } catch (uploadError) {
       setError(uploadError.message);
     } finally {

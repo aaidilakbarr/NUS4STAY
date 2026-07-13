@@ -8,6 +8,7 @@ const routes = [
   { pattern: /^#\/history$/,              page: 'history',         showNav: true,  showFooter: true, protected: true, roles: ['guest'] },
   { pattern: /^#\/search/,                page: 'search',          showNav: true,  showFooter: true, protected: false, roles: [] },
   { pattern: /^#\/admin\/properties$/,    page: 'admin-properties',showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
+  { pattern: /^#\/admin\/payments$/,      page: 'admin-payments',  showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
 ];
 
 export function getRouteInfo(currentRoute) {

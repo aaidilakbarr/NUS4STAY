@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import StarRating from '../components/StarRating';
 
 export default function BookingDetail() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewSaving, setReviewSaving] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState('');
+  const [reviewMessageType, setReviewMessageType] = useState('info');
 
   useEffect(() => {
     async function loadBookingDetails() {
@@ -15,6 +21,9 @@ export default function BookingDetail() {
       setLoading(true);
       const data = await db.getBookingById(id);
       setBooking(data);
+      setReviewRating(data?.review?.rating || 0);
+      setReviewComment(data?.review?.comment || '');
+      setReviewMessage('');
       setLoading(false);
     }
 
@@ -66,8 +75,48 @@ export default function BookingDetail() {
       .replace(/'/g, '&#039;');
   };
 
+  const getJakartaDate = (value) => {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date(value || Date.now()));
+    const getPart = (type) => parts.find((part) => part.type === type)?.value;
+    return `${getPart('year')}-${getPart('month')}-${getPart('day')}`;
+  };
+
+  const handleReviewSubmit = async (event) => {
+    event.preventDefault();
+    if (!booking || reviewRating < 1) {
+      setReviewMessage('Pilih jumlah bintang sebelum mengirim ulasan.');
+      setReviewMessageType('error');
+      return;
+    }
+
+    setReviewSaving(true);
+    setReviewMessage('');
+
+    try {
+      const review = await db.submitPropertyReview({
+        bookingId: booking.id,
+        rating: reviewRating,
+        comment: reviewComment,
+      });
+
+      setBooking((current) => ({ ...current, review, hasReview: true }));
+      setReviewMessage('Rating berhasil diterbitkan dan langsung dihitung pada nilai property.');
+      setReviewMessageType('success');
+    } catch (error) {
+      setReviewMessage(error.message);
+      setReviewMessageType('error');
+    } finally {
+      setReviewSaving(false);
+    }
+  };
+
   const handlePrintInvoice = () => {
-    if (!booking) return;
+    if (!booking || booking.bookingStatus !== 'confirmed' || booking.paymentStatus !== 'paid') return;
 
     const invoiceNights = calculateNights(booking.checkIn, booking.checkOut);
     const paymentMethod = getPaymentMethodLabel(booking.paymentMethod);
@@ -75,7 +124,7 @@ export default function BookingDetail() {
       day: '2-digit',
       month: 'long',
       year: 'numeric'
-    }).format(new Date());
+    }).format(new Date(booking.paidAt || booking.updatedAt || Date.now()));
 
     const invoiceWindow = window.open('', '_blank', 'width=900,height=1200');
     if (!invoiceWindow) {
@@ -272,6 +321,12 @@ export default function BookingDetail() {
   }
 
   const nights = calculateNights(booking.checkIn, booking.checkOut);
+  const isInvoiceAvailable = booking.bookingStatus === 'confirmed' && booking.paymentStatus === 'paid';
+  const isStayCompleted = Boolean(
+    isInvoiceAvailable
+    && booking.checkOut
+    && getJakartaDate(booking.serverNow || Date.now()) >= booking.checkOut
+  );
 
   return (
     <main className="page-shell py-8 text-left md:py-12">
@@ -379,26 +434,129 @@ export default function BookingDetail() {
             </div>
           </section>
 
+          {isInvoiceAvailable ? (
+            <section className="overflow-hidden rounded-2xl border border-tertiary/25 bg-surface shadow-sm">
+              <div className="flex items-start gap-3 border-b border-tertiary/15 bg-tertiary-container/45 px-5 py-4">
+                <span className="material-symbols-outlined text-[25px] text-tertiary" aria-hidden="true">auto_stories</span>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-tertiary-container/70">Guestbook NUS4STAY</p>
+                  <h3 className="mt-1 font-headline-md text-lg font-bold text-on-surface">Bagikan pengalaman menginap</h3>
+                  <p className="mt-1 text-xs leading-5 text-on-surface-variant">
+                    Satu rating terverifikasi untuk setiap booking yang sudah selesai.
+                  </p>
+                </div>
+              </div>
+
+              {booking.review ? (
+                <div className="p-5 md:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <StarRating value={booking.review.rating} readOnly />
+                    <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary-fixed/35 px-3 py-1.5 text-[11px] font-bold text-primary">
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">public</span>
+                      Tayang publik
+                    </span>
+                  </div>
+                  <blockquote className="mt-4 rounded-xl border-l-4 border-tertiary bg-surface-container-low px-4 py-3 font-headline-md text-base leading-7 text-on-surface">
+                    “{booking.review.comment || `Memberikan ${booking.review.rating} bintang untuk pengalaman menginap ini.`}”
+                  </blockquote>
+                  <p className="mt-3 text-xs text-on-surface-variant">
+                    Ulasan ini berasal dari booking {booking.bookingCode} dan tidak dapat dikirim ulang.
+                  </p>
+                </div>
+              ) : isStayCompleted ? (
+                <form onSubmit={handleReviewSubmit} className="space-y-5 p-5 md:p-6">
+                  <fieldset>
+                    <legend className="text-sm font-bold text-on-surface">Bagaimana pengalamanmu?</legend>
+                    <p className="mt-1 text-xs text-on-surface-variant">Pilih 1 sampai 5 bintang.</p>
+                    <div className="mt-3">
+                      <StarRating value={reviewRating} onChange={setReviewRating} />
+                    </div>
+                  </fieldset>
+
+                  <label className="block">
+                    <span className="text-sm font-bold text-on-surface">Catatan untuk tamu berikutnya <span className="font-normal text-on-surface-variant">(opsional)</span></span>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(event) => setReviewComment(event.target.value.slice(0, 1000))}
+                      rows={4}
+                      maxLength={1000}
+                      placeholder="Ceritakan kenyamanan kamar, pelayanan, atau hal yang paling berkesan."
+                      className="mt-2 w-full resize-y rounded-xl border border-outline-variant bg-surface px-4 py-3 text-sm leading-6 text-on-surface outline-none transition focus:border-primary"
+                    />
+                    <span className="mt-1 block text-right text-[11px] text-on-surface-variant">{reviewComment.length}/1000</span>
+                  </label>
+
+                  {reviewMessage ? (
+                    <div
+                      role="status"
+                      className={`rounded-xl border px-3 py-2.5 text-xs ${
+                        reviewMessageType === 'error'
+                          ? 'border-error/20 bg-error-container/60 text-on-error-container'
+                          : 'border-primary/20 bg-primary-fixed/35 text-on-primary-fixed-variant'
+                      }`}
+                    >
+                      {reviewMessage}
+                    </div>
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    disabled={reviewSaving || reviewRating < 1}
+                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-on-primary shadow-sm transition hover:bg-primary-container disabled:cursor-not-allowed disabled:opacity-55 sm:w-auto"
+                  >
+                    <span className="material-symbols-outlined text-[19px]" aria-hidden="true">rate_review</span>
+                    {reviewSaving ? 'Menerbitkan rating...' : 'Terbitkan rating'}
+                  </button>
+                </form>
+              ) : (
+                <div className="flex gap-3 p-5 text-sm text-on-surface-variant md:p-6">
+                  <span className="material-symbols-outlined text-primary" aria-hidden="true">event_available</span>
+                  <div>
+                    <p className="font-bold text-on-surface">Rating terbuka setelah check-out</p>
+                    <p className="mt-1 text-xs leading-5">
+                      Kamu dapat menulis ulasan mulai tanggal {booking.checkOut}. Dengan begitu, rating benar-benar berasal dari pengalaman menginap.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {booking.review && reviewMessage ? (
+                <div className="border-t border-outline-variant/35 px-5 py-3 text-xs text-on-primary-fixed-variant" role="status">
+                  {reviewMessage}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
         </div>
 
         {/* Right Column: Invoice Actions & Summary */}
         <aside className="lg:col-span-4 space-y-6">
-          <div className="bg-primary text-on-primary rounded-2xl p-6 shadow-sm space-y-5">
+          <div className={`${isInvoiceAvailable ? 'bg-primary text-on-primary' : 'border border-outline-variant/40 bg-surface-container text-on-surface'} rounded-2xl p-6 shadow-sm space-y-5`}>
             <div className="flex items-start gap-3">
               <span className="material-symbols-outlined text-[28px]">receipt_long</span>
               <div>
                 <h3 className="font-headline-md text-base font-bold">Invoice Pemesanan</h3>
-                <p className="text-xs opacity-80 mt-1">#{booking.bookingCode}</p>
+                <p className="text-xs opacity-80 mt-1">
+                  {isInvoiceAvailable ? `Tersedia di akunmu · #${booking.bookingCode}` : 'Tersedia setelah pembayaran disetujui admin'}
+                </p>
               </div>
             </div>
 
-            <button
-              onClick={handlePrintInvoice}
-              className="w-full bg-on-primary text-primary py-3 rounded-xl font-label-md text-xs font-bold hover:bg-primary-fixed transition-colors active:scale-95 flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
-              Cetak Invoice PDF
-            </button>
+            {isInvoiceAvailable ? (
+              <button
+                onClick={handlePrintInvoice}
+                className="w-full bg-on-primary text-primary py-3 rounded-xl font-label-md text-xs font-bold hover:bg-primary-fixed transition-colors active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                Cetak Invoice PDF
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 rounded-xl border border-outline-variant/45 bg-surface px-3 py-3 text-xs text-on-surface-variant">
+                <span className="material-symbols-outlined text-[18px]">schedule</span>
+                Menunggu verifikasi pembayaran
+              </div>
+            )}
           </div>
 
           {/* Pricing Invoice Summary */}
@@ -417,14 +575,14 @@ export default function BookingDetail() {
                 <span>Rp 0</span>
               </div>
               <div className="flex justify-between font-bold text-on-surface text-sm pt-2 border-t border-outline-variant/10">
-                <span>Total Terbayar</span>
+                <span>{isInvoiceAvailable ? 'Total Terbayar' : 'Total Booking'}</span>
                 <span className="text-primary">{formatPrice(booking.totalPrice)}</span>
               </div>
             </div>
 
             <div className="bg-surface rounded-lg p-3 border border-outline-variant/20 flex items-center gap-2 text-xs text-on-surface-variant mt-4">
               <span className="material-symbols-outlined text-primary text-base">verified</span>
-              <span>{booking.bookingStatus === 'confirmed' ? `Lunas via ${getPaymentMethodLabel(booking.paymentMethod)}` : 'Status pembayaran mengikuti verifikasi database.'}</span>
+              <span>{isInvoiceAvailable ? `Lunas via ${getPaymentMethodLabel(booking.paymentMethod)}` : 'Invoice belum diterbitkan karena pembayaran belum disetujui.'}</span>
             </div>
           </div>
 

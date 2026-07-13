@@ -40,6 +40,19 @@ export default function BookingHistory() {
     }
   };
 
+  const getJakartaDate = () => {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+    const getPart = (type) => parts.find((part) => part.type === type)?.value;
+    return `${getPart('year')}-${getPart('month')}-${getPart('day')}`;
+  };
+
+  const today = getJakartaDate();
+
   return (
     <main className="page-shell py-8 text-left md:py-12">
       <div className="mb-8">
@@ -117,14 +130,28 @@ export default function BookingHistory() {
                       href={`#/pending/${booking.id}`} 
                       className="font-label-md text-xs text-white bg-tertiary px-5 py-2.5 rounded-lg hover:opacity-90 transition-all active:scale-95 text-center font-bold shadow-sm"
                     >
-                      Bayar Sekarang
+                      {booking.bookingStatus === 'payment_review' ? 'Cek Verifikasi' : 'Lanjutkan Pembayaran'}
+                    </a>
+                  ) : booking.bookingStatus === 'confirmed' && booking.paymentStatus === 'paid' ? (
+                    <a
+                      href={`#/history-detail/${booking.id}`}
+                      className={`font-label-md flex items-center justify-center gap-1.5 rounded-lg px-5 py-2.5 text-center text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95 ${
+                        !booking.hasReview && booking.checkOut <= today
+                          ? 'bg-tertiary text-on-tertiary'
+                          : 'bg-primary text-on-primary'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[16px]">
+                        {booking.hasReview ? 'reviews' : booking.checkOut <= today ? 'rate_review' : 'receipt_long'}
+                      </span>
+                      {booking.hasReview ? 'Lihat Ulasan' : booking.checkOut <= today ? 'Beri Rating' : 'Lihat Invoice'}
                     </a>
                   ) : (
                     <a 
                       href={`#/history-detail/${booking.id}`} 
                       className="font-label-md text-xs text-on-primary bg-primary px-5 py-2.5 rounded-lg hover:opacity-90 transition-all active:scale-95 text-center flex items-center justify-center gap-1 font-bold shadow-sm"
                     >
-                      View Details 
+                      Lihat Detail
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
                     </a>
                   )}

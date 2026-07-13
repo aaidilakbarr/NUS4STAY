@@ -596,3 +596,24 @@ Schema and constraints
 ```
 
 Do not switch the frontend to RPC booking creation until the schema, inventory release, RLS, scheduler, and concurrency tests are in place.
+
+## 17. Verified Post-Stay Reviews
+
+Rules:
+
+- Only the authenticated owner of a `confirmed` / `paid` booking may review it.
+- Rating opens when `current_date >= check_out` and is validated again by the database.
+- Each booking may create exactly one review with a rating from 1 to 5.
+- Public review output never exposes `user_id`, email, phone, or booking ID.
+- `properties.rating` and `properties.review_count` are derived automatically from published reviews.
+- Landing-page ranking prioritizes reviewed properties, then average rating, then review count.
+
+Implementation checklist:
+
+- [x] **RV-101:** Add `property_reviews` with one-review-per-booking constraint.
+- [x] **RV-102:** Add owner/stay/status validation in `submit_property_review()`.
+- [x] **RV-103:** Add RLS and safe public `get_property_reviews()` feed.
+- [x] **RV-104:** Recalculate property rating and review count through a database trigger.
+- [x] **RV-105:** Add post-check-out rating form and published-review state to booking detail.
+- [x] **RV-106:** Display verified reviews publicly on property detail.
+- [x] **RV-107:** Rank Top Rated Villas from aggregate rating and review count.
