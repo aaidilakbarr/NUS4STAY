@@ -27,11 +27,13 @@ export default function BookingHistory() {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'Confirmed':
+      case 'confirmed':
         return 'bg-[#EAF2E8] text-[#34662B]';
-      case 'Pending':
+      case 'pending_payment':
+      case 'payment_review':
         return 'bg-[#FDF6E2] text-[#B2700D]';
-      case 'Cancelled':
+      case 'expired':
+      case 'cancelled':
         return 'bg-[#FDF0EE] text-[#C53F3F]';
       default:
         return 'bg-surface-container text-on-surface-variant';
@@ -79,9 +81,9 @@ export default function BookingHistory() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-mono text-xs text-on-surface-variant font-bold bg-surface-container-low px-2.5 py-1 rounded">
-                      ID: {booking.id}
+                      ID: {booking.bookingCode}
                     </span>
-                    <span className={`px-3 py-1 rounded-full font-label-md text-xs font-bold ${getStatusBadgeClass(booking.status)}`}>
+                    <span className={`px-3 py-1 rounded-full font-label-md text-xs font-bold ${getStatusBadgeClass(booking.bookingStatus)}`}>
                       {booking.status}
                     </span>
                   </div>
@@ -110,7 +112,7 @@ export default function BookingHistory() {
                     </p>
                   </div>
                   
-                  {booking.status === 'Pending' ? (
+                  {booking.bookingStatus === 'pending_payment' || booking.bookingStatus === 'payment_review' ? (
                     <a 
                       href={`#/pending/${booking.id}`} 
                       className="font-label-md text-xs text-white bg-tertiary px-5 py-2.5 rounded-lg hover:opacity-90 transition-all active:scale-95 text-center font-bold shadow-sm"

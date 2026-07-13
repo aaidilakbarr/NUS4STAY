@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import RoomBookingModal from '../components/RoomBookingModal';
 
 export default function PropertyDetail() {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [roomModal, setRoomModal] = useState(null);
 
   useEffect(() => {
     async function loadProperty() {
@@ -179,18 +181,20 @@ export default function PropertyDetail() {
                         <span className="font-body-md text-xs text-on-surface-variant"> / malam</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:flex">
-                        <a 
+                        <button
+                          type="button"
+                          onClick={() => setRoomModal({ room, intent: 'details' })}
                           className="font-label-md text-xs border border-primary text-primary px-4 py-2.5 rounded-lg hover:bg-primary/5 transition-all font-bold active:scale-95"
-                          href={`#/room/${property.id}/${room.id}`}
                         >
                           View Details
-                        </a>
-                        <a 
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRoomModal({ room, intent: 'reserve' })}
                           className="font-label-md text-xs bg-primary text-on-primary px-4 py-2.5 rounded-lg hover:bg-primary-container transition-all font-bold active:scale-95 shadow-sm"
-                          href={`#/checkout/${property.id}/${room.id}`}
                         >
                           Reserve
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -205,7 +209,7 @@ export default function PropertyDetail() {
         <div className="sticky top-32 space-y-6 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 shadow-sm">
           <div className="flex justify-between items-start">
             <div>
-              <p className="font-body-md text-xs text-on-surface-variant uppercase tracking-wider">Prices From</p>
+              <p className="font-body-md text-xs text-on-surface-variant uppercase tracking-wider">Mulai dari</p>
               <h3 className="font-price-display text-2xl text-primary font-bold mt-1">
                 {formatPrice(property.price)}
               </h3>
@@ -244,6 +248,15 @@ export default function PropertyDetail() {
           </button>
         </div>
       </div>
+
+      {roomModal ? (
+        <RoomBookingModal
+          property={property}
+          room={roomModal.room}
+          intent={roomModal.intent}
+          onClose={() => setRoomModal(null)}
+        />
+      ) : null}
     </main>
   );
 }

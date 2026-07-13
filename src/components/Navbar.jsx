@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/useAuth';
 
 const navItems = [
   { href: '#/', page: 'landing', label: 'Discover' },
-  { href: '#/search', page: 'search', label: 'Search' },
+  { href: '#/search', page: 'search', label: 'Property' },
   { href: '#/history', page: 'history', label: 'My Bookings' },
 ];
 

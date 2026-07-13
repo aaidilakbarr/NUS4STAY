@@ -402,7 +402,7 @@ export default function AdminProperties() {
 
                   <div className="grid gap-3 text-sm text-on-surface-variant md:grid-cols-4">
                     <div className="rounded-2xl border border-outline-variant/30 bg-surface p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Price</p>
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Mulai dari</p>
                       <p className="mt-2 font-bold text-on-surface">{formatPrice(property.price)}</p>
                     </div>
                     <div className="rounded-2xl border border-outline-variant/30 bg-surface p-4">

@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { getLowestRoomPrice } from '../utils/pricing';
 
 const PROPERTY_BUCKET = 'property-images';
 
@@ -170,6 +171,7 @@ const syncRooms = async (propertyId, rooms = []) => {
 
 const mapPropertyRecord = (property) => ({
   ...property,
+  price: getLowestRoomPrice(property.rooms, property.price),
   amenities: Array.isArray(property.amenities) ? property.amenities : [],
   images: Array.isArray(property.images) && property.images.length > 0
     ? property.images

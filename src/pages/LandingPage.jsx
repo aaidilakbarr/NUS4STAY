@@ -214,7 +214,7 @@ export default function LandingPage() {
                 <div className="mt-auto flex flex-col items-stretch justify-between gap-4 border-t border-outline-variant/30 pt-4 sm:flex-row sm:items-end">
                   <div>
                     <span className="font-price-display text-price-display text-on-surface font-bold">
-                      {formatPrice(prop.price)}
+                      Mulai dari {formatPrice(prop.price)}
                     </span>
                     <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
                   </div>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
-import { useAuth } from '../contexts/useAuth';
 
 export default function BookingDetail() {
-  const { user } = useAuth();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,11 +29,13 @@ export default function BookingDetail() {
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
-      case 'Confirmed':
+      case 'confirmed':
         return 'bg-[#EAF2E8] text-[#34662B]';
-      case 'Pending':
+      case 'pending_payment':
+      case 'payment_review':
         return 'bg-[#FDF6E2] text-[#B2700D]';
-      case 'Cancelled':
+      case 'expired':
+      case 'cancelled':
         return 'bg-[#FDF0EE] text-[#C53F3F]';
       default:
         return 'bg-surface-container text-on-surface-variant';
@@ -89,7 +89,7 @@ export default function BookingDetail() {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Invoice ${escapeHtml(booking.id)} - NUS4STAY</title>
+          <title>Invoice ${escapeHtml(booking.bookingCode)} - NUS4STAY</title>
           <style>
             @page { size: A4; margin: 18mm; }
             * { box-sizing: border-box; }
@@ -167,7 +167,7 @@ export default function BookingDetail() {
               <div class="invoice-title">
                 <h1>Invoice</h1>
                 <p class="muted">Tanggal terbit: ${escapeHtml(issuedAt)}</p>
-                <p class="value">#${escapeHtml(booking.id)}</p>
+                <p class="value">#${escapeHtml(booking.bookingCode)}</p>
               </div>
             </header>
 
@@ -298,11 +298,11 @@ export default function BookingDetail() {
           <section className="bg-surface rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-outline-variant/30 shadow-sm">
             <div>
               <p className="font-label-md text-xs text-on-surface-variant mb-1 font-semibold">ID Pemesanan</p>
-              <p className="font-headline-md text-xl text-on-surface font-bold font-mono">{booking.id}</p>
+              <p className="font-headline-md text-xl text-on-surface font-bold font-mono">{booking.bookingCode}</p>
             </div>
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-sm font-bold ${getStatusBadgeClass(booking.status)}`}>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-sm font-bold ${getStatusBadgeClass(booking.bookingStatus)}`}>
               <span className="material-symbols-outlined text-[18px] fill-1">
-                {booking.status === 'Confirmed' ? 'check_circle' : booking.status === 'Pending' ? 'pending' : 'cancel'}
+                {booking.bookingStatus === 'confirmed' ? 'check_circle' : booking.bookingStatus === 'pending_payment' || booking.bookingStatus === 'payment_review' ? 'pending' : booking.bookingStatus === 'expired' ? 'event_busy' : 'cancel'}
               </span>
               {booking.status}
             </div>
@@ -388,7 +388,7 @@ export default function BookingDetail() {
               <span className="material-symbols-outlined text-[28px]">receipt_long</span>
               <div>
                 <h3 className="font-headline-md text-base font-bold">Invoice Pemesanan</h3>
-                <p className="text-xs opacity-80 mt-1">#{booking.id}</p>
+                <p className="text-xs opacity-80 mt-1">#{booking.bookingCode}</p>
               </div>
             </div>
 
@@ -424,7 +424,7 @@ export default function BookingDetail() {
 
             <div className="bg-surface rounded-lg p-3 border border-outline-variant/20 flex items-center gap-2 text-xs text-on-surface-variant mt-4">
               <span className="material-symbols-outlined text-primary text-base">verified</span>
-              <span>Lunas via {getPaymentMethodLabel(booking.paymentMethod)}</span>
+              <span>{booking.bookingStatus === 'confirmed' ? `Lunas via ${getPaymentMethodLabel(booking.paymentMethod)}` : 'Status pembayaran mengikuti verifikasi database.'}</span>
             </div>
           </div>
 

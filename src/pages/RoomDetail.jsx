@@ -9,15 +9,26 @@ const getDateOffset = (days) => {
   return `${date.getFullYear()}-${month}-${day}`;
 };
 
+const addDay = (dateString) => {
+  if (!dateString) return getDateOffset(1);
+
+  const date = new Date(`${dateString}T00:00:00`);
+  date.setDate(date.getDate() + 1);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
 export default function RoomDetail() {
   const [property, setProperty] = useState(null);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Form states for booking summary widget
-  const [checkInDate, setCheckInDate] = useState(() => getDateOffset(1));
-  const [checkOutDate, setCheckOutDate] = useState(() => getDateOffset(4));
+  const [checkInDate, setCheckInDate] = useState('');
+  const [checkOutDate, setCheckOutDate] = useState('');
   const [guests, setGuests] = useState('2 Dewasa');
+  const [dateError, setDateError] = useState('');
 
   useEffect(() => {
     async function loadRoomDetails() {
@@ -47,7 +58,7 @@ export default function RoomDetail() {
   };
 
   const calculateNights = () => {
-    if (!checkInDate || !checkOutDate) return 1;
+    if (!checkInDate || !checkOutDate) return 0;
     const start = new Date(checkInDate);
     const end = new Date(checkOutDate);
     const diff = end.getTime() - start.getTime();
@@ -56,6 +67,17 @@ export default function RoomDetail() {
   };
 
   const handleBookNow = () => {
+    if (!checkInDate || !checkOutDate) {
+      setDateError('Pilih tanggal check-in dan check-out terlebih dahulu.');
+      return;
+    }
+
+    if (checkOutDate <= checkInDate) {
+      setDateError('Tanggal check-out harus setelah tanggal check-in.');
+      return;
+    }
+
+    setDateError('');
     const query = new URLSearchParams();
     query.set('checkIn', checkInDate);
     query.set('checkOut', checkOutDate);
@@ -186,7 +208,11 @@ export default function RoomDetail() {
                 type="date" 
                 min={getDateOffset(0)}
                 value={checkInDate}
-                onChange={(e) => setCheckInDate(e.target.value)}
+                onChange={(e) => {
+                  setCheckInDate(e.target.value);
+                  setDateError('');
+                  if (checkOutDate && checkOutDate <= e.target.value) setCheckOutDate('');
+                }}
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
             </div>
@@ -194,9 +220,12 @@ export default function RoomDetail() {
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-out</label>
               <input 
                 type="date" 
-                min={checkInDate || getDateOffset(0)}
+                min={addDay(checkInDate)}
                 value={checkOutDate}
-                onChange={(e) => setCheckOutDate(e.target.value)}
+                onChange={(e) => {
+                  setCheckOutDate(e.target.value);
+                  setDateError('');
+                }}
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
             </div>
@@ -210,13 +239,20 @@ export default function RoomDetail() {
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
             </div>
+
+            {dateError ? (
+              <div className="flex items-start gap-2 rounded-xl border border-error/20 bg-error-container/65 px-3 py-2.5 text-sm text-on-error-container" role="alert">
+                <span className="material-symbols-outlined mt-0.5 text-[18px]">error</span>
+                <p>{dateError}</p>
+              </div>
+            ) : null}
           </div>
 
           {/* Pricing Breakdown */}
           <div className="border-t border-outline-variant/20 pt-4 space-y-2 text-sm text-on-surface-variant">
             <div className="flex justify-between">
-              <span>{formatPrice(room.price)} x {nights} malam</span>
-              <span>{formatPrice(totalPrice)}</span>
+              <span>{nights > 0 ? `${formatPrice(room.price)} x ${nights} malam` : 'Tanggal belum dipilih'}</span>
+              <span>{nights > 0 ? formatPrice(totalPrice) : '-'}</span>
             </div>
             <div className="flex justify-between">
               <span>Biaya Layanan (0%)</span>
@@ -224,7 +260,7 @@ export default function RoomDetail() {
             </div>
             <div className="flex justify-between font-bold text-on-surface text-base pt-2 border-t border-outline-variant/10">
               <span>Total Estimasi</span>
-              <span className="text-primary">{formatPrice(totalPrice)}</span>
+              <span className="text-primary">{nights > 0 ? formatPrice(totalPrice) : '-'}</span>
             </div>
           </div>
 
