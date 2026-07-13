@@ -301,7 +301,7 @@ export default function AdminProperties() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-margin-mobile py-8 text-left md:px-margin-desktop md:py-12">
+    <main className="page-shell py-8 text-left md:py-12">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-level-1 md:flex-row md:items-end md:justify-between">
           <div>

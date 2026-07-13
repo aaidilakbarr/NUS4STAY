@@ -46,9 +46,9 @@ export default function PropertyDetail() {
   }
 
   return (
-    <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 text-left">
+    <main className="page-shell py-6 text-left md:py-10">
       {/* Breadcrumbs */}
-      <div className="flex items-center text-on-surface-variant font-label-md text-xs mb-4">
+      <div className="mb-4 flex items-center overflow-x-auto whitespace-nowrap pb-1 font-label-md text-xs text-on-surface-variant">
         <a className="hover:text-primary transition-colors" href="#/">Discover</a>
         <span className="material-symbols-outlined mx-2 text-sm">chevron_right</span>
         <a className="hover:text-primary transition-colors" href="#/search">Stays</a>
@@ -68,7 +68,7 @@ export default function PropertyDetail() {
       </div>
 
       {/* Image Gallery Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 h-[350px] md:h-[500px]">
+      <div className="mb-10 grid h-[320px] grid-cols-1 gap-3 md:h-[500px] md:grid-cols-3 md:gap-4">
         {/* Main large image */}
         <div className="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden shadow-sm">
           <img 
@@ -102,7 +102,7 @@ export default function PropertyDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+      <div className="grid grid-cols-1 items-start gap-9 lg:grid-cols-3 lg:gap-12">
         {/* Left Column: Details & Rooms */}
         <div className="lg:col-span-2 space-y-10">
           
@@ -171,14 +171,14 @@ export default function PropertyDetail() {
                         ))}
                       </div>
                     </div>
-                    <div className="flex justify-between items-end border-t border-outline-variant/20 pt-4">
+                    <div className="flex flex-col items-stretch justify-between gap-4 border-t border-outline-variant/20 pt-4 sm:flex-row sm:items-end">
                       <div>
                         <span className="font-price-display text-price-display text-on-surface font-bold">
                           {formatPrice(room.price)}
                         </span>
                         <span className="font-body-md text-xs text-on-surface-variant"> / malam</span>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-2 gap-2 sm:flex">
                         <a 
                           className="font-label-md text-xs border border-primary text-primary px-4 py-2.5 rounded-lg hover:bg-primary/5 transition-all font-bold active:scale-95"
                           href={`#/room/${property.id}/${room.id}`}
@@ -202,7 +202,7 @@ export default function PropertyDetail() {
         </div>
 
         {/* Right Column: Dynamic Price Summary Widget */}
-        <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 shadow-sm sticky top-28 space-y-6">
+        <div className="sticky top-32 space-y-6 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 shadow-sm">
           <div className="flex justify-between items-start">
             <div>
               <p className="font-body-md text-xs text-on-surface-variant uppercase tracking-wider">Prices From</p>

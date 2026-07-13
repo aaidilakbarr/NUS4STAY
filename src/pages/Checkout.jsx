@@ -113,7 +113,7 @@ export default function Checkout() {
   const totalCost = roomCost + serviceFee;
 
   return (
-    <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12 text-left">
+    <main className="page-shell py-8 text-left md:py-12">
       
       {/* Back Button */}
       <button 
@@ -254,7 +254,7 @@ export default function Checkout() {
         </form>
 
         {/* Right Column: Reservation Summary Card */}
-        <aside className="lg:col-span-4 space-y-6">
+        <aside className="space-y-6 lg:sticky lg:top-28 lg:col-span-4">
           <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm">
             <div className="aspect-[16/10] overflow-hidden">
               <img 

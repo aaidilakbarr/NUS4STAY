@@ -2,19 +2,19 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="w-full py-section-gap bg-surface-container-lowest border-t border-outline-variant mt-auto">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-        <div className="col-span-1 flex flex-col items-start gap-4 mb-8 md:mb-0">
+    <footer className="mt-auto w-full border-t border-outline-variant bg-surface-container-lowest py-12 md:py-16">
+      <div className="page-shell grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-gutter">
+        <div className="col-span-2 flex max-w-sm flex-col items-start gap-4 md:col-span-1">
           <div className="inline-flex items-center gap-3">
             <img
               src="/logo_nus4stay.svg"
               alt=""
-              className="h-25 w-25 object-contain"
+              className="h-12 w-12 object-contain"
             />
             <span className="font-headline-md text-headline-md font-bold text-primary">NUS4STAY</span>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Curated luxury stays for the discerning traveler. Find your next premium escape.
+            Curated stays and simple booking for your next getaway.
           </p>
         </div>
         <div className="col-span-1 flex flex-col gap-3">
@@ -33,7 +33,7 @@ export default function Footer() {
           <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Terms of Service</a>
         </div>
       </div>
-      <div className="mt-16 pt-8 border-t border-outline-variant/30 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto text-center">
+      <div className="page-shell mt-10 border-t border-outline-variant/50 pt-6 text-center md:mt-12">
         <p className="font-body-md text-body-md text-on-surface-variant">
           &copy; 2026 NUS4STAY Global. All rights reserved.
         </p>

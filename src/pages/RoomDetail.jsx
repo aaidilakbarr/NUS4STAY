@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 
+const getDateOffset = (days) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
 export default function RoomDetail() {
   const [property, setProperty] = useState(null);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Form states for booking summary widget
-  const [checkInDate, setCheckInDate] = useState('2024-10-15');
-  const [checkOutDate, setCheckOutDate] = useState('2024-10-18');
+  const [checkInDate, setCheckInDate] = useState(() => getDateOffset(1));
+  const [checkOutDate, setCheckOutDate] = useState(() => getDateOffset(4));
   const [guests, setGuests] = useState('2 Dewasa');
 
   useEffect(() => {
@@ -73,11 +81,11 @@ export default function RoomDetail() {
   const totalPrice = room.price * nights;
 
   return (
-    <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 text-left">
+    <main className="page-shell py-6 text-left md:py-10">
       
       {/* Breadcrumb & Title */}
       <div className="mb-8">
-        <div className="flex items-center text-on-surface-variant font-label-md text-xs mb-3">
+        <div className="mb-3 flex items-center overflow-x-auto whitespace-nowrap pb-1 font-label-md text-xs text-on-surface-variant">
           <a className="hover:text-primary transition-colors" href="#/">Discover</a>
           <span className="material-symbols-outlined mx-2 text-sm">chevron_right</span>
           <a className="hover:text-primary transition-colors" href={`#/detail/${property.id}`}>{property.name}</a>
@@ -94,7 +102,7 @@ export default function RoomDetail() {
       </div>
 
       {/* Hero Gallery Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 h-[350px] md:h-[500px]">
+      <div className="mb-10 grid h-[320px] grid-cols-1 gap-3 md:mb-12 md:h-[500px] md:grid-cols-3 md:gap-4">
         <div className="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden shadow-sm">
           <img 
             className="w-full h-full object-cover" 
@@ -119,7 +127,7 @@ export default function RoomDetail() {
       </div>
 
       {/* Main content grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start relative">
+      <div className="relative grid grid-cols-1 items-start gap-9 lg:grid-cols-3 lg:gap-12">
         {/* Left Column: Details & Amenities */}
         <div className="lg:col-span-2 space-y-12">
           
@@ -160,7 +168,7 @@ export default function RoomDetail() {
         </div>
 
         {/* Right Column: Reservation Widget */}
-        <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-6 shadow-sm sticky top-28 space-y-6">
+        <div className="sticky top-32 space-y-6 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-6 shadow-sm">
           <div className="flex justify-between items-end border-b border-outline-variant/30 pb-4">
             <div>
               <span className="font-price-display text-2xl text-primary font-bold">
@@ -176,6 +184,7 @@ export default function RoomDetail() {
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-in</label>
               <input 
                 type="date" 
+                min={getDateOffset(0)}
                 value={checkInDate}
                 onChange={(e) => setCheckInDate(e.target.value)}
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
@@ -185,6 +194,7 @@ export default function RoomDetail() {
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-out</label>
               <input 
                 type="date" 
+                min={checkInDate || getDateOffset(0)}
                 value={checkOutDate}
                 onChange={(e) => setCheckOutDate(e.target.value)}
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"

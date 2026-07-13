@@ -17,8 +17,8 @@ export default function Navbar({ currentPage }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-outline-variant/40 bg-surface/85 text-on-surface shadow-[0_12px_40px_rgba(23,28,21,0.04)] backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-container-max items-center justify-between gap-4 px-margin-mobile md:px-margin-desktop">
+    <header className="sticky top-0 z-50 w-full border-b border-outline-variant/50 bg-surface/90 text-on-surface shadow-[0_10px_30px_rgba(23,28,21,0.045)] backdrop-blur-xl">
+      <div className="page-shell flex h-16 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-4 md:gap-6">
           <a
             aria-label="NUS4STAY home"
@@ -33,9 +33,12 @@ export default function Navbar({ currentPage }) {
             />
             <span className="sr-only">NUS4STAY</span>
           </a>
+          <a href="#/" className="hidden font-headline-md text-lg font-bold tracking-[-0.02em] text-primary sm:block md:hidden lg:block">
+            NUS4STAY
+          </a>
           <nav
             aria-label="Primary navigation"
-            className="hidden items-center rounded-full border border-outline-variant/60 bg-surface-container-low/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:flex"
+            className="hidden items-center rounded-full border border-outline-variant/60 bg-surface-container-low/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:flex lg:ml-3"
           >
             {navItems.map((item) => {
               const isActive = currentPage === item.page;
@@ -68,16 +71,6 @@ export default function Navbar({ currentPage }) {
               <span className="font-label-md hidden text-xs sm:inline">Admin</span>
             </a>
           )}
-          <a
-            href="#/history"
-            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-transparent px-2 text-on-surface-variant transition hover:border-outline-variant/60 hover:bg-surface-container-low hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 sm:px-3"
-            aria-label="My Bookings"
-          >
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary-fixed/25 text-primary">
-              <span className="material-symbols-outlined icon-pro text-[18px]">receipt_long</span>
-            </span>
-            <span className="font-label-md hidden text-xs sm:inline">My Bookings</span>
-          </a>
           {isAuthenticated ? (
             <button
               type="button"
@@ -85,7 +78,7 @@ export default function Navbar({ currentPage }) {
               className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4"
             >
               <span className="material-symbols-outlined icon-pro text-[19px]">logout</span>
-              <span className="font-label-md hidden text-xs sm:inline">{user?.email ?? 'Logout'}</span>
+              <span className="font-label-md hidden max-w-40 truncate text-xs sm:inline">{user?.email ?? 'Logout'}</span>
             </button>
           ) : (
             <a href="#/login" className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
@@ -95,6 +88,26 @@ export default function Navbar({ currentPage }) {
           )}
         </div>
       </div>
+      <nav aria-label="Mobile navigation" className="border-t border-outline-variant/40 bg-surface/75 md:hidden">
+        <div className="page-shell grid grid-cols-3 gap-1 py-1.5">
+          {navItems.map((item) => {
+            const isActive = currentPage === item.page;
+
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? 'page' : undefined}
+                className={`inline-flex min-h-10 items-center justify-center rounded-lg px-2 text-xs font-semibold transition ${
+                  isActive ? 'bg-primary-fixed/35 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
+                }`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
+        </div>
+      </nav>
     </header>
   );
 }

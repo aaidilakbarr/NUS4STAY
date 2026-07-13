@@ -75,6 +75,7 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--color-background);
 }
 
 body {
@@ -85,6 +86,30 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 220ms ease, color 220ms ease;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -130,11 +155,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Custom elevations and layer styles based on Stitch design tokens */
 .shadow-level-1 {
-  box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 8px 28px rgba(23, 28, 21, 0.055);
 }
 
 .shadow-level-2 {
-  box-shadow: 0px 10px 32px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 18px 50px rgba(23, 28, 21, 0.11);
 }
 
 .glass-panel {
@@ -145,7 +170,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-gradient {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.2) 100%);
+  background:
+    linear-gradient(180deg, rgba(16, 31, 13, 0.3) 0%, rgba(10, 20, 8, 0.72) 100%),
+    linear-gradient(90deg, rgba(10, 20, 8, 0.2), transparent 60%);
+}
+
+.page-shell {
+  width: min(calc(100% - 40px), var(--spacing-container-max));
+  margin-inline: auto;
+}
+
+.interactive-card {
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.interactive-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--color-primary) 24%, transparent);
 }
 
 /* Typography styles matching designTheme specs exactly but using Playfair Display for display */
@@ -260,5 +301,11 @@ h1, h2, h3, h4, h5, h6 {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-shell {
+    width: min(calc(100% - 80px), var(--spacing-container-max));
   }
 }

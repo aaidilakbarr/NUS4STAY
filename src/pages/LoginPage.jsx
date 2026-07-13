@@ -146,7 +146,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative overflow-hidden px-margin-mobile py-8 md:px-margin-desktop md:py-12">
+    <main className="page-shell relative overflow-hidden py-8 md:py-12">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(135deg,#FAFBF9_0%,#EEF4EA_46%,#F8F2E5_100%)]" />
       <div className="mx-auto grid min-h-[calc(100vh-11rem)] w-full max-w-container-max overflow-hidden rounded-[1.75rem] border border-white/70 bg-surface/90 shadow-[0_28px_90px_rgba(23,28,21,0.14)] backdrop-blur lg:grid-cols-[0.96fr_1.04fr]">
         <section className="relative hidden min-h-[640px] overflow-hidden bg-primary text-on-primary lg:flex">

@@ -39,7 +39,7 @@ export default function BookingHistory() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12 text-left">
+    <main className="page-shell py-8 text-left md:py-12">
       <div className="mb-8">
         <h1 className="font-headline-xl font-headline-xl-mobile md:text-3xl text-primary font-bold">Booking History</h1>
         <p className="font-body-md text-on-surface-variant mt-2">Manage and review your accommodation bookings.</p>

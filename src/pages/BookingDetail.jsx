@@ -274,7 +274,7 @@ export default function BookingDetail() {
   const nights = calculateNights(booking.checkIn, booking.checkOut);
 
   return (
-    <main className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12 text-left">
+    <main className="page-shell py-8 text-left md:py-12">
       
       {/* Header & Back Action */}
       <header className="flex items-center gap-4 mb-8">

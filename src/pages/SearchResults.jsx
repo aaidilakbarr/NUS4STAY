@@ -12,6 +12,7 @@ export default function SearchResults() {
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [tempSearchInput, setTempSearchInput] = useState('');
   const [debouncedSearchInput, setDebouncedSearchInput] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Extract query from Hash URL
   useEffect(() => {
@@ -73,9 +74,7 @@ export default function SearchResults() {
   }, [debouncedSearchInput]);
 
   const handleApplyFilters = () => {
-    // When filters are clicked, the dependencies trigger reload automatically,
-    // but we can also display a notification or toast
-    console.log("Filters applied:", { priceFilter, ratingFilter, selectedAmenities });
+    setFiltersOpen(false);
   };
 
   const handleSearchSubmit = (e) => {
@@ -101,10 +100,19 @@ export default function SearchResults() {
   const titleLocation = searchParams.search || searchParams.region || "All Destinations";
 
   return (
-    <main className="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 flex flex-col md:flex-row gap-gutter text-left">
+    <main className="page-shell flex flex-grow flex-col gap-5 py-6 text-left md:flex-row md:gap-gutter md:py-10">
       
       <aside className="w-full md:w-[280px] flex-shrink-0 flex flex-col gap-6">
-        <div className="bg-surface-container-low border border-outline-variant/30 shadow-sm rounded-xl p-6 flex flex-col gap-6 sticky top-28">
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((open) => !open)}
+          aria-expanded={filtersOpen}
+          className="flex min-h-12 w-full items-center justify-between rounded-xl border border-outline-variant/50 bg-surface px-4 text-sm font-bold text-on-surface shadow-level-1 md:hidden"
+        >
+          <span className="inline-flex items-center gap-2"><span className="material-symbols-outlined text-[20px] text-primary">tune</span> Refine search</span>
+          <span className="material-symbols-outlined text-[20px]">{filtersOpen ? 'expand_less' : 'expand_more'}</span>
+        </button>
+        <div className={`${filtersOpen ? 'flex' : 'hidden'} sticky top-32 flex-col gap-6 rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 shadow-sm md:flex md:p-6`}>
           <div>
             <h2 className="font-headline-md text-headline-md text-primary">Refine Search</h2>
             <p className="font-body-md text-body-md text-on-surface-variant mt-1">Narrow down your results</p>
@@ -187,16 +195,16 @@ export default function SearchResults() {
 
           <button 
             type="button"
-            className="w-full font-label-md text-label-md bg-primary text-on-primary py-3 rounded-lg hover:bg-primary-container transition-colors active:scale-95 shadow-sm font-semibold mt-2" 
+            className="mt-2 w-full rounded-lg bg-primary py-3 font-label-md text-label-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container active:scale-95 md:hidden"
             onClick={handleApplyFilters}
           >
-            Apply Filters
+            View {properties.length} stays
           </button>
         </div>
       </aside>
 
       {/* Results Main Section */}
-      <section className="flex-grow flex flex-col gap-6">
+      <section className="flex min-w-0 flex-grow flex-col gap-6">
         
         {/* Results Header Bar */}
         <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-level-1 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -253,7 +261,7 @@ export default function SearchResults() {
             {properties.map((prop) => (
               <div 
                 key={prop.id}
-                className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-level-1 hover:shadow-level-2 transition-all duration-300 border border-outline-variant/30 flex flex-col md:flex-row group"
+                className="interactive-card group flex flex-col overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-1 md:flex-row"
               >
                 {/* Image Section */}
                 <div className="relative w-full md:w-1/3 aspect-[4/3] md:aspect-auto md:min-h-[220px] overflow-hidden cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
@@ -269,7 +277,7 @@ export default function SearchResults() {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6 flex-grow flex flex-col justify-between md:w-2/3">
+                <div className="flex flex-grow flex-col justify-between p-5 md:w-2/3 md:p-6">
                   <div>
                     <h3 
                       className="font-headline-md text-headline-md text-on-surface hover:text-primary transition-colors cursor-pointer"
@@ -293,7 +301,7 @@ export default function SearchResults() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-end border-t border-outline-variant/30 pt-4 mt-4">
+                  <div className="mt-4 flex flex-col items-stretch justify-between gap-4 border-t border-outline-variant/30 pt-4 sm:flex-row sm:items-end">
                     <div>
                       <span className="font-price-display text-price-display text-on-surface font-bold">
                         {formatPrice(prop.price)}
@@ -301,7 +309,7 @@ export default function SearchResults() {
                       <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
                     </div>
                     <a 
-                      className="font-label-md text-label-md bg-primary text-on-primary px-6 py-2.5 rounded-lg hover:bg-primary-container transition-all flex items-center justify-center font-bold active:scale-95 transition-transform" 
+                      className="flex min-h-11 items-center justify-center rounded-lg bg-primary px-6 py-2.5 font-label-md text-label-md font-bold text-on-primary transition-all hover:bg-primary-container active:scale-95"
                       href={`#/detail/${prop.id}`}
                     >
                       View Details
