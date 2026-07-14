@@ -1,0 +1,84 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">NUS4STAY</title>
+  <desc id="desc">Animated glowing NUS4STAY README title</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="42%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#042F2E"/>
+    </linearGradient>
+
+    <linearGradient id="type" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#67E8F9">
+        <animate attributeName="stop-color" values="#67E8F9;#A7F3D0;#FDE68A;#67E8F9" dur="6s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="48%" stop-color="#FFFFFF">
+        <animate attributeName="stop-color" values="#FFFFFF;#CCFBF1;#FFFFFF" dur="5s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#34D399">
+        <animate attributeName="stop-color" values="#34D399;#38BDF8;#A7F3D0;#34D399" dur="6s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <filter id="softGlow" x="-35%" y="-70%" width="170%" height="240%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.20 0 0 0 0 0.90 0 0 0 0 0.75 0 0 0 0.85 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="cardShadow" x="-20%" y="-30%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="28" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+
+    <radialGradient id="pulse" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+    </radialGradient>
+
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M 42 0 L 0 0 0 42" stroke="#94A3B8" stroke-opacity="0.12" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="360" rx="28" fill="url(#bg)" filter="url(#cardShadow)"/>
+  <rect width="1200" height="360" rx="28" fill="url(#grid)" opacity="0.65">
+    <animateTransform attributeName="transform" type="translate" from="0 0" to="42 42" dur="16s" repeatCount="indefinite"/>
+  </rect>
+
+  <circle cx="245" cy="152" r="115" fill="url(#pulse)">
+    <animate attributeName="r" values="88;132;88" dur="5.8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0.95;0.5" dur="5.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="965" cy="210" r="155" fill="url(#pulse)" opacity="0.56">
+    <animate attributeName="r" values="128;178;128" dur="7s" repeatCount="indefinite"/>
+  </circle>
+
+  <path d="M92 272 C275 176 405 282 580 190 C746 103 874 186 1114 74" stroke="#5EEAD4" stroke-width="2" stroke-linecap="round" stroke-dasharray="10 18" opacity="0.6">
+    <animate attributeName="stroke-dashoffset" values="0;-112" dur="8s" repeatCount="indefinite"/>
+  </path>
+  <path d="M98 92 C286 175 404 85 576 156 C758 231 905 100 1104 190" stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="6 14" opacity="0.42">
+    <animate attributeName="stroke-dashoffset" values="0;96" dur="9s" repeatCount="indefinite"/>
+  </path>
+
+  <g transform="translate(600 154)" text-anchor="middle">
+    <text y="0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="74" font-weight="900" letter-spacing="4" fill="url(#type)" filter="url(#softGlow)">
+      NUS4STAY
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0;0 4;0 0" dur="6s" repeatCount="indefinite"/>
+    </text>
+    <text y="54" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="20" font-weight="600" letter-spacing="3" fill="#BAE6FD" opacity="0.92">
+      FIND STAYS. BOOK ROOMS. MANAGE WITH CONFIDENCE.
+      <animate attributeName="opacity" values="0.72;1;0.72" dur="4.5s" repeatCount="indefinite"/>
+    </text>
+  </g>
+
+  <g opacity="0.86">
+    <rect x="426" y="236" width="348" height="44" rx="22" fill="#020617" fill-opacity="0.72" stroke="#2DD4BF" stroke-opacity="0.44"/>
+    <circle cx="454" cy="258" r="5" fill="#34D399">
+      <animate attributeName="opacity" values="0.35;1;0.35" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+    <text x="474" y="264" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" letter-spacing="1.2" fill="#E2E8F0">REACT + VITE + SUPABASE</text>
+  </g>
+</svg>
