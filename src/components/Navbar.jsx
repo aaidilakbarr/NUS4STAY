@@ -23,18 +23,15 @@ export default function Navbar({ currentPage }) {
           <a
             aria-label="NUS4STAY home"
             title="NUS4STAY"
-            className="group inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-outline-variant/60 bg-surface shadow-[0_8px_24px_rgba(23,28,21,0.06)] transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_32px_rgba(23,28,21,0.1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95"
+            className="flex shrink-0 cursor-pointer items-center justify-center transition-transform duration-200 hover:scale-105 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             href="#/"
           >
             <img
               src="/logo_nus4stay.svg"
-              alt=""
-              className="h-9 w-9 object-contain transition-transform duration-500 group-hover:rotate-[6deg]"
+              alt="NUS4STAY"
+              className="h-20 w-auto object-contain"
             />
             <span className="sr-only">NUS4STAY</span>
-          </a>
-          <a href="#/" className="hidden font-headline-md text-lg font-bold tracking-[-0.02em] text-primary sm:block md:hidden lg:block">
-            NUS4STAY
           </a>
           <nav
             aria-label="Primary navigation"
@@ -47,11 +44,10 @@ export default function Navbar({ currentPage }) {
                 <a
                   key={item.href}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`font-label-md rounded-full px-4 py-2 text-xs transition-all duration-300 ${
-                    isActive
-                      ? 'bg-surface text-primary shadow-sm ring-1 ring-outline-variant/50'
-                      : 'text-on-surface-variant hover:-translate-y-0.5 hover:bg-surface/75 hover:text-on-surface'
-                  }`}
+                  className={`font-label-md rounded-full px-4 py-2 text-xs transition-all duration-300 ${isActive
+                    ? 'bg-surface text-primary shadow-sm ring-1 ring-outline-variant/50'
+                    : 'text-on-surface-variant hover:-translate-y-0.5 hover:bg-surface/75 hover:text-on-surface'
+                    }`}
                   href={item.href}
                 >
                   {item.label}
@@ -98,9 +94,8 @@ export default function Navbar({ currentPage }) {
                 key={item.href}
                 href={item.href}
                 aria-current={isActive ? 'page' : undefined}
-                className={`inline-flex min-h-10 items-center justify-center rounded-lg px-2 text-xs font-semibold transition ${
-                  isActive ? 'bg-primary-fixed/35 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
-                }`}
+                className={`inline-flex min-h-10 items-center justify-center rounded-lg px-2 text-xs font-semibold transition ${isActive ? 'bg-primary-fixed/35 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
+                  }`}
               >
                 {item.label}
               </a>
