@@ -7,6 +7,7 @@ const routes = [
   { pattern: /^#\/login$/,                page: 'login',           showNav: true,  showFooter: false, protected: false, roles: [] },
   { pattern: /^#\/history$/,              page: 'history',         showNav: true,  showFooter: true, protected: true, roles: ['guest'] },
   { pattern: /^#\/search/,                page: 'search',          showNav: true,  showFooter: true, protected: false, roles: [] },
+  { pattern: /^#\/profile$/,                      page: 'profile',         showNav: true,  showFooter: true, protected: true,  roles: ['guest', 'admin'] },
   { pattern: /^#\/admin\/properties$/,    page: 'admin-properties',showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
   { pattern: /^#\/admin\/payments$/,      page: 'admin-payments',  showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
 ];

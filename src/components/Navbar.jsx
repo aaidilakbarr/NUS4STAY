@@ -9,7 +9,7 @@ const navItems = [
 ];
 
 export default function Navbar({ currentPage }) {
-  const { isAuthenticated, user, role } = useAuth();
+  const { isAuthenticated, user, role, profile } = useAuth();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -68,14 +68,23 @@ export default function Navbar({ currentPage }) {
             </a>
           )}
           {isAuthenticated ? (
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4"
-            >
-              <span className="material-symbols-outlined icon-pro text-[19px]">logout</span>
-              <span className="font-label-md hidden max-w-40 truncate text-xs sm:inline">{user?.email ?? 'Logout'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <a
+                href="#/profile"
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4"
+              >
+                <span className="material-symbols-outlined icon-pro text-[19px]">person</span>
+                <span className="font-label-md hidden max-w-40 truncate text-xs sm:inline">{profile?.full_name || user?.email || 'Akun'}</span>
+              </a>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-outline-variant/40 text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-all duration-200 active:scale-95"
+                aria-label="Logout"
+              >
+                <span className="material-symbols-outlined icon-pro text-[18px]">logout</span>
+              </button>
+            </div>
           ) : (
             <a href="#/login" className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4">
               <span className="material-symbols-outlined icon-pro text-[19px]">login</span>

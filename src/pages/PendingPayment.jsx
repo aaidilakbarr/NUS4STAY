@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { db } from '../services/db';
 
 const getBookingIdFromHash = () => {
@@ -30,6 +30,8 @@ export default function PendingPayment() {
   const [proofFile, setProofFile] = useState(null);
   const [proofUploading, setProofUploading] = useState(false);
   const [error, setError] = useState('');
+  const [proofModal, setProofModal] = useState({ open: false, success: false, text: '' });
+  const fileInputRef = useRef(null);
 
   const loadBooking = useCallback(async () => {
     const id = getBookingIdFromHash();
@@ -111,9 +113,11 @@ export default function PendingPayment() {
     setError('');
     try {
       await db.uploadPaymentProof(booking.id, proofFile);
-      window.location.hash = '#/';
-    } catch (uploadError) {
-      setError(uploadError.message);
+      setProofModal({ open: true, success: true, text: 'Bukti pembayaran berhasil dikirim! Mohon tunggu verifikasi dari admin.' });
+      setProofFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch {
+      setProofModal({ open: true, success: false, text: 'Maaf bukti pembayaran gagal.' });
     } finally {
       setProofUploading(false);
     }
@@ -242,6 +246,7 @@ export default function PendingPayment() {
               </div>
               <input
                 type="file"
+                ref={fileInputRef}
                 accept="image/*,.pdf"
                 onChange={(event) => setProofFile(event.target.files?.[0] || null)}
                 className="block w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-xs"
@@ -281,6 +286,48 @@ export default function PendingPayment() {
           ) : null}
         </div>
       </div>
+
+      {proofModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101F0D]/20 px-4 backdrop-blur-md animate-fade-in-up">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="proof-dialog-title"
+            className="w-full max-w-sm rounded-[2rem] border border-white/60 bg-white/40 p-6 shadow-2xl backdrop-blur-2xl text-center"
+          >
+            <div className="flex flex-col items-center">
+              <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl mb-4 ${proofModal.success ? 'bg-primary/10 text-primary border border-primary/15' : 'bg-error-container/60 text-on-error-container border border-error/15'
+                }`}>
+                <span className="material-symbols-outlined icon-pro text-[28px]">
+                  {proofModal.success ? 'check_circle' : 'error'}
+                </span>
+              </div>
+
+              <h3 id="proof-dialog-title" className="text-lg font-bold text-on-surface">
+                {proofModal.success ? 'Bukti Terkirim' : 'Pengiriman Gagal'}
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-on-surface-variant/80">
+                {proofModal.text}
+              </p>
+
+              <div className="mt-6 w-full">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProofModal({ open: false, success: false, text: '' });
+                    if (proofModal.success) {
+                      window.location.hash = '#/history';
+                    }
+                  }}
+                  className="w-full h-11 cursor-pointer inline-flex items-center justify-center rounded-xl bg-primary text-white text-xs font-semibold shadow-md hover:bg-primary-container transition-all duration-200"
+                >
+                  {proofModal.success ? 'Lihat Riwayat Booking' : 'Tutup'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -388,4 +388,23 @@ export const db = {
     if (error) throw mapBookingError(error);
     return normalizeReviewRecord(readRpcRow(data));
   },
+
+  updateProfile: async ({ full_name, phone }) => {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+      throw new Error('Silakan login terlebih dahulu.');
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: { full_name, phone },
+    });
+    if (updateError) throw new Error(updateError.message);
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ full_name, phone })
+      .eq('id', userData.user.id);
+
+    if (error) throw new Error(error.message || 'Gagal memperbarui profil.');
+  },
 };

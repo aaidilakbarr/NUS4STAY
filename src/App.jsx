@@ -13,6 +13,7 @@ import BookingDetail from './pages/BookingDetail';
 import LoginPage from './pages/LoginPage';
 import AdminProperties from './pages/AdminProperties';
 import AdminVerification from './pages/AdminVerification';
+import ProfilePage from './pages/ProfilePage';
 import { getRouteInfo } from './routes/getRouteInfo';
 
 const pageComponents = {
@@ -27,6 +28,7 @@ const pageComponents = {
   login: LoginPage,
   'admin-properties': AdminProperties,
   'admin-payments': AdminVerification,
+  profile: ProfilePage,
 };
 
 function App() {

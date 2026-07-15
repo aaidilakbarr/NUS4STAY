@@ -30,6 +30,7 @@ function Icon({ name, className = '' }) {
 export default function LoginPage() {
   const { session, isAuthenticated } = useAuth();
   const [mode, setMode] = useState('login');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -56,6 +57,7 @@ export default function LoginPage() {
     setRegisterModal({ open: false, success: false, text: '' });
 
     if (nextMode === 'login') {
+      setName('');
       setConfirmPassword('');
       setShowConfirmPassword(false);
     }
@@ -80,10 +82,10 @@ export default function LoginPage() {
     }
 
     const action = mode === 'register'
-      ? supabase.auth.signUp({ email, password })
+      ? supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })
       : supabase.auth.signInWithPassword({ email, password });
 
-    const { error } = await action;
+    const { data: authData, error } = await action;
 
     if (error) {
       setMessage(error.message);
@@ -93,6 +95,14 @@ export default function LoginPage() {
       }
       setLoading(false);
       return;
+    }
+
+    if (mode === 'register' && authData?.user) {
+      await supabase.from('profiles').upsert({
+        id: authData.user.id,
+        full_name: name,
+        role: 'guest',
+      }, { onConflict: 'id' });
     }
 
     setMessage(mode === 'register' ? 'Registrasi berhasil. Cek email jika verifikasi aktif.' : 'Login berhasil.');
@@ -184,6 +194,26 @@ export default function LoginPage() {
 
           {/* Input Groups */}
           <div className="flex flex-col gap-4 mb-6">
+            {/* Nama — register only */}
+            {mode === 'register' && (
+              <div className="flex flex-col gap-1.5 animate-scale-in">
+                <label htmlFor="auth-name" className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Nama</label>
+                <div className="group relative">
+                  <Icon name="person" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-outline/70 transition-colors duration-200 group-focus-within:text-primary text-[15px]" />
+                  <input
+                    id="auth-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Nama lengkap"
+                    className="h-12 w-full rounded-xl border border-white/50 bg-white/40 px-11 text-sm text-on-surface shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] placeholder-on-surface-variant/40 placeholder:text-[11px] outline-none backdrop-blur-md transition-all duration-200 focus:border-primary/50 focus:bg-white/60 focus:ring-4 focus:ring-primary/5"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Email */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="auth-email" className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80 ml-1">Alamat Email</label>

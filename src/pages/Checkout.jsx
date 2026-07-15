@@ -31,7 +31,7 @@ const parseGuestCount = (value) => {
 };
 
 export default function Checkout() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [property, setProperty] = useState(null);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -250,14 +250,18 @@ export default function Checkout() {
               <h2 className="font-headline-md text-lg text-primary font-bold">Informasi Tamu</h2>
               <p className="mt-1 text-xs text-on-surface-variant">Data booking akan menggunakan akun yang sedang login.</p>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 text-sm">
               <div>
                 <p className="text-xs text-on-surface-variant">Nama</p>
-                <p className="mt-1 font-semibold text-on-surface">{user?.user_metadata?.full_name || 'Tamu NUS4STAY'}</p>
+                <p className="mt-1 font-semibold text-on-surface">{profile?.full_name || user?.user_metadata?.full_name || 'Tamu NUS4STAY'}</p>
               </div>
               <div>
                 <p className="text-xs text-on-surface-variant">Email</p>
                 <p className="mt-1 font-semibold text-on-surface break-all">{user?.email || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-on-surface-variant">No. Telepon</p>
+                <p className="mt-1 font-semibold text-on-surface">{profile?.phone || '-'}</p>
               </div>
             </div>
           </section>
