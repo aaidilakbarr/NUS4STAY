@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { useAuth } from '../contexts/useAuth';
 import StarRating from '../components/StarRating';
 
 export default function BookingDetail() {
+  const { user, profile } = useAuth();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviewRating, setReviewRating] = useState(0);
@@ -126,6 +128,9 @@ export default function BookingDetail() {
       year: 'numeric'
     }).format(new Date(booking.paidAt || booking.updatedAt || Date.now()));
 
+    const invoiceName = profile?.full_name || user?.user_metadata?.full_name || booking.guestName || 'Tamu NUS4STAY';
+    const invoicePhone = profile?.phone || user?.user_metadata?.phone || booking.guestPhone || '-';
+
     const invoiceWindow = window.open('', '_blank', 'width=900,height=1200');
     if (!invoiceWindow) {
       alert('Pop-up diblokir. Izinkan pop-up untuk mencetak invoice.');
@@ -223,9 +228,9 @@ export default function BookingDetail() {
             <section class="section grid">
               <div>
                 <p class="label">Ditagihkan kepada</p>
-                <p class="value">${escapeHtml(booking.guestName)}</p>
-                <p class="muted">${escapeHtml(booking.guestEmail)}</p>
-                <p class="muted">${escapeHtml(booking.guestPhone)}</p>
+                <p class="value">${escapeHtml(invoiceName)}</p>
+                <p class="label">Nomor Telepon</p>
+                <p class="value">${escapeHtml(invoicePhone)}</p>
               </div>
               <div>
                 <p class="label">Status pembayaran</p>
@@ -417,7 +422,7 @@ export default function BookingDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-on-surface-variant font-medium">Nama Tamu Utama</p>
-                <p className="font-bold text-on-surface mt-0.5">{booking.guestName}</p>
+                <p className="font-bold text-on-surface mt-0.5">{profile?.full_name || user?.user_metadata?.full_name || booking.guestName || 'Tamu NUS4STAY'}</p>
               </div>
               <div>
                 <p className="text-on-surface-variant font-medium">Jumlah Tamu</p>
@@ -425,11 +430,11 @@ export default function BookingDetail() {
               </div>
               <div>
                 <p className="text-on-surface-variant font-medium">Alamat Email</p>
-                <p className="font-bold text-on-surface mt-0.5">{booking.guestEmail}</p>
+                <p className="font-bold text-on-surface mt-0.5">{user?.email || booking.guestEmail || '-'}</p>
               </div>
               <div>
                 <p className="text-on-surface-variant font-medium">Nomor Telepon</p>
-                <p className="font-bold text-on-surface mt-0.5">{booking.guestPhone}</p>
+                <p className="font-bold text-on-surface mt-0.5">{profile?.phone || user?.user_metadata?.phone || booking.guestPhone || '-'}</p>
               </div>
             </div>
           </section>

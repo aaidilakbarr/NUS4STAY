@@ -206,7 +206,7 @@ export default function Checkout() {
                   <label htmlFor="checkout-check-in" className="font-label-md text-xs text-on-surface font-semibold">Check-in</label>
                   <input
                     id="checkout-check-in"
-                    type="date"
+                    type="text"
                     min={getDateOffset(0)}
                     value={checkIn}
                     onChange={(event) => {
@@ -214,6 +214,9 @@ export default function Checkout() {
                       setDateError('');
                       if (checkOut && checkOut <= event.target.value) setCheckOut('');
                     }}
+                    placeholder="Pilih Tanggal Check-in"
+                    onFocus={(e) => e.target.type = 'date'}
+                    onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
                     className="h-12 w-full rounded-xl border border-outline-variant bg-surface-container-low px-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
                     required
                   />
@@ -222,13 +225,16 @@ export default function Checkout() {
                   <label htmlFor="checkout-check-out" className="font-label-md text-xs text-on-surface font-semibold">Check-out</label>
                   <input
                     id="checkout-check-out"
-                    type="date"
+                    type="text"
                     min={addDay(checkIn)}
                     value={checkOut}
                     onChange={(event) => {
                       setCheckOut(event.target.value);
                       setDateError('');
                     }}
+                    placeholder="Pilih Tanggal Checkout"
+                    onFocus={(e) => e.target.type = 'date'}
+                    onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
                     className="h-12 w-full rounded-xl border border-outline-variant bg-surface-container-low px-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
                     required
                   />

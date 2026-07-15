@@ -205,7 +205,7 @@ export default function RoomDetail() {
             <div className="flex flex-col gap-1.5">
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-in</label>
               <input 
-                type="date" 
+                type="text"
                 min={getDateOffset(0)}
                 value={checkInDate}
                 onChange={(e) => {
@@ -213,19 +213,25 @@ export default function RoomDetail() {
                   setDateError('');
                   if (checkOutDate && checkOutDate <= e.target.value) setCheckOutDate('');
                 }}
+                placeholder="Pilih Tanggal Check-in"
+                onFocus={(e) => e.target.type = 'date'}
+                onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-out</label>
               <input 
-                type="date" 
+                type="text"
                 min={addDay(checkInDate)}
                 value={checkOutDate}
                 onChange={(e) => {
                   setCheckOutDate(e.target.value);
                   setDateError('');
                 }}
+                placeholder="Pilih Tanggal Checkout"
+                onFocus={(e) => e.target.type = 'date'}
+                onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
                 className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
             </div>

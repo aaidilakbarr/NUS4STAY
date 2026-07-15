@@ -113,7 +113,7 @@ a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
 /* Material Symbols settings */
@@ -189,9 +189,9 @@ h1, h2, h3, h4, h5, h6 {
   border-color: color-mix(in srgb, var(--color-primary) 24%, transparent);
 }
 
-/* Typography styles matching designTheme specs exactly but using Playfair Display for display */
+/* Typography — Plus Jakarta Sans for headings, Inter for body */
 .font-headline-xl {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 48px;
   font-weight: 700;
   line-height: 56px;
@@ -199,7 +199,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .font-headline-xl-mobile {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 32px;
   font-weight: 700;
   line-height: 40px;
@@ -207,7 +207,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .font-headline-lg {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 32px;
   font-weight: 600;
   line-height: 40px;
@@ -215,7 +215,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .font-headline-md {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 24px;
   font-weight: 600;
   line-height: 32px;
@@ -244,7 +244,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .font-price-display {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 20px;
   font-weight: 700;
   line-height: 24px;

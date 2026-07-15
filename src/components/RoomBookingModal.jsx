@@ -265,10 +265,13 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
                 <input
                   ref={checkInRef}
                   id="room-modal-check-in"
-                  type="date"
+                  type="text"
                   min={getDateOffset(0)}
                   value={checkIn}
                   onChange={handleCheckInChange}
+                  placeholder="Pilih Tanggal Check-in"
+                  onFocus={(e) => e.target.type = 'date'}
+                  onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
                   className="h-12 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
                   required
                 />
@@ -277,13 +280,16 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
                 <label htmlFor="room-modal-check-out" className="font-label-md text-xs font-semibold text-on-surface">Check-out</label>
                 <input
                   id="room-modal-check-out"
-                  type="date"
+                  type="text"
                   min={addDay(checkIn)}
                   value={checkOut}
                   onChange={(event) => {
                     setCheckOut(event.target.value);
                     setDateError('');
                   }}
+                  placeholder="Pilih Tanggal Checkout"
+                  onFocus={(e) => e.target.type = 'date'}
+                  onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
                   className="h-12 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
                   required
                 />
