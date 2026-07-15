@@ -28,35 +28,20 @@ function Icon({ name, className = '' }) {
 }
 
 export default function LoginPage() {
+  const { session, isAuthenticated } = useAuth();
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [session, setSession] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [messageType, setMessageType] = useState('info');
   const [registerModal, setRegisterModal] = useState({ open: false, success: false, text: '' });
   const modalCloseRef = useRef(null);
-  useAuth();
 
   const currentContent = modeContent[mode];
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     if (registerModal.open) {
