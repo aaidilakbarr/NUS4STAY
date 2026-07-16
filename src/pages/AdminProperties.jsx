@@ -36,8 +36,8 @@ const createEmptyRoom = () => ({
   id: null,
   name: '',
   price: '',
-  imageFile: null,
-  imageUrl: '',
+  imageFiles: [null, null, null],
+  imageUrls: ['', '', ''],
   description: '',
   amenities: [],
   is_active: true,
@@ -63,6 +63,17 @@ function formatPrice(price) {
   }).format(price).replace('IDR', 'Rp');
 }
 
+const formatRupiahDisplay = (value) => {
+  if (!value || value === '0') return '';
+  const num = String(value).replace(/\D/g, '');
+  if (!num) return '';
+  return new Intl.NumberFormat('id-ID').format(Number(num));
+};
+
+const parseRupiahValue = (displayValue) => {
+  return displayValue.replace(/\./g, '');
+};
+
 function createFormFromProperty(property) {
   const propertyImages = Array.isArray(property.images) ? property.images : [property.image].filter(Boolean);
   const imageUrls = [propertyImages[0] ?? '', propertyImages[1] ?? '', propertyImages[2] ?? ''];
@@ -77,16 +88,20 @@ function createFormFromProperty(property) {
     amenities: Array.isArray(property.amenities) ? property.amenities : [],
     is_active: property.is_active ?? true,
     rooms: Array.isArray(property.rooms) && property.rooms.length > 0
-      ? property.rooms.map((room) => ({
-        id: room.id ?? null,
-        name: room.name ?? '',
-        price: room.price ?? '',
-        imageFile: null,
-        imageUrl: room.image ?? '',
-        description: room.description ?? '',
-        amenities: Array.isArray(room.amenities) ? room.amenities : [],
-        is_active: room.is_active ?? true,
-      }))
+      ? property.rooms.map((room) => {
+        const roomImages = Array.isArray(room.images) ? room.images : [room.image].filter(Boolean);
+        const imageUrls = [roomImages[0] ?? '', roomImages[1] ?? '', roomImages[2] ?? ''];
+        return {
+          id: room.id ?? null,
+          name: room.name ?? '',
+          price: room.price ?? '',
+          imageFiles: [null, null, null],
+          imageUrls,
+          description: room.description ?? '',
+          amenities: Array.isArray(room.amenities) ? room.amenities : [],
+          is_active: room.is_active ?? true,
+        };
+      })
       : [createEmptyRoom()],
   };
 }
@@ -101,6 +116,8 @@ export default function AdminProperties() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [notification, setNotification] = useState({ show: false, type: 'success', title: '', message: '' });
 
   const loadProperties = async ({ preserveMessage = false } = {}) => {
     setLoading(true);
@@ -139,6 +156,7 @@ export default function AdminProperties() {
   const openCreateModal = () => {
     setEditingProperty(null);
     setForm(emptyForm);
+    setCurrentStep(1);
     setMessage('');
     setIsModalOpen(true);
   };
@@ -146,6 +164,7 @@ export default function AdminProperties() {
   const openEditModal = (property) => {
     setEditingProperty(property);
     setForm(createFormFromProperty(property));
+    setCurrentStep(1);
     setMessage('');
     setIsModalOpen(true);
   };
@@ -210,16 +229,23 @@ export default function AdminProperties() {
     }));
   };
 
-  const handleRoomImageChange = (roomIndex, file) => {
+  const handleRoomImageChange = (roomIndex, imageIndex, file) => {
     if (!file) return;
 
     setForm((prev) => ({
       ...prev,
-      rooms: prev.rooms.map((room, index) => (
-        index === roomIndex
-          ? { ...room, imageFile: file, imageUrl: URL.createObjectURL(file) }
-          : room
-      )),
+      rooms: prev.rooms.map((room, index) => {
+        if (index !== roomIndex) {
+          return room;
+        }
+
+        const nextFiles = [...room.imageFiles];
+        const nextUrls = [...room.imageUrls];
+        nextFiles[imageIndex] = file;
+        nextUrls[imageIndex] = URL.createObjectURL(file);
+
+        return { ...room, imageFiles: nextFiles, imageUrls: nextUrls };
+      }),
     }));
   };
 
@@ -246,16 +272,20 @@ export default function AdminProperties() {
         room.name.trim()
         || String(room.price).trim()
         || room.description.trim()
-        || room.imageUrl.trim()
-        || room.imageFile
+        || room.imageUrls.some((url) => url.trim())
+        || room.imageFiles.some((file) => file)
       ));
 
       if (validRooms.length === 0) {
         throw new Error('Minimal tambahkan 1 tipe kamar untuk property ini.');
       }
 
-      if (validRooms.some((room) => !room.name.trim() || !String(room.price).trim() || !room.imageUrl.trim() && !room.imageFile)) {
-        throw new Error('Setiap tipe kamar wajib memiliki nama, harga, dan gambar.');
+      if (validRooms.some((room) => (
+        !room.name.trim()
+        || !String(room.price).trim()
+        || (!room.imageUrls.some((url) => url.trim()) && !room.imageFiles.some((file) => file))
+      ))) {
+        throw new Error('Setiap tipe kamar wajib memiliki nama, harga, dan minimal 1 gambar.');
       }
 
       const payload = {
@@ -263,22 +293,41 @@ export default function AdminProperties() {
         rooms: validRooms,
       };
 
-      if (editingProperty) {
-        await adminProperties.update(editingProperty.id, payload);
-        setMessage('Property berhasil diperbarui.');
-      } else {
+      const isCreate = !editingProperty;
+
+      if (isCreate) {
         await adminProperties.create(payload);
-        setMessage('Property berhasil ditambahkan.');
+      } else {
+        await adminProperties.update(editingProperty.id, payload);
       }
 
-      setMessageType('success');
       setIsModalOpen(false);
       setEditingProperty(null);
       setForm(emptyForm);
-      await loadProperties({ preserveMessage: true });
+      await loadProperties();
+
+      setNotification({
+        show: true,
+        type: 'success',
+        title: isCreate ? 'Properti Berhasil Ditambahkan' : 'Perubahan Berhasil',
+        message: isCreate
+          ? 'Property baru beserta tipe kamar telah berhasil disimpan dan siap dikelola.'
+          : 'Perubahan pada property telah berhasil disimpan.',
+      });
     } catch (error) {
-      setMessage(error.message);
-      setMessageType('error');
+      const wasEditing = editingProperty;
+
+      setIsModalOpen(false);
+      setEditingProperty(null);
+      setForm(emptyForm);
+      await loadProperties();
+
+      setNotification({
+        show: true,
+        type: 'error',
+        title: wasEditing ? 'Perubahan Gagal' : 'Properti Gagal Ditambahkan',
+        message: error.message || 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.',
+      });
     } finally {
       setSaving(false);
     }
@@ -311,7 +360,7 @@ export default function AdminProperties() {
             <p className="font-label-md text-xs uppercase tracking-[0.18em] text-tertiary">Admin Console</p>
             <h1 className="mt-2 font-headline-xl text-3xl font-bold text-primary">Manage Properties</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-on-surface-variant">
-              Kelola property, galeri 3 gambar, dan tipe kamar langsung dari dashboard admin.
+              Kelola detail property, tipe kamar beserta galeri gambar, dan atur status publikasi (publik atau private) langsung dari dashboard admin.
             </p>
           </div>
           <button
@@ -447,164 +496,384 @@ export default function AdminProperties() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid max-h-[calc(90vh-73px)] gap-6 overflow-y-auto px-5 py-5">
-              <section className="grid gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm text-on-surface">
-                  <span className="font-semibold">Property Name</span>
-                  <input value={form.name} onChange={(event) => handleChange('name', event.target.value)} required className="h-11 rounded-xl border border-outline-variant bg-surface px-3 text-sm outline-none focus:border-primary" />
-                </label>
+            <form onSubmit={handleSubmit} className="grid max-h-[calc(90vh-73px)] overflow-y-auto px-5 py-5">
+              <div className="mb-6 flex items-center justify-center gap-0">
+                {[1, 2, 3].map((s) => (
+                  <React.Fragment key={`step-indicator-${s}`}>
+                    {s > 1 ? (
+                      <div className={`mx-2 mb-6 h-px w-16 self-end transition-colors duration-300 ${currentStep >= s ? 'bg-primary' : 'bg-outline-variant'}`} />
+                    ) : null}
+                    <div className="flex flex-col items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(s)}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
+                          currentStep === s
+                            ? 'bg-primary text-on-primary shadow-[0_4px_14px_rgba(52,78,43,0.35)] scale-110'
+                            : currentStep > s
+                            ? 'bg-primary text-on-primary'
+                            : 'border-2 border-outline-variant bg-surface-container-low text-on-surface-variant'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[18px]">{s === 1 ? 'home' : s === 2 ? 'bed' : 'verified'}</span>
+                      </button>
+                      <span className={`text-[11px] font-semibold leading-tight transition-colors duration-300 ${currentStep === s ? 'text-primary' : 'text-outline'}`}>
+                        {s === 1 ? 'Property' : s === 2 ? 'Kamar' : 'Verifikasi'}
+                      </span>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
 
-                <label className="flex flex-col gap-2 text-sm text-on-surface">
-                  <span className="font-semibold">Location</span>
-                  <input value={form.location} onChange={(event) => handleChange('location', event.target.value)} required className="h-11 rounded-xl border border-outline-variant bg-surface px-3 text-sm outline-none focus:border-primary" />
-                </label>
-
-                <label className="flex flex-col gap-2 text-sm text-on-surface">
-                  <span className="font-semibold">Price per Night</span>
-                  <input type="number" min="0" value={form.price} onChange={(event) => handleChange('price', event.target.value)} required className="h-11 rounded-xl border border-outline-variant bg-surface px-3 text-sm outline-none focus:border-primary" />
-                </label>
-
-                <label className="inline-flex items-center gap-3 rounded-xl border border-outline-variant/50 bg-surface-container-low px-3 py-2 text-sm text-on-surface">
-                  <input type="checkbox" checked={form.is_active} onChange={(event) => handleChange('is_active', event.target.checked)} className="rounded border-outline-variant text-primary focus:ring-primary" />
-                  Property aktif dan tampil di halaman publik
-                </label>
-
-                <label className="md:col-span-2 flex flex-col gap-2 text-sm text-on-surface">
-                  <span className="font-semibold">Description</span>
-                  <textarea value={form.description} onChange={(event) => handleChange('description', event.target.value)} rows="4" className="rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary" />
-                </label>
-              </section>
-
-              <section className="grid gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5">
-                <div>
-                  <h3 className="text-lg font-bold text-on-surface">Galeri Property</h3>
-                  <p className="mt-1 text-sm text-on-surface-variant">Upload minimal 3 gambar. Gambar pertama akan dipakai sebagai thumbnail utama.</p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-3">
-                  {form.imageUrls.map((imageUrl, index) => (
-                    <div key={`property-image-${index}`} className="rounded-2xl border border-outline-variant/40 bg-surface p-4">
-                      <label className="flex flex-col gap-2 text-sm text-on-surface">
-                        <span className="font-semibold">{index === 0 ? 'Thumbnail' : `Gambar ${index + 1}`}</span>
-                        <input type="file" accept="image/*" onChange={(event) => handlePropertyImageChange(index, event.target.files?.[0])} className="h-11 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm outline-none file:mr-3 file:border-0 file:bg-transparent file:text-primary file:text-sm file:font-semibold" />
-                      </label>
-                      <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-[4/3]">
-                        {imageUrl ? (
-                          <img src={imageUrl} alt={`Preview property ${index + 1}`} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-sm text-outline">Belum ada gambar</div>
-                        )}
+              {currentStep === 1 ? (
+                <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-level-1">
+                  <section className="grid gap-6">
+                    <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">1</span>
+                      <div>
+                        <h3 className="text-lg font-bold text-on-surface">Property</h3>
+                        <p className="text-sm text-on-surface-variant">Lengkapi informasi utama property.</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </section>
 
-              <section className="grid gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5">
-                <div className="flex flex-col gap-2 text-sm text-on-surface">
-                  <span className="font-semibold">Amenities</span>
-                  <div className="flex flex-wrap gap-2">
-                    {AMENITY_OPTIONS.map((amenity) => (
-                      <label key={amenity} className="inline-flex items-center gap-2 rounded-full border border-outline-variant/50 bg-surface-container-low px-3 py-2">
-                        <input type="checkbox" checked={form.amenities.includes(amenity)} onChange={() => toggleAmenity(amenity)} className="rounded border-outline-variant text-primary focus:ring-primary" />
-                        {amenity}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className="flex flex-col gap-1.5 text-sm text-on-surface">
+                        <span className="font-semibold">Property Name <span className="text-error">*</span></span>
+                        <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
+                          <span className="material-symbols-outlined text-[18px] text-outline">store</span>
+                          <input value={form.name} onChange={(event) => handleChange('name', event.target.value)} required placeholder="e.g. Villa Bukit Indah" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                        </div>
                       </label>
-                    ))}
-                  </div>
-                </div>
-              </section>
 
-              <section className="grid gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-5">
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-on-surface">Tipe Kamar</h3>
-                    <p className="mt-1 text-sm text-on-surface-variant">Tambahkan tipe kamar yang nantinya akan dipakai saat booking.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={addRoom}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary-fixed/20 px-4 text-sm font-semibold text-primary"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">add</span>
-                    Add Room Type
-                  </button>
-                </div>
+                      <label className="flex flex-col gap-1.5 text-sm text-on-surface">
+                        <span className="font-semibold">Location <span className="text-error">*</span></span>
+                        <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
+                          <span className="material-symbols-outlined text-[18px] text-outline">location_on</span>
+                          <input value={form.location} onChange={(event) => handleChange('location', event.target.value)} required placeholder="e.g. Ubud, Bali" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                        </div>
+                      </label>
 
-                <div className="grid gap-4">
-                  {form.rooms.map((room, roomIndex) => (
-                    <article key={`${room.id ?? 'new'}-${roomIndex}`} className="grid gap-4 rounded-2xl border border-outline-variant/30 bg-surface p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <h4 className="text-base font-bold text-on-surface">Room Type {roomIndex + 1}</h4>
-                        <button
-                          type="button"
-                          onClick={() => removeRoom(roomIndex)}
-                          className="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-error/20 px-3 text-xs font-semibold text-error"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">delete</span>
-                          Remove
-                        </button>
+                      <label className="flex flex-col gap-1.5 text-sm text-on-surface">
+                        <span className="font-semibold">Price per Night <span className="text-error">*</span></span>
+                        <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
+                          <span className="material-symbols-outlined text-[18px] text-outline">payments</span>
+                          <input type="text" inputMode="numeric" value={formatRupiahDisplay(form.price)} onChange={(event) => handleChange('price', parseRupiahValue(event.target.value))} required placeholder="0" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                        </div>
+                      </label>
+
+                      <label className="md:col-span-2 flex flex-col gap-1.5 text-sm text-on-surface">
+                        <span className="font-semibold">Description</span>
+                        <textarea value={form.description} onChange={(event) => handleChange('description', event.target.value)} placeholder="Deskripsikan property secara detail..." rows="3" className="h-24 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(52,78,43,0.10)] resize-none" />
+                        <span className="text-xs text-outline text-right">{form.description.length}/500</span>
+                      </label>
+                    </div>
+
+                    <div className="border-t border-outline-variant/20 pt-5">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[20px] text-primary">photo_library</span>
+                        <h4 className="text-base font-bold text-on-surface">Galeri Property</h4>
                       </div>
-
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <label className="flex flex-col gap-2 text-sm text-on-surface">
-                          <span className="font-semibold">Room Name</span>
-                          <input value={room.name} onChange={(event) => updateRoom(roomIndex, 'name', event.target.value)} className="h-11 rounded-xl border border-outline-variant bg-surface px-3 text-sm outline-none focus:border-primary" />
-                        </label>
-
-                        <label className="flex flex-col gap-2 text-sm text-on-surface">
-                          <span className="font-semibold">Price per Night</span>
-                          <input type="number" min="0" value={room.price} onChange={(event) => updateRoom(roomIndex, 'price', event.target.value)} className="h-11 rounded-xl border border-outline-variant bg-surface px-3 text-sm outline-none focus:border-primary" />
-                        </label>
-
-                        <label className="flex flex-col gap-2 text-sm text-on-surface">
-                          <span className="font-semibold">Room Image</span>
-                          <input type="file" accept="image/*" onChange={(event) => handleRoomImageChange(roomIndex, event.target.files?.[0])} className="h-11 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm outline-none file:mr-3 file:border-0 file:bg-transparent file:text-primary file:text-sm file:font-semibold" />
-                        </label>
-
-                        <label className="inline-flex items-center gap-3 rounded-xl border border-outline-variant/50 bg-surface-container-low px-3 py-2 text-sm text-on-surface">
-                          <input type="checkbox" checked={room.is_active} onChange={(event) => updateRoom(roomIndex, 'is_active', event.target.checked)} className="rounded border-outline-variant text-primary focus:ring-primary" />
-                          Room type aktif
-                        </label>
-
-                        {room.imageUrl ? (
-                          <div className="overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-[4/3] md:col-span-2">
-                            <img src={room.imageUrl} alt={`Preview room ${roomIndex + 1}`} className="h-full w-full object-cover" />
-                          </div>
-                        ) : null}
-
-                        <label className="md:col-span-2 flex flex-col gap-2 text-sm text-on-surface">
-                          <span className="font-semibold">Room Description</span>
-                          <textarea value={room.description} onChange={(event) => updateRoom(roomIndex, 'description', event.target.value)} rows="3" className="rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm outline-none focus:border-primary" />
-                        </label>
-                      </div>
-
-                      <div className="flex flex-col gap-2 text-sm text-on-surface">
-                        <span className="font-semibold">Room Amenities</span>
-                        <div className="flex flex-wrap gap-2">
-                          {ROOM_AMENITY_OPTIONS.map((amenity) => (
-                            <label key={`${roomIndex}-${amenity}`} className="inline-flex items-center gap-2 rounded-full border border-outline-variant/50 bg-surface-container-low px-3 py-2">
-                              <input type="checkbox" checked={room.amenities.includes(amenity)} onChange={() => toggleRoomAmenity(roomIndex, amenity)} className="rounded border-outline-variant text-primary focus:ring-primary" />
-                              {amenity}
+                      <p className="mt-1 text-sm text-on-surface-variant">Upload minimal 3 gambar. Gambar pertama akan dipakai sebagai thumbnail utama.</p>
+                      <div className="mt-4 grid gap-4 md:grid-cols-3">
+                        {form.imageUrls.map((imageUrl, index) => (
+                          <div key={`property-image-${index}`} className="group rounded-2xl border-2 border-dashed border-outline-variant/40 bg-surface p-4 transition hover:border-primary/40">
+                            <label className="flex cursor-pointer flex-col gap-2 text-sm text-on-surface">
+                              <span className="font-semibold">{index === 0 ? 'Thumbnail' : `Gambar ${index + 1}`}</span>
+                              <input type="file" accept="image/*" onChange={(event) => handlePropertyImageChange(index, event.target.files?.[0])} className="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm outline-none file:mr-3 file:border-0 file:bg-transparent file:text-primary file:text-sm file:font-semibold" />
                             </label>
-                          ))}
+                            <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-[4/3]">
+                              {imageUrl ? (
+                                <img src={imageUrl} alt={`Preview property ${index + 1}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                              ) : (
+                                <div className="flex h-full flex-col items-center justify-center gap-2 text-outline">
+                                  <span className="material-symbols-outlined text-[32px]">add_photo_alternate</span>
+                                  <span className="text-xs">Belum ada gambar</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-outline-variant/20 pt-5">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[20px] text-primary">checklist</span>
+                        <h4 className="text-base font-bold text-on-surface">Amenities</h4>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {AMENITY_OPTIONS.map((amenity) => (
+                          <label key={amenity} className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${
+                            form.amenities.includes(amenity)
+                              ? 'border-primary bg-primary-fixed/20 text-primary'
+                              : 'border-outline-variant/50 bg-surface-container-low text-on-surface-variant hover:border-outline-variant'
+                          }`}>
+                            <input type="checkbox" checked={form.amenities.includes(amenity)} onChange={() => toggleAmenity(amenity)} className="sr-only" />
+                            <span className={`material-symbols-outlined text-[16px] ${form.amenities.includes(amenity) ? 'text-primary' : 'text-outline'}`}>
+                              {form.amenities.includes(amenity) ? 'check_circle' : 'add_circle_outline'}
+                            </span>
+                            {amenity}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              ) : currentStep === 2 ? (
+                <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-level-1">
+                  <section className="grid gap-4">
+                    <div className="flex flex-col gap-3 border-b border-outline-variant/20 pb-4 md:flex-row md:items-center md:justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">2</span>
+                        <div>
+                          <h3 className="text-lg font-bold text-on-surface">Kamar</h3>
+                          <p className="text-sm text-on-surface-variant">Tambahkan tipe kamar yang nantinya akan dipakai saat booking.</p>
                         </div>
                       </div>
-                    </article>
-                  ))}
+                      <button
+                        type="button"
+                        onClick={addRoom}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary-fixed/20 px-4 text-sm font-semibold text-primary transition hover:bg-primary/10"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">add</span>
+                        Add Room Type
+                      </button>
+                    </div>
+
+                    <div className="grid gap-4">
+                      {form.rooms.length === 0 ? (
+                        <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-outline-variant/30 bg-surface-container-low p-12 text-center">
+                          <span className="material-symbols-outlined text-[48px] text-outline">meeting_room</span>
+                          <div>
+                            <p className="font-semibold text-on-surface">Belum ada tipe kamar</p>
+                            <p className="mt-1 text-sm text-on-surface-variant">Klik "Add Room Type" untuk menambahkan kamar.</p>
+                          </div>
+                        </div>
+                      ) : (
+                        form.rooms.map((room, roomIndex) => (
+                          <article key={`${room.id ?? 'new'}-${roomIndex}`} className="grid gap-5 rounded-2xl border border-outline-variant/30 bg-surface p-5 transition hover:border-outline-variant/60">
+                            <div className="flex items-center justify-between gap-3">
+                              <h4 className="flex items-center gap-2 text-base font-bold text-on-surface">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-fixed/20 text-xs font-bold text-primary">{roomIndex + 1}</span>
+                                Room Type {roomIndex + 1}
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={() => removeRoom(roomIndex)}
+                                className="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-error/20 px-3 text-xs font-semibold text-error transition hover:bg-error-container/50"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">delete</span>
+                                Remove
+                              </button>
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                              <label className="flex flex-col gap-1.5 text-sm text-on-surface">
+                                <span className="font-semibold">Room Name</span>
+                                <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
+                                  <span className="material-symbols-outlined text-[18px] text-outline">door_front</span>
+                                  <input value={room.name} onChange={(event) => updateRoom(roomIndex, 'name', event.target.value)} placeholder="e.g. Deluxe Room" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                                </div>
+                              </label>
+
+                              <label className="flex flex-col gap-1.5 text-sm text-on-surface">
+                                <span className="font-semibold">Price per Night</span>
+                                <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
+                                  <span className="material-symbols-outlined text-[18px] text-outline">payments</span>
+                                  <input type="text" inputMode="numeric" value={formatRupiahDisplay(room.price)} onChange={(event) => updateRoom(roomIndex, 'price', parseRupiahValue(event.target.value))} placeholder="0" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                                </div>
+                              </label>
+
+                              <label className="inline-flex items-center gap-3 rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm text-on-surface md:col-span-2">
+                                <div className="relative">
+                                  <input type="checkbox" checked={room.is_active} onChange={(event) => updateRoom(roomIndex, 'is_active', event.target.checked)} className="peer sr-only" />
+                                  <div className="h-5 w-9 rounded-full bg-outline-variant transition peer-checked:bg-primary after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4" />
+                                </div>
+                                <span>Room type aktif dan bisa dipesan</span>
+                              </label>
+                            </div>
+
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[18px] text-primary">photo_camera</span>
+                                <span className="text-sm font-semibold text-on-surface">Room Images</span>
+                              </div>
+                              <p className="mt-0.5 text-xs text-on-surface-variant">Upload 3 gambar kamar. Gambar pertama menjadi thumbnail kamar.</p>
+                              <div className="mt-3 grid gap-4 md:grid-cols-3">
+                                {room.imageUrls.map((imageUrl, imageIndex) => (
+                                  <div key={`room-${roomIndex}-image-${imageIndex}`} className="group rounded-2xl border-2 border-dashed border-outline-variant/40 bg-surface-container-low p-3 transition hover:border-primary/40">
+                                    <label className="flex cursor-pointer flex-col gap-2 text-sm text-on-surface">
+                                      <span className="font-semibold">{imageIndex === 0 ? 'Thumbnail' : `Gambar ${imageIndex + 1}`}</span>
+                                      <input type="file" accept="image/*" onChange={(event) => handleRoomImageChange(roomIndex, imageIndex, event.target.files?.[0])} className="h-10 w-full rounded-xl border border-outline-variant bg-surface px-3 py-2 text-sm outline-none file:mr-2 file:border-0 file:bg-transparent file:text-primary file:text-xs file:font-semibold" />
+                                    </label>
+                                    <div className="mt-2 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-[4/3]">
+                                      {imageUrl ? (
+                                        <img src={imageUrl} alt={`Preview room ${roomIndex + 1} gambar ${imageIndex + 1}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                                      ) : (
+                                        <div className="flex h-full flex-col items-center justify-center gap-1 text-outline">
+                                          <span className="material-symbols-outlined text-[24px]">add_photo_alternate</span>
+                                          <span className="text-[11px]">Belum ada gambar</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <label className="flex flex-col gap-1.5 text-sm text-on-surface">
+                              <span className="font-semibold">Room Description</span>
+                              <textarea value={room.description} onChange={(event) => updateRoom(roomIndex, 'description', event.target.value)} placeholder="Deskripsikan tipe kamar ini..." rows="2" className="h-20 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(52,78,43,0.10)] resize-none" />
+                            </label>
+
+                            <div className="flex flex-col gap-2 text-sm text-on-surface">
+                              <span className="font-semibold">Room Amenities</span>
+                              <div className="flex flex-wrap gap-2">
+                                {ROOM_AMENITY_OPTIONS.map((amenity) => (
+                                  <label key={`${roomIndex}-${amenity}`} className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${
+                                    room.amenities.includes(amenity)
+                                      ? 'border-primary bg-primary-fixed/20 text-primary'
+                                      : 'border-outline-variant/50 bg-surface-container-low text-on-surface-variant hover:border-outline-variant'
+                                  }`}>
+                                    <input type="checkbox" checked={room.amenities.includes(amenity)} onChange={() => toggleRoomAmenity(roomIndex, amenity)} className="sr-only" />
+                                    <span className={`material-symbols-outlined text-[16px] ${room.amenities.includes(amenity) ? 'text-primary' : 'text-outline'}`}>
+                                      {room.amenities.includes(amenity) ? 'check_circle' : 'add_circle_outline'}
+                                    </span>
+                                    {amenity}
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          </article>
+                        ))
+                      )}
+                    </div>
+                  </section>
                 </div>
-              </section>
+              ) : (
+                <div className="rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-level-1">
+                  <section className="grid gap-6">
+                    <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">3</span>
+                      <div>
+                        <h3 className="text-lg font-bold text-on-surface">Verifikasi</h3>
+                        <p className="text-sm text-on-surface-variant">Atur visibilitas property di halaman publik.</p>
+                      </div>
+                    </div>
 
-              <div className="rounded-xl border border-outline-variant/40 bg-surface-container-low px-3 py-2 text-xs text-on-surface-variant">
-                Rating property dihitung otomatis dari ulasan pengguna, bukan diinput admin.
-              </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition-all ${
+                        form.is_active
+                          ? 'border-primary bg-primary-fixed/10 shadow-[0_0_0_3px_rgba(52,78,43,0.12)]'
+                          : 'border-outline-variant/30 bg-surface hover:border-outline-variant/60'
+                      }`}>
+                        <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                          form.is_active ? 'border-primary bg-primary' : 'border-outline-variant'
+                        }`}>
+                          {form.is_active ? <div className="h-2 w-2 rounded-full bg-white" /> : null}
+                        </div>
+                        <input type="radio" name="property-visibility" checked={form.is_active} onChange={() => handleChange('is_active', true)} className="sr-only" />
+                        <div className="grid gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[22px] text-primary">public</span>
+                            <span className="font-semibold text-on-surface">Publik</span>
+                          </div>
+                          <p className="text-sm leading-5 text-on-surface-variant">Property langsung tampil di halaman publik dan bisa dilihat semua pengguna.</p>
+                        </div>
+                      </label>
 
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="inline-flex h-12 items-center justify-center rounded-2xl border border-outline-variant px-5 text-sm font-semibold text-on-surface">Cancel</button>
-                <button type="submit" disabled={saving} className="inline-flex h-12 items-center justify-center rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary disabled:opacity-70">
-                  {saving ? 'Saving...' : editingProperty ? 'Save Changes' : 'Create Property'}
-                </button>
-              </div>
+                      <label className={`flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition-all ${
+                        !form.is_active
+                          ? 'border-tertiary bg-surface-container-low shadow-[0_0_0_3px_rgba(96,96,96,0.12)]'
+                          : 'border-outline-variant/30 bg-surface hover:border-outline-variant/60'
+                      }`}>
+                        <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                          !form.is_active ? 'border-tertiary bg-tertiary' : 'border-outline-variant'
+                        }`}>
+                          {!form.is_active ? <div className="h-2 w-2 rounded-full bg-white" /> : null}
+                        </div>
+                        <input type="radio" name="property-visibility" checked={!form.is_active} onChange={() => handleChange('is_active', false)} className="sr-only" />
+                        <div className="grid gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[22px] text-on-surface-variant">lock</span>
+                            <span className="font-semibold text-on-surface">Private</span>
+                          </div>
+                          <p className="text-sm leading-5 text-on-surface-variant">Property disembunyikan dari halaman publik dan hanya dapat diakses dari dashboard admin.</p>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-xl border border-outline-variant/40 bg-surface-container-low px-4 py-3 text-xs text-on-surface-variant">
+                      <span className="material-symbols-outlined text-[18px] text-outline">info</span>
+                      <p>Rating property dihitung otomatis dari ulasan pengguna, bukan diinput admin.</p>
+                    </div>
+
+                    <div className="flex justify-end gap-3 border-t border-outline-variant/20 pt-5">
+                      <button type="button" onClick={() => setCurrentStep(2)} className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-outline-variant px-5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                        Back
+                      </button>
+                      <button type="submit" disabled={saving} className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-semibold text-on-primary shadow-[0_8px_24px_rgba(52,78,43,0.25)] transition hover:-translate-y-0.5 hover:bg-primary-container disabled:opacity-60 disabled:hover:translate-y-0">
+                        <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                        {saving ? 'Saving...' : editingProperty ? 'Save Changes' : 'Create Property'}
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {currentStep < 3 ? (
+                <div className="flex items-center justify-between rounded-2xl border border-outline-variant/20 bg-surface-container-low px-5 py-4">
+                  <button type="button" onClick={closeModal} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-outline-variant bg-surface px-4 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low">
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                    Cancel
+                  </button>
+                  <div className="flex gap-3">
+                    {currentStep > 1 ? (
+                      <button type="button" onClick={() => setCurrentStep(currentStep - 1)} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-outline-variant bg-surface px-4 text-sm font-semibold text-on-surface transition hover:bg-surface-container-low">
+                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                        Back
+                      </button>
+                    ) : null}
+                    <button type="button" onClick={() => setCurrentStep(currentStep + 1)} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-[0_8px_20px_rgba(52,78,43,0.22)] transition hover:-translate-y-0.5 hover:bg-primary-container">
+                      Lanjut
+                      <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {notification.show ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#101F0D]/60 px-4 py-8 backdrop-blur-sm">
+          <div className="w-full max-w-md animate-in zoom-in-95 rounded-3xl border border-white/30 bg-surface p-8 text-center shadow-[0_28px_90px_rgba(23,28,21,0.35)]">
+            <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
+              notification.type === 'success' ? 'bg-primary-fixed/20 text-primary' : 'bg-error-container/60 text-error'
+            }`}>
+              <span className="material-symbols-outlined text-[36px]">
+                {notification.type === 'success' ? 'check_circle' : 'error'}
+              </span>
+            </div>
+            <h3 className={`mt-4 text-xl font-bold ${
+              notification.type === 'success' ? 'text-primary' : 'text-error'
+            }`}>
+              {notification.title}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+              {notification.message}
+            </p>
+            <button
+              type="button"
+              onClick={() => setNotification({ ...notification, show: false })}
+              className={`mt-6 inline-flex h-12 w-full items-center justify-center rounded-2xl text-sm font-semibold text-on-primary shadow-[0_8px_24px_rgba(52,78,43,0.22)] transition hover:-translate-y-0.5 ${
+                notification.type === 'success' ? 'bg-primary hover:bg-primary-container' : 'bg-error hover:bg-error/80'
+              }`}
+            >
+              Kembali
+            </button>
           </div>
         </div>
       ) : null}

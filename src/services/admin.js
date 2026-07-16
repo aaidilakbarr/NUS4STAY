@@ -150,12 +150,20 @@ const uploadPropertyImages = async (imageFiles = [], imageUrls = []) => {
   return uploaded.filter(Boolean);
 };
 
-const uploadRoomImage = async (imageFile, imageUrl) => {
-  if (imageFile instanceof File) {
-    return uploadImageFile(imageFile, 'rooms');
-  }
+const uploadRoomImages = async (imageFiles = [], imageUrls = []) => {
+  const uploaded = await Promise.all(imageFiles.map(async (file, index) => {
+    if (file instanceof File) {
+      return uploadImageFile(file, 'rooms');
+    }
 
-  return imageUrl?.trim() || null;
+    if (typeof imageUrls[index] === 'string' && imageUrls[index].trim()) {
+      return imageUrls[index].trim();
+    }
+
+    return null;
+  }));
+
+  return uploaded.filter(Boolean);
 };
 
 const normalizePropertyPayload = async (payload) => {
@@ -178,14 +186,19 @@ const normalizePropertyPayload = async (payload) => {
   };
 };
 
-const normalizeRoomPayload = async (room) => ({
-  name: room.name.trim(),
-  price: Number(room.price) || 0,
-  image: await uploadRoomImage(room.imageFile, room.imageUrl),
-  description: room.description?.trim() || null,
-  amenities: normalizeAmenities(room.amenities),
-  is_active: Boolean(room.is_active),
-});
+const normalizeRoomPayload = async (room) => {
+  const images = await uploadRoomImages(room.imageFiles, room.imageUrls);
+
+  return {
+    name: room.name.trim(),
+    price: Number(room.price) || 0,
+    image: images[0] ?? null,
+    images,
+    description: room.description?.trim() || null,
+    amenities: normalizeAmenities(room.amenities),
+    is_active: Boolean(room.is_active),
+  };
+};
 
 const syncRooms = async (propertyId, rooms = []) => {
   const normalizedRooms = await Promise.all(
@@ -227,6 +240,7 @@ const syncRooms = async (propertyId, rooms = []) => {
       name: room.name,
       price: room.price,
       image: room.image,
+      images: room.images,
       description: room.description,
       amenities: room.amenities,
       is_active: room.is_active,
@@ -263,6 +277,9 @@ const mapPropertyRecord = (property) => ({
   rooms: Array.isArray(property.rooms)
     ? property.rooms.map((room) => ({
       ...room,
+      images: Array.isArray(room.images) && room.images.length > 0
+        ? room.images
+        : [room.image].filter(Boolean),
       amenities: Array.isArray(room.amenities) ? room.amenities : [],
     }))
     : [],
