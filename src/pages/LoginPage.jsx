@@ -39,7 +39,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [messageType, setMessageType] = useState('info');
-  const [registerModal, setRegisterModal] = useState({ open: false, success: false, text: '' });
+  const [registerModal, setRegisterModal] = useState({ open: false, success: false, text: '', subtext: '' });
   const modalCloseRef = useRef(null);
 
   const currentContent = modeContent[mode];
@@ -54,7 +54,7 @@ export default function LoginPage() {
     setMode(nextMode);
     setMessage('');
     setMessageType('info');
-    setRegisterModal({ open: false, success: false, text: '' });
+    setRegisterModal({ open: false, success: false, text: '', subtext: '' });
 
     if (nextMode === 'login') {
       setName('');
@@ -105,15 +105,26 @@ export default function LoginPage() {
       }, { onConflict: 'id' });
     }
 
-    setMessage(mode === 'register' ? 'Registrasi berhasil. Cek email jika verifikasi aktif.' : 'Login berhasil.');
-    setMessageType('success');
-    if (mode === 'register') {
-      setRegisterModal({ open: true, success: true, text: 'Registrasi berhasil. Cek email jika verifikasi akun aktif.' });
-    }
     setLoading(false);
 
-    if (mode === 'login') {
+    const redirectToLanding = () => {
+      setName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setShowConfirmPassword(false);
+      setShowPassword(false);
       window.location.hash = '#/';
+    };
+
+    if (mode === 'register') {
+      setRegisterModal({ open: true, success: true, text: 'Registrasi Berhasil', subtext: 'Anda akan diarahkan kembali ke landing page' });
+      setTimeout(() => {
+        setRegisterModal({ open: false, success: false, text: '', subtext: '' });
+        redirectToLanding();
+      }, 2500);
+    } else {
+      redirectToLanding();
     }
   };
 
@@ -128,6 +139,12 @@ export default function LoginPage() {
       return;
     }
 
+    setName('');
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     setMessage('Berhasil logout.');
     setMessageType('success');
     setLoading(false);
@@ -356,17 +373,34 @@ export default function LoginPage() {
               <p className="mt-2 text-xs leading-relaxed text-on-surface-variant/80">
                 {registerModal.text}
               </p>
+              {registerModal.success && (
+                <p className="mt-1 text-[11px] leading-relaxed text-on-surface-variant/60">
+                  {registerModal.subtext}
+                </p>
+              )}
 
-              <div className="mt-6 w-full">
-                <button
-                  ref={modalCloseRef}
-                  type="button"
-                  onClick={() => setRegisterModal({ open: false, success: false, text: '' })}
-                  className="w-full h-11 cursor-pointer inline-flex items-center justify-center rounded-xl bg-primary text-white text-xs font-semibold shadow-md hover:bg-primary-container transition-all duration-200"
-                >
-                  Tutup
-                </button>
-              </div>
+              {registerModal.success ? (
+                <div className="mt-6 w-full">
+                  <div className="w-full h-11 inline-flex items-center justify-center rounded-xl bg-primary/10 text-primary text-xs font-semibold">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Mengarahkan...
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6 w-full">
+                  <button
+                    ref={modalCloseRef}
+                    type="button"
+                    onClick={() => setRegisterModal({ open: false, success: false, text: '', subtext: '' })}
+                    className="w-full h-11 cursor-pointer inline-flex items-center justify-center rounded-xl bg-primary text-white text-xs font-semibold shadow-md hover:bg-primary-container transition-all duration-200"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
