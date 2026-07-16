@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const navItems = [
   { href: '#/', page: 'landing', label: 'Discover' },
@@ -10,10 +11,38 @@ const navItems = [
 
 export default function Navbar({ currentPage }) {
   const { isAuthenticated, user, role, profile } = useAuth();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.hash = '#/';
+  };
+
+  const formatTime = (ts) => {
+    const d = new Date(ts);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return 'Baru saja';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m lalu`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}j lalu`;
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  };
+
+  const handleBellClick = (e) => {
+    e.stopPropagation();
+    setNotifOpen((prev) => !prev);
   };
 
   return (
@@ -69,6 +98,81 @@ export default function Navbar({ currentPage }) {
           )}
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
+              {/* Notification Bell */}
+              <div ref={notifRef} className="relative">
+                <button
+                  type="button"
+                  onClick={handleBellClick}
+                  className="relative inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-outline-variant/40 text-on-surface-variant transition-all duration-200 hover:bg-surface-container hover:text-on-surface active:scale-95"
+                  aria-label="Notifikasi"
+                >
+                  <span className="material-symbols-outlined icon-pro text-[18px]">notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex min-w-[18px] items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold leading-tight text-on-error shadow-[0_2px_6px_rgba(186,26,26,0.4)]">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown */}
+                {notifOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-2 w-80 origin-top-right animate-scale-in rounded-2xl border border-outline-variant/40 bg-surface shadow-level-2">
+                    <div className="flex items-center justify-between border-b border-outline-variant/30 px-4 py-3">
+                      <h3 className="font-label-md text-sm text-on-surface">Notifikasi</h3>
+                      {unreadCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={markAllAsRead}
+                          className="text-xs font-semibold text-primary hover:text-primary-container transition-colors"
+                        >
+                          Tandai dibaca
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
+                          <span className="material-symbols-outlined icon-pro text-[32px] text-outline/50">notifications_off</span>
+                          <p className="text-sm text-on-surface-variant">Belum ada notifikasi</p>
+                        </div>
+                      ) : (
+                        notifications.slice(0, 10).map((n) => (
+                          <button
+                            key={n.id}
+                            type="button"
+                            onClick={() => {
+                              markAsRead(n.id);
+                              if (n.data?.href) window.location.hash = n.data.href;
+                            }}
+                            className={`flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-container-low active:bg-surface-container ${!n.is_read ? 'bg-primary-fixed/15' : ''}`}
+                          >
+                            <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${!n.is_read ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'}`}>
+                              <span className="material-symbols-outlined icon-pro text-[16px]">
+                                {n.type === 'booking_confirmed' ? 'check_circle' : n.type === 'booking_pending' ? 'schedule' : n.type === 'payment_received' ? 'payments' : 'notifications'}
+                              </span>
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className={`text-sm leading-snug ${!n.is_read ? 'font-semibold text-on-surface' : 'text-on-surface-variant'}`}>{n.title}</p>
+                              <p className="mt-0.5 text-xs text-on-surface-variant/70 line-clamp-2">{n.message}</p>
+                              <p className="mt-1 text-[10px] text-outline">{formatTime(n.created_at)}</p>
+                            </div>
+                            {!n.is_read && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    <a
+                      href="#/profile"
+                      onClick={() => setNotifOpen(false)}
+                      className="flex items-center justify-center gap-1.5 border-t border-outline-variant/30 px-4 py-3 text-xs font-semibold text-primary transition-colors hover:bg-surface-container-low rounded-b-2xl"
+                    >
+                      <span className="material-symbols-outlined icon-pro text-[14px]">settings</span>
+                      Kelola preferensi notifikasi
+                    </a>
+                  </div>
+                )}
+              </div>
+
               <a
                 href="#/profile"
                 className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-3 text-on-primary shadow-[0_10px_24px_rgba(52,78,43,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_14px_30px_rgba(52,78,43,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 md:px-4"

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
+import { useNotifications } from '../contexts/NotificationContext';
 import { db } from '../services/db';
 
 function Icon({ name, className = '' }) {
@@ -66,6 +67,11 @@ function AccountRow({ icon, label, hint, href, onClick, danger }) {
 
 export default function ProfilePage() {
   const { user, profile, refreshProfile } = useAuth();
+  const { preferences, updatePreferences } = useNotifications();
+  const [showNotifPrefs, setShowNotifPrefs] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState({ booking_updates: true, promotions: false });
+  const [notifPrefsLoading, setNotifPrefsLoading] = useState(false);
+  const [notifPrefsMsg, setNotifPrefsMsg] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -80,6 +86,15 @@ export default function ProfilePage() {
       setPhone(profile.phone || '');
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (preferences) {
+      setNotifPrefs({
+        booking_updates: preferences.booking_updates ?? true,
+        promotions: preferences.promotions ?? false,
+      });
+    }
+  }, [preferences]);
 
   useEffect(() => {
     let mounted = true;
@@ -120,6 +135,19 @@ export default function ProfilePage() {
     setLoggingOut(true);
     await supabase.auth.signOut();
     window.location.hash = '#/';
+  };
+
+  const handleNotifPrefsSave = async () => {
+    setNotifPrefsLoading(true);
+    setNotifPrefsMsg('');
+    try {
+      await updatePreferences(notifPrefs);
+      setNotifPrefsMsg('Preferensi notifikasi berhasil diperbarui.');
+    } catch {
+      setNotifPrefsMsg('Gagal memperbarui preferensi.');
+    } finally {
+      setNotifPrefsLoading(false);
+    }
   };
 
   const memberSince = profile?.created_at
@@ -296,7 +324,7 @@ export default function ProfilePage() {
                 icon="notifications"
                 label="Notifikasi"
                 hint="Preferensi pemberitahuan"
-                onClick={() => setMessage('Pengaturan notifikasi segera hadir.')}
+                onClick={() => setShowNotifPrefs(!showNotifPrefs)}
               />
               <AccountRow
                 icon="delete"
@@ -307,6 +335,64 @@ export default function ProfilePage() {
               />
             </div>
           </section>
+          {/* Preferensi notifikasi */}
+          {showNotifPrefs && (
+            <section className="animate-scale-in">
+              <h3 className="font-headline-md text-base text-on-surface font-bold mb-4">Preferensi Notifikasi</h3>
+              <div className="bg-surface-container-low rounded-2xl border border-outline-variant/30 p-6 md:p-8 shadow-level-1 space-y-5">
+                <p className="text-sm text-on-surface-variant">Pilih jenis notifikasi yang ingin kamu terima.</p>
+
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={notifPrefs.booking_updates}
+                      onChange={(e) => setNotifPrefs((p) => ({ ...p, booking_updates: e.target.checked }))}
+                      className="peer sr-only"
+                    />
+                    <div className="h-6 w-10 rounded-full bg-surface-variant transition-colors duration-200 peer-checked:bg-primary group-hover:bg-surface-container-high peer-checked:group-hover:bg-primary-container" />
+                    <div className={`pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-level-1 transition-all duration-200 ${notifPrefs.booking_updates ? 'translate-x-4' : ''}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-on-surface">Pembaruan Booking</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5">Notifikasi saat status booking berubah</p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer group">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={notifPrefs.promotions}
+                      onChange={(e) => setNotifPrefs((p) => ({ ...p, promotions: e.target.checked }))}
+                      className="peer sr-only"
+                    />
+                    <div className="h-6 w-10 rounded-full bg-surface-variant transition-colors duration-200 peer-checked:bg-primary group-hover:bg-surface-container-high peer-checked:group-hover:bg-primary-container" />
+                    <div className={`pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-level-1 transition-all duration-200 ${notifPrefs.promotions ? 'translate-x-4' : ''}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-on-surface">Promosi & Penawaran</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5">Info diskon dan promosi menarik</p>
+                  </div>
+                </label>
+
+                {notifPrefsMsg && (
+                  <p className={`text-xs font-semibold ${notifPrefsMsg.includes('berhasil') ? 'text-primary' : 'text-error'}`}>
+                    {notifPrefsMsg}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleNotifPrefsSave}
+                  disabled={notifPrefsLoading}
+                  className="w-full h-11 cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-white font-semibold text-sm shadow-[0_12px_24px_-4px_rgba(52,78,43,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-container hover:shadow-[0_16px_32px_-4px_rgba(52,78,43,0.4)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {notifPrefsLoading ? 'Menyimpan...' : 'Simpan Preferensi'}
+                </button>
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </main>

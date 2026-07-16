@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import RoleGuard from './components/RoleGuard';
+import { NotificationProvider } from './contexts/NotificationContext';
 import LandingPage from './pages/LandingPage';
 import SearchResults from './pages/SearchResults';
 import PropertyDetail from './pages/PropertyDetail';
@@ -61,9 +62,11 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background font-body-md text-body-md text-on-background">
-      {showNav && <Navbar currentPage={page} />}
-      <div className="flex-grow">{pageContent}</div>
-      {showFooter && <Footer />}
+      <NotificationProvider>
+        {showNav && <Navbar currentPage={page} />}
+        <div className="flex-grow">{pageContent}</div>
+        {showFooter && <Footer />}
+      </NotificationProvider>
     </div>
   );
 }
