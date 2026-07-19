@@ -42,6 +42,8 @@ export default function BookingDetail() {
     switch (status) {
       case 'confirmed':
         return 'bg-[#EAF2E8] text-[#34662B]';
+      case 'completed':
+        return 'bg-[#DBEAFE] text-[#1E40AF]';
       case 'pending_payment':
       case 'payment_review':
         return 'bg-[#FDF6E2] text-[#B2700D]';
@@ -118,7 +120,7 @@ export default function BookingDetail() {
   };
 
   const handlePrintInvoice = () => {
-    if (!booking || booking.bookingStatus !== 'confirmed' || booking.paymentStatus !== 'paid') return;
+    if (!booking || (booking.bookingStatus !== 'confirmed' && booking.bookingStatus !== 'completed') || booking.paymentStatus !== 'paid') return;
 
     const invoiceNights = calculateNights(booking.checkIn, booking.checkOut);
     const paymentMethod = getPaymentMethodLabel(booking.paymentMethod);
@@ -326,7 +328,7 @@ export default function BookingDetail() {
   }
 
   const nights = calculateNights(booking.checkIn, booking.checkOut);
-  const isInvoiceAvailable = booking.bookingStatus === 'confirmed' && booking.paymentStatus === 'paid';
+  const isInvoiceAvailable = (booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'completed') && booking.paymentStatus === 'paid';
   const isStayCompleted = Boolean(
     isInvoiceAvailable
     && booking.checkOut
@@ -362,7 +364,7 @@ export default function BookingDetail() {
             </div>
             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-label-md text-sm font-bold ${getStatusBadgeClass(booking.bookingStatus)}`}>
               <span className="material-symbols-outlined text-[18px] fill-1">
-                {booking.bookingStatus === 'confirmed' ? 'check_circle' : booking.bookingStatus === 'pending_payment' || booking.bookingStatus === 'payment_review' ? 'pending' : booking.bookingStatus === 'expired' ? 'event_busy' : 'cancel'}
+                {booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'completed' ? 'check_circle' : booking.bookingStatus === 'pending_payment' || booking.bookingStatus === 'payment_review' ? 'pending' : booking.bookingStatus === 'expired' ? 'event_busy' : 'cancel'}
               </span>
               {booking.status}
             </div>

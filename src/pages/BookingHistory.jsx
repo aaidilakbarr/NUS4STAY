@@ -29,6 +29,8 @@ export default function BookingHistory() {
     switch (status) {
       case 'confirmed':
         return 'bg-[#EAF2E8] text-[#34662B]';
+      case 'completed':
+        return 'bg-[#DBEAFE] text-[#1E40AF]';
       case 'pending_payment':
       case 'payment_review':
         return 'bg-[#FDF6E2] text-[#B2700D]';
@@ -132,7 +134,7 @@ export default function BookingHistory() {
                     >
                       {booking.bookingStatus === 'payment_review' ? 'Cek Verifikasi' : 'Lanjutkan Pembayaran'}
                     </a>
-                  ) : booking.bookingStatus === 'confirmed' && booking.paymentStatus === 'paid' ? (
+                  ) : (booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'completed') && booking.paymentStatus === 'paid' ? (
                     <a
                       href={`#/history-detail/${booking.id}`}
                       className={`font-label-md flex items-center justify-center gap-1.5 rounded-lg px-5 py-2.5 text-center text-xs font-bold shadow-sm transition-all hover:opacity-90 active:scale-95 ${

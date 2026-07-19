@@ -100,6 +100,7 @@ const BOOKING_STATUS_LABELS = {
   pending_payment: 'Menunggu pembayaran',
   payment_review: 'Sedang ditinjau',
   confirmed: 'Dikonfirmasi',
+  completed: 'Selesai',
   expired: 'Kedaluwarsa',
   cancelled: 'Dibatalkan',
 };
@@ -132,8 +133,18 @@ const normalizeBookingRecord = (record) => {
     ? record.property_reviews[0]
     : record.property_reviews;
   const review = normalizeReviewRecord(reviewRelation);
-  const bookingStatus = record.booking_status || 'pending_payment';
+  let bookingStatus = record.booking_status || 'pending_payment';
   const guestCount = Number(record.guest_count || 1);
+
+  // Jika confirmed dan sudah lewat check_out, anggap selesai
+  if (bookingStatus === 'confirmed' && record.check_out) {
+    const today = record.server_now
+      ? record.server_now.split('T')[0]
+      : new Date().toISOString().split('T')[0];
+    if (record.check_out <= today) {
+      bookingStatus = 'completed';
+    }
+  }
 
   return {
     ...record,

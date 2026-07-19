@@ -24,7 +24,9 @@ function StatCard({ icon, label, value, tone }) {
     ? 'bg-[#EAF2E8] text-[#34662B]'
     : tone === 'pending'
       ? 'bg-[#FDF6E2] text-[#B2700D]'
-      : 'bg-primary-fixed/40 text-on-primary-fixed-variant';
+      : tone === 'completed'
+        ? 'bg-[#DBEAFE] text-[#1E40AF]'
+        : 'bg-primary-fixed/40 text-on-primary-fixed-variant';
 
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-outline-variant/30 bg-surface-container-low p-4 shadow-level-1 transition-all duration-300 hover:shadow-level-2 hover:-translate-y-0.5">
@@ -77,7 +79,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('info');
-  const [stats, setStats] = useState({ total: 0, confirmed: 0, pending: 0 });
+  const [stats, setStats] = useState({ total: 0, confirmed: 0, pending: 0, completed: 0 });
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -106,7 +108,8 @@ export default function ProfilePage() {
       const pending = data.filter(
         (b) => b.bookingStatus === 'pending_payment' || b.bookingStatus === 'payment_review',
       ).length;
-      setStats({ total: data.length, confirmed, pending });
+      const completed = data.filter((b) => b.bookingStatus === 'completed').length;
+      setStats({ total: data.length, confirmed, pending, completed });
     }
     loadStats();
     return () => { mounted = false; };
@@ -207,10 +210,11 @@ export default function ProfilePage() {
           {stats.total > 0 && (
             <section>
               <h3 className="font-headline-md text-base text-on-surface font-bold mb-4">Ringkasan Booking</h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <StatCard icon="book" label="Total Booking" value={stats.total} />
                 <StatCard icon="check_circle" label="Dikonfirmasi" value={stats.confirmed} tone="confirmed" />
                 <StatCard icon="schedule" label="Menunggu" value={stats.pending} tone="pending" />
+                <StatCard icon="task_alt" label="Selesai" value={stats.completed} tone="completed" />
               </div>
             </section>
           )}

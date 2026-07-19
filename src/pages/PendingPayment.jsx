@@ -89,7 +89,7 @@ export default function PendingPayment() {
     setError('');
     try {
       const refreshed = await loadBooking();
-      if (refreshed?.bookingStatus === 'confirmed') {
+      if (refreshed?.bookingStatus === 'confirmed' || refreshed?.bookingStatus === 'completed') {
         window.location.hash = `#/history-detail/${refreshed.id}`;
       }
     } finally {
@@ -275,7 +275,7 @@ export default function PendingPayment() {
             <a href="#/" className="w-full bg-primary text-on-primary font-label-md text-sm py-4 rounded-full text-center font-bold">Cari kamar baru</a>
           ) : null}
 
-          {booking.bookingStatus === 'confirmed' ? (
+          {booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'completed' ? (
             <a href={`#/history-detail/${booking.id}`} className="w-full bg-primary text-on-primary font-label-md text-sm py-4 rounded-full text-center font-bold">Lihat detail booking</a>
           ) : null}
 

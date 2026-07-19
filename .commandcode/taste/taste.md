@@ -1,6 +1,7 @@
 # Taste (Continuously Learned by [CommandCode][cmd])
 
 [cmd]: https://commandcode.ai/
+
 
 # Communication
 - Communicate in Indonesian for this project. Confidence: 0.75
