@@ -1,5 +1,23 @@
 import { supabase } from '../lib/supabase';
 
+const NOTIF_HREF_FALLBACK = {
+  payment_approved: '#/history',
+  payment_rejected: '#/history',
+  rating_reminder: '#/history',
+  promotion: '#/search',
+};
+
+async function resolveRedirectHref(type) {
+  const { data: bookings, error } = await supabase
+    .from('bookings')
+    .select('booking_id')
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (error || !bookings?.length) return NOTIF_HREF_FALLBACK[type] ?? '#/';
+  return `#/history-detail/${bookings[0].booking_id}`;
+}
+
 export const notificationDb = {
   getNotifications: async () => {
     const { data, error } = await supabase
@@ -63,6 +81,30 @@ export const notificationDb = {
     const { data, error } = await supabase
       .from('notification_preferences')
       .upsert(payload, { onConflict: 'user_id' })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  createMockNotification: async (type, title, message) => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) throw new Error('Silakan login terlebih dahulu.');
+
+    const href = await resolveRedirectHref(type);
+    const payload = {
+      user_id: userData.user.id,
+      type,
+      title,
+      message,
+      data: { href },
+      is_read: false,
+    };
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert(payload)
       .select()
       .single();
 

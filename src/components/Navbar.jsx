@@ -146,9 +146,23 @@ export default function Navbar({ currentPage }) {
                             }}
                             className={`flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-container-low active:bg-surface-container ${!n.is_read ? 'bg-primary-fixed/15' : ''}`}
                           >
-                            <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${!n.is_read ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'}`}>
+                            <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${!n.is_read
+                              ? n.type === 'promotion' || n.type === 'promo'
+                                ? 'bg-error/10 text-error'
+                                : n.type === 'rating_reminder'
+                                  ? 'bg-tertiary/10 text-tertiary'
+                                  : n.type === 'payment_rejected'
+                                    ? 'bg-error/10 text-error'
+                                    : 'bg-primary/10 text-primary'
+                              : 'bg-surface-container text-on-surface-variant'}`}>
                               <span className="material-symbols-outlined icon-pro text-[16px]">
-                                {n.type === 'booking_confirmed' ? 'check_circle' : n.type === 'booking_pending' ? 'schedule' : n.type === 'payment_received' ? 'payments' : 'notifications'}
+                                {n.type === 'booking_confirmed' || n.type === 'payment_approved' ? 'check_circle'
+                                  : n.type === 'payment_rejected' ? 'cancel'
+                                  : n.type === 'rating_reminder' ? 'rate_review'
+                                  : n.type === 'promotion' || n.type === 'promo' ? 'campaign'
+                                  : n.type === 'booking_pending' ? 'schedule'
+                                  : n.type === 'payment_received' ? 'payments'
+                                  : 'notifications'}
                               </span>
                             </span>
                             <div className="min-w-0 flex-1">
