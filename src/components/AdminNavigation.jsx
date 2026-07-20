@@ -4,7 +4,7 @@ const ADMIN_ITEMS = [
   {
     key: 'properties',
     href: '#/admin/properties',
-    label: 'Properties',
+    label: 'Properti',
     icon: 'apartment',
   },
   {

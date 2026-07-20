@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import AdminNavigation from '../components/AdminNavigation';
+import Breadcrumbs from '../components/Breadcrumbs';
+import ConfirmModal from '../components/ConfirmModal';
+import NotificationModal from '../components/NotificationModal';
 import { adminProperties } from '../services/admin';
+import { formatPrice, formatRupiahDisplay, parseRupiahValue } from '../utils/formatters';
 
 const AMENITY_OPTIONS = [
   'Wi-Fi',
@@ -32,6 +36,8 @@ const ROOM_AMENITY_OPTIONS = [
   'Breakfast',
 ];
 
+const ITEMS_PER_PAGE = 10;
+
 const createEmptyRoom = () => ({
   id: null,
   name: '',
@@ -53,25 +59,6 @@ const emptyForm = {
   amenities: [],
   is_active: true,
   rooms: [createEmptyRoom()],
-};
-
-function formatPrice(price) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(price).replace('IDR', 'Rp');
-}
-
-const formatRupiahDisplay = (value) => {
-  if (!value || value === '0') return '';
-  const num = String(value).replace(/\D/g, '');
-  if (!num) return '';
-  return new Intl.NumberFormat('id-ID').format(Number(num));
-};
-
-const parseRupiahValue = (displayValue) => {
-  return displayValue.replace(/\./g, '');
 };
 
 function createFormFromProperty(property) {
@@ -108,6 +95,8 @@ function createFormFromProperty(property) {
 
 export default function AdminProperties() {
   const [properties, setProperties] = useState([]);
+  const [totalProperties, setTotalProperties] = useState(0);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -118,6 +107,8 @@ export default function AdminProperties() {
   const [form, setForm] = useState(emptyForm);
   const [currentStep, setCurrentStep] = useState(1);
   const [notification, setNotification] = useState({ show: false, type: 'success', title: '', message: '' });
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [touched, setTouched] = useState({});
 
   const loadProperties = async ({ preserveMessage = false } = {}) => {
     setLoading(true);
@@ -126,8 +117,9 @@ export default function AdminProperties() {
     }
 
     try {
-      const data = await adminProperties.list();
-      setProperties(data);
+      const result = await adminProperties.list({ page, limit: ITEMS_PER_PAGE });
+      setProperties(result.data);
+      setTotalProperties(result.total);
     } catch (error) {
       setMessage(error.message);
       setMessageType('error');
@@ -138,7 +130,8 @@ export default function AdminProperties() {
 
   useEffect(() => {
     loadProperties();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const filteredProperties = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -153,11 +146,14 @@ export default function AdminProperties() {
     ));
   }, [properties, search]);
 
+  const totalPages = Math.ceil(totalProperties / ITEMS_PER_PAGE);
+
   const openCreateModal = () => {
     setEditingProperty(null);
     setForm(emptyForm);
     setCurrentStep(1);
     setMessage('');
+    setTouched({});
     setIsModalOpen(true);
   };
 
@@ -166,6 +162,7 @@ export default function AdminProperties() {
     setForm(createFormFromProperty(property));
     setCurrentStep(1);
     setMessage('');
+    setTouched({});
     setIsModalOpen(true);
   };
 
@@ -174,6 +171,41 @@ export default function AdminProperties() {
     setIsModalOpen(false);
     setEditingProperty(null);
     setForm(emptyForm);
+    setTouched({});
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const getFieldError = (field) => {
+    if (!touched[field]) return '';
+    const value = form[field];
+
+    switch (field) {
+      case 'name':
+        return !value?.trim() ? 'Nama properti wajib diisi.' : '';
+      case 'location':
+        return !value?.trim() ? 'Lokasi wajib diisi.' : '';
+      case 'price':
+        return !value?.trim() ? 'Harga wajib diisi.' : '';
+      default:
+        return '';
+    }
+  };
+
+  const getRoomError = (roomIndex, field) => {
+    const room = form.rooms[roomIndex];
+    if (!room || !touched[`room_${roomIndex}_${field}`]) return '';
+
+    switch (field) {
+      case 'name':
+        return !room.name?.trim() ? 'Nama kamar wajib diisi.' : '';
+      case 'price':
+        return !String(room.price)?.trim() ? 'Harga kamar wajib diisi.' : '';
+      default:
+        return '';
+    }
   };
 
   const handleChange = (field, value) => {
@@ -277,7 +309,7 @@ export default function AdminProperties() {
       ));
 
       if (validRooms.length === 0) {
-        throw new Error('Minimal tambahkan 1 tipe kamar untuk property ini.');
+        throw new Error('Minimal tambahkan 1 tipe kamar untuk properti ini.');
       }
 
       if (validRooms.some((room) => (
@@ -304,6 +336,7 @@ export default function AdminProperties() {
       setIsModalOpen(false);
       setEditingProperty(null);
       setForm(emptyForm);
+      setPage(1);
       await loadProperties();
 
       setNotification({
@@ -311,8 +344,8 @@ export default function AdminProperties() {
         type: 'success',
         title: isCreate ? 'Properti Berhasil Ditambahkan' : 'Perubahan Berhasil',
         message: isCreate
-          ? 'Property baru beserta tipe kamar telah berhasil disimpan dan siap dikelola.'
-          : 'Perubahan pada property telah berhasil disimpan.',
+          ? 'Properti baru beserta tipe kamar telah berhasil disimpan dan siap dikelola.'
+          : 'Perubahan pada properti telah berhasil disimpan.',
       });
     } catch (error) {
       const wasEditing = editingProperty;
@@ -320,6 +353,7 @@ export default function AdminProperties() {
       setIsModalOpen(false);
       setEditingProperty(null);
       setForm(emptyForm);
+      setPage(1);
       await loadProperties();
 
       setNotification({
@@ -334,33 +368,90 @@ export default function AdminProperties() {
   };
 
   const handleDelete = async (property) => {
-    const confirmed = window.confirm(`Hapus property ${property.name} beserta semua tipe kamarnya?`);
-    if (!confirmed) return;
-
     setMessage('');
 
     try {
       await adminProperties.remove(property.id);
-      setProperties((prev) => prev.filter((item) => item.id !== property.id));
-      setMessage('Property berhasil dihapus.');
+      setConfirmDelete(null);
+      await loadProperties();
+      setMessage('Properti berhasil dihapus.');
       setMessageType('success');
     } catch (error) {
+      setConfirmDelete(null);
       setMessage(error.message);
       setMessageType('error');
     }
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setPage(newPage);
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const from = (page - 1) * ITEMS_PER_PAGE + 1;
+    const to = Math.min(page * ITEMS_PER_PAGE, totalProperties);
+
+    return (
+      <div className="flex items-center justify-between rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 py-3">
+        <span className="text-xs text-on-surface-variant">
+          Menampilkan {from}-{to} dari {totalProperties} properti
+        </span>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 1}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm text-on-surface-variant transition hover:bg-surface hover:text-primary disabled:opacity-30"
+          >
+            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => handlePageChange(pageNum)}
+              className={`inline-flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold transition ${
+                pageNum === page
+                  ? 'bg-primary text-on-primary'
+                  : 'text-on-surface-variant hover:bg-surface hover:text-primary'
+              }`}
+            >
+              {pageNum}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === totalPages}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm text-on-surface-variant transition hover:bg-surface hover:text-primary disabled:opacity-30"
+          >
+            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <main className="page-shell py-8 text-left md:py-12">
       <div className="flex flex-col gap-6">
+        <Breadcrumbs items={[
+          { label: 'Beranda', href: '#/' },
+          { label: 'Admin', href: '#/admin/properties' },
+          { label: 'Properti' },
+        ]} />
+
         <AdminNavigation current="properties" />
 
         <div className="flex flex-col gap-4 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-level-1 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="font-label-md text-xs uppercase tracking-[0.18em] text-tertiary">Admin Console</p>
-            <h1 className="mt-2 font-headline-xl text-3xl font-bold text-primary">Manage Properties</h1>
+            <h1 className="mt-2 font-headline-xl text-3xl font-bold text-primary">Kelola Properti</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-on-surface-variant">
-              Kelola detail property, tipe kamar beserta galeri gambar, dan atur status publikasi (publik atau private) langsung dari dashboard admin.
+              Kelola detail properti, tipe kamar beserta galeri gambar, dan atur status publikasi (publik atau pribadi) langsung dari dashboard admin.
             </p>
           </div>
           <button
@@ -369,7 +460,7 @@ export default function AdminProperties() {
             className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-[0_16px_34px_rgba(52,78,43,0.22)] transition hover:-translate-y-0.5 hover:bg-primary-container"
           >
             <span className="material-symbols-outlined text-[20px]">add_business</span>
-            Add Property
+            Tambah Properti
           </button>
         </div>
 
@@ -397,12 +488,12 @@ export default function AdminProperties() {
         ) : null}
 
         {loading ? (
-          <div className="py-20 text-center font-body-md text-on-surface-variant">Loading properties...</div>
+          <div className="py-20 text-center font-body-md text-on-surface-variant">Memuat data properti...</div>
         ) : filteredProperties.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-outline-variant/40 bg-surface-container-low p-12 text-center">
             <span className="material-symbols-outlined text-[44px] text-outline">inventory_2</span>
-            <h2 className="mt-3 text-lg font-bold text-on-surface">Belum ada property</h2>
-            <p className="mt-1 text-sm text-on-surface-variant">Tambahkan property baru atau ubah kata kunci pencarian.</p>
+            <h2 className="mt-3 text-lg font-bold text-on-surface">Belum ada properti</h2>
+            <p className="mt-1 text-sm text-on-surface-variant">Tambahkan properti baru atau ubah kata kunci pencarian.</p>
           </div>
         ) : (
           <div className="grid gap-5">
@@ -427,7 +518,7 @@ export default function AdminProperties() {
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-xl font-bold text-on-surface">{property.name}</h2>
                         <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${property.is_active ? 'bg-primary-fixed/30 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
-                          {property.is_active ? 'Active' : 'Inactive'}
+                          {property.is_active ? 'Aktif' : 'Nonaktif'}
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-on-surface-variant">{property.location}</p>
@@ -443,11 +534,11 @@ export default function AdminProperties() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(property)}
+                        onClick={() => setConfirmDelete(property)}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-error/25 bg-error-container/60 px-4 text-xs font-semibold text-on-error-container transition hover:bg-error-container"
                       >
                         <span className="material-symbols-outlined text-[18px]">delete</span>
-                        Delete
+                        Hapus
                       </button>
                     </div>
                   </div>
@@ -458,25 +549,27 @@ export default function AdminProperties() {
                       <p className="mt-2 font-bold text-on-surface">{formatPrice(property.price)}</p>
                     </div>
                     <div className="rounded-2xl border border-outline-variant/30 bg-surface p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Amenities</p>
-                      <p className="mt-2 font-bold text-on-surface">{property.amenities?.length ?? 0} items</p>
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Fasilitas</p>
+                      <p className="mt-2 font-bold text-on-surface">{property.amenities?.length ?? 0} item</p>
                     </div>
                     <div className="rounded-2xl border border-outline-variant/30 bg-surface p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Gallery</p>
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Galeri</p>
                       <p className="mt-2 font-bold text-on-surface">{property.images?.length ?? 0} gambar</p>
                     </div>
                     <div className="rounded-2xl border border-outline-variant/30 bg-surface p-4">
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Rooms</p>
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-outline">Kamar</p>
                       <p className="mt-2 font-bold text-on-surface">{property.rooms?.length ?? 0} tipe kamar</p>
                     </div>
                   </div>
 
-                  <p className="text-sm leading-6 text-on-surface-variant">{property.description || 'Belum ada deskripsi property.'}</p>
+                  <p className="text-sm leading-6 text-on-surface-variant">{property.description || 'Belum ada deskripsi properti.'}</p>
                 </div>
               </article>
             ))}
           </div>
         )}
+
+        {renderPagination()}
       </div>
 
       {isModalOpen ? (
@@ -484,8 +577,8 @@ export default function AdminProperties() {
           <div className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-[1.5rem] border border-white/70 bg-surface shadow-[0_28px_90px_rgba(23,28,21,0.25)]">
             <div className="flex items-center justify-between border-b border-outline-variant/30 px-5 py-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-tertiary">Property Form</p>
-                <h2 className="mt-1 text-xl font-bold text-on-surface">{editingProperty ? 'Edit Property' : 'Add Property'}</h2>
+                <p className="text-xs uppercase tracking-[0.18em] text-tertiary">Form Properti</p>
+                <h2 className="mt-1 text-xl font-bold text-on-surface">{editingProperty ? 'Edit Properti' : 'Tambah Properti'}</h2>
               </div>
               <button
                 type="button"
@@ -518,7 +611,7 @@ export default function AdminProperties() {
                         <span className="material-symbols-outlined text-[18px]">{s === 1 ? 'home' : s === 2 ? 'bed' : 'verified'}</span>
                       </button>
                       <span className={`text-[11px] font-semibold leading-tight transition-colors duration-300 ${currentStep === s ? 'text-primary' : 'text-outline'}`}>
-                        {s === 1 ? 'Property' : s === 2 ? 'Kamar' : 'Verifikasi'}
+                        {s === 1 ? 'Properti' : s === 2 ? 'Kamar' : 'Verifikasi'}
                       </span>
                     </div>
                   </React.Fragment>
@@ -531,39 +624,57 @@ export default function AdminProperties() {
                     <div className="flex items-center gap-3 border-b border-outline-variant/20 pb-4">
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">1</span>
                       <div>
-                        <h3 className="text-lg font-bold text-on-surface">Property</h3>
-                        <p className="text-sm text-on-surface-variant">Lengkapi informasi utama property.</p>
+                        <h3 className="text-lg font-bold text-on-surface">Properti</h3>
+                        <p className="text-sm text-on-surface-variant">Lengkapi informasi utama properti.</p>
                       </div>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <label className="flex flex-col gap-1.5 text-sm text-on-surface">
-                        <span className="font-semibold">Property Name <span className="text-error">*</span></span>
+                        <span className="font-semibold">Nama Properti <span className="text-error">*</span></span>
                         <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
                           <span className="material-symbols-outlined text-[18px] text-outline">store</span>
-                          <input value={form.name} onChange={(event) => handleChange('name', event.target.value)} required placeholder="e.g. Villa Bukit Indah" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                          <input value={form.name} onChange={(event) => handleChange('name', event.target.value)} onBlur={() => handleBlur('name')} required placeholder="cth. Villa Bukit Indah" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
                         </div>
+                        {getFieldError('name') ? (
+                          <p className="text-xs text-error">{getFieldError('name')}</p>
+                        ) : null}
                       </label>
 
                       <label className="flex flex-col gap-1.5 text-sm text-on-surface">
-                        <span className="font-semibold">Location <span className="text-error">*</span></span>
+                        <span className="font-semibold">Lokasi <span className="text-error">*</span></span>
                         <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
                           <span className="material-symbols-outlined text-[18px] text-outline">location_on</span>
-                          <input value={form.location} onChange={(event) => handleChange('location', event.target.value)} required placeholder="e.g. Ubud, Bali" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                          <input value={form.location} onChange={(event) => handleChange('location', event.target.value)} onBlur={() => handleBlur('location')} required placeholder="cth. Ubud, Bali" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
                         </div>
+                        {getFieldError('location') ? (
+                          <p className="text-xs text-error">{getFieldError('location')}</p>
+                        ) : null}
                       </label>
 
                       <label className="flex flex-col gap-1.5 text-sm text-on-surface">
-                        <span className="font-semibold">Price per Night <span className="text-error">*</span></span>
+                        <span className="font-semibold">Harga per Malam <span className="text-error">*</span></span>
                         <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
                           <span className="material-symbols-outlined text-[18px] text-outline">payments</span>
-                          <input type="text" inputMode="numeric" value={formatRupiahDisplay(form.price)} onChange={(event) => handleChange('price', parseRupiahValue(event.target.value))} required placeholder="0" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={formatRupiahDisplay(form.price)}
+                            onChange={(event) => handleChange('price', parseRupiahValue(event.target.value))}
+                            onBlur={() => handleBlur('price')}
+                            required
+                            placeholder="0"
+                            className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline"
+                          />
                         </div>
+                        {getFieldError('price') ? (
+                          <p className="text-xs text-error">{getFieldError('price')}</p>
+                        ) : null}
                       </label>
 
                       <label className="md:col-span-2 flex flex-col gap-1.5 text-sm text-on-surface">
-                        <span className="font-semibold">Description</span>
-                        <textarea value={form.description} onChange={(event) => handleChange('description', event.target.value)} placeholder="Deskripsikan property secara detail..." rows="3" className="h-24 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(52,78,43,0.10)] resize-none" />
+                        <span className="font-semibold">Deskripsi</span>
+                        <textarea value={form.description} onChange={(event) => handleChange('description', event.target.value)} placeholder="Deskripsikan properti secara detail..." rows="3" className="h-24 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(52,78,43,0.10)] resize-none" />
                         <span className="text-xs text-outline text-right">{form.description.length}/500</span>
                       </label>
                     </div>
@@ -571,7 +682,7 @@ export default function AdminProperties() {
                     <div className="border-t border-outline-variant/20 pt-5">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[20px] text-primary">photo_library</span>
-                        <h4 className="text-base font-bold text-on-surface">Galeri Property</h4>
+                        <h4 className="text-base font-bold text-on-surface">Galeri Properti</h4>
                       </div>
                       <p className="mt-1 text-sm text-on-surface-variant">Upload minimal 3 gambar. Gambar pertama akan dipakai sebagai thumbnail utama.</p>
                       <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -583,7 +694,7 @@ export default function AdminProperties() {
                             </label>
                             <div className="mt-3 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-[4/3]">
                               {imageUrl ? (
-                                <img src={imageUrl} alt={`Preview property ${index + 1}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                                <img src={imageUrl} alt={`Preview properti ${index + 1}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                               ) : (
                                 <div className="flex h-full flex-col items-center justify-center gap-2 text-outline">
                                   <span className="material-symbols-outlined text-[32px]">add_photo_alternate</span>
@@ -599,7 +710,7 @@ export default function AdminProperties() {
                     <div className="border-t border-outline-variant/20 pt-5">
                       <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-[20px] text-primary">checklist</span>
-                        <h4 className="text-base font-bold text-on-surface">Amenities</h4>
+                        <h4 className="text-base font-bold text-on-surface">Fasilitas</h4>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {AMENITY_OPTIONS.map((amenity) => (
@@ -636,7 +747,7 @@ export default function AdminProperties() {
                         className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary-fixed/20 px-4 text-sm font-semibold text-primary transition hover:bg-primary/10"
                       >
                         <span className="material-symbols-outlined text-[18px]">add</span>
-                        Add Room Type
+                        Tambah Tipe Kamar
                       </button>
                     </div>
 
@@ -646,7 +757,7 @@ export default function AdminProperties() {
                           <span className="material-symbols-outlined text-[48px] text-outline">meeting_room</span>
                           <div>
                             <p className="font-semibold text-on-surface">Belum ada tipe kamar</p>
-                            <p className="mt-1 text-sm text-on-surface-variant">Klik "Add Room Type" untuk menambahkan kamar.</p>
+                            <p className="mt-1 text-sm text-on-surface-variant">Klik "Tambah Tipe Kamar" untuk menambahkan kamar.</p>
                           </div>
                         </div>
                       ) : (
@@ -655,7 +766,7 @@ export default function AdminProperties() {
                             <div className="flex items-center justify-between gap-3">
                               <h4 className="flex items-center gap-2 text-base font-bold text-on-surface">
                                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-fixed/20 text-xs font-bold text-primary">{roomIndex + 1}</span>
-                                Room Type {roomIndex + 1}
+                                Tipe Kamar {roomIndex + 1}
                               </h4>
                               <button
                                 type="button"
@@ -663,25 +774,31 @@ export default function AdminProperties() {
                                 className="inline-flex h-9 items-center justify-center gap-1 rounded-xl border border-error/20 px-3 text-xs font-semibold text-error transition hover:bg-error-container/50"
                               >
                                 <span className="material-symbols-outlined text-[16px]">delete</span>
-                                Remove
+                                Hapus
                               </button>
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2">
                               <label className="flex flex-col gap-1.5 text-sm text-on-surface">
-                                <span className="font-semibold">Room Name</span>
+                                <span className="font-semibold">Nama Kamar</span>
                                 <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
                                   <span className="material-symbols-outlined text-[18px] text-outline">door_front</span>
-                                  <input value={room.name} onChange={(event) => updateRoom(roomIndex, 'name', event.target.value)} placeholder="e.g. Deluxe Room" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                                  <input value={room.name} onChange={(event) => updateRoom(roomIndex, 'name', event.target.value)} onBlur={() => setTouched((prev) => ({ ...prev, [`room_${roomIndex}_name`]: true }))} placeholder="cth. Deluxe Room" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
                                 </div>
+                                {getRoomError(roomIndex, 'name') ? (
+                                  <p className="text-xs text-error">{getRoomError(roomIndex, 'name')}</p>
+                                ) : null}
                               </label>
 
                               <label className="flex flex-col gap-1.5 text-sm text-on-surface">
-                                <span className="font-semibold">Price per Night</span>
+                                <span className="font-semibold">Harga per Malam</span>
                                 <div className="flex items-center gap-2 rounded-xl border border-outline-variant bg-surface px-3 transition focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(52,78,43,0.10)]">
                                   <span className="material-symbols-outlined text-[18px] text-outline">payments</span>
-                                  <input type="text" inputMode="numeric" value={formatRupiahDisplay(room.price)} onChange={(event) => updateRoom(roomIndex, 'price', parseRupiahValue(event.target.value))} placeholder="0" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
+                                  <input type="text" inputMode="numeric" value={formatRupiahDisplay(room.price)} onChange={(event) => updateRoom(roomIndex, 'price', parseRupiahValue(event.target.value))} onBlur={() => setTouched((prev) => ({ ...prev, [`room_${roomIndex}_price`]: true }))} placeholder="0" className="h-11 flex-1 bg-transparent text-sm text-on-surface outline-none placeholder:text-outline" />
                                 </div>
+                                {getRoomError(roomIndex, 'price') ? (
+                                  <p className="text-xs text-error">{getRoomError(roomIndex, 'price')}</p>
+                                ) : null}
                               </label>
 
                               <label className="inline-flex items-center gap-3 rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm text-on-surface md:col-span-2">
@@ -689,14 +806,14 @@ export default function AdminProperties() {
                                   <input type="checkbox" checked={room.is_active} onChange={(event) => updateRoom(roomIndex, 'is_active', event.target.checked)} className="peer sr-only" />
                                   <div className="h-5 w-9 rounded-full bg-outline-variant transition peer-checked:bg-primary after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4" />
                                 </div>
-                                <span>Room type aktif dan bisa dipesan</span>
+                                <span>Tipe kamar aktif dan bisa dipesan</span>
                               </label>
                             </div>
 
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-[18px] text-primary">photo_camera</span>
-                                <span className="text-sm font-semibold text-on-surface">Room Images</span>
+                                <span className="text-sm font-semibold text-on-surface">Gambar Kamar</span>
                               </div>
                               <p className="mt-0.5 text-xs text-on-surface-variant">Upload 3 gambar kamar. Gambar pertama menjadi thumbnail kamar.</p>
                               <div className="mt-3 grid gap-4 md:grid-cols-3">
@@ -708,7 +825,7 @@ export default function AdminProperties() {
                                     </label>
                                     <div className="mt-2 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-[4/3]">
                                       {imageUrl ? (
-                                        <img src={imageUrl} alt={`Preview room ${roomIndex + 1} gambar ${imageIndex + 1}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                                        <img src={imageUrl} alt={`Preview kamar ${roomIndex + 1} gambar ${imageIndex + 1}`} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
                                       ) : (
                                         <div className="flex h-full flex-col items-center justify-center gap-1 text-outline">
                                           <span className="material-symbols-outlined text-[24px]">add_photo_alternate</span>
@@ -722,12 +839,12 @@ export default function AdminProperties() {
                             </div>
 
                             <label className="flex flex-col gap-1.5 text-sm text-on-surface">
-                              <span className="font-semibold">Room Description</span>
+                              <span className="font-semibold">Deskripsi Kamar</span>
                               <textarea value={room.description} onChange={(event) => updateRoom(roomIndex, 'description', event.target.value)} placeholder="Deskripsikan tipe kamar ini..." rows="2" className="h-20 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(52,78,43,0.10)] resize-none" />
                             </label>
 
                             <div className="flex flex-col gap-2 text-sm text-on-surface">
-                              <span className="font-semibold">Room Amenities</span>
+                              <span className="font-semibold">Fasilitas Kamar</span>
                               <div className="flex flex-wrap gap-2">
                                 {ROOM_AMENITY_OPTIONS.map((amenity) => (
                                   <label key={`${roomIndex}-${amenity}`} className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${
@@ -757,7 +874,7 @@ export default function AdminProperties() {
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">3</span>
                       <div>
                         <h3 className="text-lg font-bold text-on-surface">Verifikasi</h3>
-                        <p className="text-sm text-on-surface-variant">Atur visibilitas property di halaman publik.</p>
+                        <p className="text-sm text-on-surface-variant">Atur visibilitas properti di halaman publik.</p>
                       </div>
                     </div>
 
@@ -778,7 +895,7 @@ export default function AdminProperties() {
                             <span className="material-symbols-outlined text-[22px] text-primary">public</span>
                             <span className="font-semibold text-on-surface">Publik</span>
                           </div>
-                          <p className="text-sm leading-5 text-on-surface-variant">Property langsung tampil di halaman publik dan bisa dilihat semua pengguna.</p>
+                          <p className="text-sm leading-5 text-on-surface-variant">Properti langsung tampil di halaman publik dan bisa dilihat semua pengguna.</p>
                         </div>
                       </label>
 
@@ -796,26 +913,26 @@ export default function AdminProperties() {
                         <div className="grid gap-2">
                           <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-[22px] text-on-surface-variant">lock</span>
-                            <span className="font-semibold text-on-surface">Private</span>
+                            <span className="font-semibold text-on-surface">Pribadi</span>
                           </div>
-                          <p className="text-sm leading-5 text-on-surface-variant">Property disembunyikan dari halaman publik dan hanya dapat diakses dari dashboard admin.</p>
+                          <p className="text-sm leading-5 text-on-surface-variant">Properti disembunyikan dari halaman publik dan hanya dapat diakses dari dashboard admin.</p>
                         </div>
                       </label>
                     </div>
 
                     <div className="flex items-start gap-3 rounded-xl border border-outline-variant/40 bg-surface-container-low px-4 py-3 text-xs text-on-surface-variant">
                       <span className="material-symbols-outlined text-[18px] text-outline">info</span>
-                      <p>Rating property dihitung otomatis dari ulasan pengguna, bukan diinput admin.</p>
+                      <p>Rating properti dihitung otomatis dari ulasan pengguna, bukan diinput admin.</p>
                     </div>
 
                     <div className="flex justify-end gap-3 border-t border-outline-variant/20 pt-5">
                       <button type="button" onClick={() => setCurrentStep(2)} className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-outline-variant px-5 text-sm font-semibold text-on-surface transition hover:bg-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                        Back
+                        Kembali
                       </button>
                       <button type="submit" disabled={saving} className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-semibold text-on-primary shadow-[0_8px_24px_rgba(52,78,43,0.25)] transition hover:-translate-y-0.5 hover:bg-primary-container disabled:opacity-60 disabled:hover:translate-y-0">
                         <span className="material-symbols-outlined text-[20px]">check_circle</span>
-                        {saving ? 'Saving...' : editingProperty ? 'Save Changes' : 'Create Property'}
+                        {saving ? 'Menyimpan...' : editingProperty ? 'Simpan Perubahan' : 'Buat Properti'}
                       </button>
                     </div>
                   </section>
@@ -826,13 +943,13 @@ export default function AdminProperties() {
                 <div className="flex items-center justify-between rounded-2xl border border-outline-variant/20 bg-surface-container-low px-5 py-4">
                   <button type="button" onClick={closeModal} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-outline-variant bg-surface px-4 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low">
                     <span className="material-symbols-outlined text-[18px]">close</span>
-                    Cancel
+                    Batal
                   </button>
                   <div className="flex gap-3">
                     {currentStep > 1 ? (
                       <button type="button" onClick={() => setCurrentStep(currentStep - 1)} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-outline-variant bg-surface px-4 text-sm font-semibold text-on-surface transition hover:bg-surface-container-low">
                         <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                        Back
+                        Kembali
                       </button>
                     ) : null}
                     <button type="button" onClick={() => setCurrentStep(currentStep + 1)} className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-[0_8px_20px_rgba(52,78,43,0.22)] transition hover:-translate-y-0.5 hover:bg-primary-container">
@@ -847,36 +964,26 @@ export default function AdminProperties() {
         </div>
       ) : null}
 
-      {notification.show ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#101F0D]/60 px-4 py-8 backdrop-blur-sm">
-          <div className="w-full max-w-md animate-in zoom-in-95 rounded-3xl border border-white/30 bg-surface p-8 text-center shadow-[0_28px_90px_rgba(23,28,21,0.35)]">
-            <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${
-              notification.type === 'success' ? 'bg-primary-fixed/20 text-primary' : 'bg-error-container/60 text-error'
-            }`}>
-              <span className="material-symbols-outlined text-[36px]">
-                {notification.type === 'success' ? 'check_circle' : 'error'}
-              </span>
-            </div>
-            <h3 className={`mt-4 text-xl font-bold ${
-              notification.type === 'success' ? 'text-primary' : 'text-error'
-            }`}>
-              {notification.title}
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-              {notification.message}
-            </p>
-            <button
-              type="button"
-              onClick={() => setNotification({ ...notification, show: false })}
-              className={`mt-6 inline-flex h-12 w-full items-center justify-center rounded-2xl text-sm font-semibold text-on-primary shadow-[0_8px_24px_rgba(52,78,43,0.22)] transition hover:-translate-y-0.5 ${
-                notification.type === 'success' ? 'bg-primary hover:bg-primary-container' : 'bg-error hover:bg-error/80'
-              }`}
-            >
-              Kembali
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <ConfirmModal
+        open={confirmDelete !== null}
+        title="Hapus Properti?"
+        message={confirmDelete ? `Hapus ${confirmDelete.name} beserta semua tipe kamarnya? Tindakan ini tidak dapat dibatalkan.` : ''}
+        confirmLabel="Ya, hapus"
+        cancelLabel="Batal"
+        confirmVariant="danger"
+        icon="delete"
+        processing={false}
+        onConfirm={() => handleDelete(confirmDelete)}
+        onCancel={() => setConfirmDelete(null)}
+      />
+
+      <NotificationModal
+        open={notification.show}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
     </main>
   );
 }

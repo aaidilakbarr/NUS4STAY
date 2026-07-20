@@ -286,14 +286,18 @@ const mapPropertyRecord = (property) => ({
 });
 
 export const adminProperties = {
-  list: async () => {
-    const { data, error } = await supabase
+  list: async ({ page = 1, limit = 10 } = {}) => {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
       .from('properties')
-      .select('*, rooms(*)')
-      .order('created_at', { ascending: false });
+      .select('*, rooms(*)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
     if (error) throw mapAdminError(error);
-    return (data ?? []).map(mapPropertyRecord);
+    return { data: (data ?? []).map(mapPropertyRecord), total: count ?? 0, page, limit };
   },
 
   create: async (payload) => {
@@ -351,17 +355,26 @@ export const adminProperties = {
 };
 
 export const adminPayments = {
-  list: async () => {
-    const { data, error } = await supabase
+  list: async ({ page = 1, limit = 10 } = {}) => {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
       .from('bookings')
-      .select(ADMIN_PAYMENT_SELECT)
-      .order('updated_at', { ascending: false });
+      .select(ADMIN_PAYMENT_SELECT, { count: 'exact' })
+      .order('updated_at', { ascending: false })
+      .range(from, to);
 
     if (error) throw mapPaymentVerificationError(error);
 
-    return (data ?? [])
-      .map(mapPaymentRecord)
-      .filter((record) => Boolean(record.proofPath));
+    return {
+      data: (data ?? [])
+        .map(mapPaymentRecord)
+        .filter((record) => Boolean(record.proofPath)),
+      total: count ?? 0,
+      page,
+      limit,
+    };
   },
 
   createProofUrl: async (proofPath) => {

@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import AdminNavigation from '../components/AdminNavigation';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { adminPayments } from '../services/admin';
+import { formatPrice, formatDateTime, formatStayDate, getProofFileName, getProofType } from '../utils/formatters';
+
+const ITEMS_PER_PAGE = 10;
 
 const FILTERS = [
   { key: 'review', label: 'Perlu diperiksa' },
@@ -39,42 +43,6 @@ const getVerificationState = (record) => {
   return 'unknown';
 };
 
-const formatPrice = (value) => new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  maximumFractionDigits: 0,
-}).format(Number(value || 0)).replace('IDR', 'Rp');
-
-const formatDateTime = (value) => {
-  if (!value) return 'Belum tersedia';
-
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'Asia/Jakarta',
-  }).format(new Date(value));
-};
-
-const formatStayDate = (value) => {
-  if (!value) return '-';
-
-  return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${value}T00:00:00Z`));
-};
-
-const getProofFileName = (path) => decodeURIComponent(path?.split('/').pop() || 'bukti-pembayaran');
-
-const getProofType = (path) => {
-  const extension = path?.split('.').pop()?.toLowerCase();
-  if (extension === 'pdf') return 'pdf';
-  if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)) return 'image';
-  return 'other';
-};
-
 function VerificationBadge({ state }) {
   const config = VERIFICATION_STATES[state] || VERIFICATION_STATES.unknown;
 
@@ -88,6 +56,8 @@ function VerificationBadge({ state }) {
 
 export default function AdminVerification() {
   const [records, setRecords] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState(null);
   const [filter, setFilter] = useState('review');
   const [search, setSearch] = useState('');
@@ -101,7 +71,9 @@ export default function AdminVerification() {
   const [decision, setDecision] = useState(null);
   const [processing, setProcessing] = useState(false);
 
-  const loadPayments = useCallback(async ({ silent = false, preserveMessage = false } = {}) => {
+  const loadPayments = useCallback(async ({ silent = false, preserveMessage = false, currentPage } = {}) => {
+    const targetPage = currentPage ?? page;
+
     if (silent) {
       setRefreshing(true);
     } else {
@@ -111,12 +83,13 @@ export default function AdminVerification() {
     if (!preserveMessage) setMessage('');
 
     try {
-      const data = await adminPayments.list();
-      setRecords(data);
+      const result = await adminPayments.list({ page: targetPage, limit: ITEMS_PER_PAGE });
+      setRecords(result.data);
+      setTotalRecords(result.total);
       setSelectedId((currentId) => {
-        if (data.some((record) => record.bookingId === currentId)) return currentId;
-        return data.find((record) => getVerificationState(record) === 'review')?.bookingId
-          || data[0]?.bookingId
+        if (result.data.some((record) => record.bookingId === currentId)) return currentId;
+        return result.data.find((record) => getVerificationState(record) === 'review')?.bookingId
+          || result.data[0]?.bookingId
           || null;
       });
     } catch (error) {
@@ -126,11 +99,12 @@ export default function AdminVerification() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
-    loadPayments();
-  }, [loadPayments]);
+    loadPayments({ currentPage: page });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     if (!decision) return undefined;
@@ -238,12 +212,12 @@ export default function AdminVerification() {
 
       setMessageType('success');
       setDecision(null);
-      await loadPayments({ silent: true, preserveMessage: true });
+      await loadPayments({ silent: true, preserveMessage: true, currentPage: page });
     } catch (error) {
       setMessage(error.message);
       setMessageType('error');
       setDecision(null);
-      await loadPayments({ silent: true, preserveMessage: true });
+      await loadPayments({ silent: true, preserveMessage: true, currentPage: page });
     } finally {
       setProcessing(false);
     }
@@ -252,10 +226,66 @@ export default function AdminVerification() {
   const selectedState = selectedRecord ? getVerificationState(selectedRecord) : 'unknown';
   const selectedProofType = getProofType(selectedRecord?.proofPath);
   const canReview = selectedState === 'review';
+  const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setPage(newPage);
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="mt-3 flex items-center justify-between px-1">
+        <span className="text-[11px] text-on-surface-variant">
+          Halaman {page} dari {totalPages}
+        </span>
+        <div className="flex gap-1">
+          <button
+            type="button"
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page === 1}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-xs text-on-surface-variant transition hover:bg-surface hover:text-primary disabled:opacity-30"
+          >
+            <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <button
+              key={pageNum}
+              type="button"
+              onClick={() => handlePageChange(pageNum)}
+              className={`inline-flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-bold transition ${
+                pageNum === page
+                  ? 'bg-primary text-on-primary'
+                  : 'text-on-surface-variant hover:bg-surface hover:text-primary'
+              }`}
+            >
+              {pageNum}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page === totalPages}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-xs text-on-surface-variant transition hover:bg-surface hover:text-primary disabled:opacity-30"
+          >
+            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <main className="page-shell py-8 text-left md:py-12">
       <div className="flex flex-col gap-6">
+        <Breadcrumbs items={[
+          { label: 'Beranda', href: '#/' },
+          { label: 'Admin', href: '#/admin/properties' },
+          { label: 'Verifikasi Pembayaran' },
+        ]} />
+
         <AdminNavigation current="payments" pendingCount={reviewCount} />
 
         <header className="overflow-hidden rounded-3xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-1">
@@ -272,7 +302,7 @@ export default function AdminVerification() {
 
             <button
               type="button"
-              onClick={() => loadPayments({ silent: true })}
+              onClick={() => loadPayments({ silent: true, currentPage: page })}
               disabled={refreshing}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary-fixed/25 px-4 text-sm font-bold text-primary transition-colors hover:bg-primary-fixed/45 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -400,6 +430,7 @@ export default function AdminVerification() {
                       </button>
                     );
                   })}
+                  {renderPagination()}
                 </div>
               )}
             </div>
@@ -513,7 +544,7 @@ export default function AdminVerification() {
                       <h3 className="font-body-md text-sm font-bold text-on-surface">Cocokkan dengan booking</h3>
                       <dl className="mt-4 space-y-3 text-xs">
                         <div>
-                          <dt className="text-on-surface-variant">Property & kamar</dt>
+                          <dt className="text-on-surface-variant">Properti & kamar</dt>
                           <dd className="mt-1 font-bold text-on-surface">{selectedRecord.propertyName}</dd>
                           <dd className="text-on-surface-variant">{selectedRecord.roomName}</dd>
                         </div>
@@ -533,7 +564,7 @@ export default function AdminVerification() {
                             <dd className="mt-1 font-bold text-on-surface">{selectedRecord.guestCount} tamu</dd>
                           </div>
                           <div>
-                            <dt className="text-on-surface-variant">Metode</dt>
+                            <dt className="text-on-surface-variant">Metode pembayaran</dt>
                             <dd className="mt-1 font-bold text-on-surface">Transfer bank</dd>
                           </div>
                         </div>
