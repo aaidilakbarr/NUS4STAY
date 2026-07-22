@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
 const LogoNUS4Stay = '/logo_nus4stay.svg';
-const villaImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuBPT4HlUUlLAOrzPIQi4-OdseGuctgVM12F8QGufaOVwZQm3xHcAGTovyHaC5XEArjwVLCw7-TIhR_jelTmgc8q3W2Bv-WBi0XHzHtFpbp-lX1d2c05hKfyiUqPOF3ODQG8cSzlpnF-WmDRPx8j4Q13wVb_yooWEbNLfznR0-XST2XhQz82jfoYnjcYhSp_LAgJmknWQh67rFAPm9Kv8vV9rbCFeiidsETeHyh4UF1TWXUrzdnlvbKs";
+const villaImage = "./Hero_LandPge.svg";
 
 const modeContent = {
   login: {

@@ -16,6 +16,9 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+.agent
+.codex
+.commandcode
 .env
 .env.local
 .env.development.local
