@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { getAmenityIcon } from '../utils/amenities';
 
 const FALLBACK_ROOM_IMAGES = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBsc5jf1_kaXY_cBC2FjtybWt36Y6otnwwFTG-mVetccMP0id9p14q2aOSPH_evhzlsgrsjALLRzEhv_vlZqAcNs7hh19BAf0Lzw1FPa-Oi7rJ35k0OjobgUkhS81SyxzNK8P1k7Pur0G5H2NUtE9L5sXXc1tXXJxivrhrdGOBYWn7jOBKY4uIncKxJFxEv67qiN6qMXWUIpW8RZdLv9I5Px51DnqLEXkOytpwyMuG22wTSfbvxBY0D',
@@ -236,8 +237,8 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
               {room.amenities?.length > 0 ? (
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {room.amenities.map((amenity) => (
-                    <div key={amenity} className="flex items-center gap-2 rounded-xl bg-primary-fixed/20 px-3 py-2 text-xs font-semibold text-primary">
-                      <span className="material-symbols-outlined text-[17px]">check_circle</span>
+                    <div key={amenity} className="flex items-center gap-2 rounded-xl bg-primary-fixed/20 border border-primary/20 px-3 py-2 text-xs font-semibold text-primary">
+                      <span className="material-symbols-outlined text-[17px]">{getAmenityIcon(amenity)}</span>
                       <span>{amenity}</span>
                     </div>
                   ))}

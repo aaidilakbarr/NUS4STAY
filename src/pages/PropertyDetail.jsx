@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import RoomBookingModal from '../components/RoomBookingModal';
 import StarRating from '../components/StarRating';
+import { getAmenityIcon } from '../utils/amenities';
 
 export default function PropertyDetail() {
   const [property, setProperty] = useState(null);
@@ -146,16 +147,15 @@ export default function PropertyDetail() {
             <h2 className="font-headline-lg text-2xl text-primary mb-6 border-b border-surface-container-highest pb-2 font-bold">
               Amenities
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
               {property.amenities.map((amenity, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-surface-container-low/50 p-3 rounded-lg">
-                  <span className="material-symbols-outlined text-primary text-xl">
-                    {amenity.toLowerCase().includes('pool') ? 'pool' : 
-                     amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('view') ? 'waves' : 
-                     amenity.toLowerCase().includes('wi-fi') ? 'wifi' : 
-                     amenity.toLowerCase().includes('chef') ? 'restaurant' : 'check_circle'}
-                  </span>
-                  <span className="font-body-md text-sm text-on-surface font-medium">{amenity}</span>
+                <div key={idx} className="flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/30 p-3 rounded-xl hover:border-primary/30 transition-all">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-fixed/30 text-primary">
+                    <span className="material-symbols-outlined text-xl">
+                      {getAmenityIcon(amenity)}
+                    </span>
+                  </div>
+                  <span className="font-body-md text-sm text-on-surface font-semibold">{amenity}</span>
                 </div>
               ))}
             </div>
@@ -251,9 +251,12 @@ export default function PropertyDetail() {
                         {room.amenities.map((amen, index) => (
                           <span 
                             key={index}
-                            className="bg-primary-fixed/20 text-primary px-3 py-1 rounded-full font-label-md text-xs"
+                            className="bg-primary-fixed/25 text-primary border border-primary/20 px-3 py-1 rounded-full font-label-md text-xs inline-flex items-center gap-1.5 font-semibold"
                           >
-                            {amen}
+                            <span className="material-symbols-outlined text-[14px]">
+                              {getAmenityIcon(amen)}
+                            </span>
+                            <span>{amen}</span>
                           </span>
                         ))}
                       </div>

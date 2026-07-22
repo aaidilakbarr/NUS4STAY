@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { getAmenityIcon } from '../utils/amenities';
 
 export default function LandingPage() {
   const [destinations, setDestinations] = useState([]);
@@ -218,10 +219,10 @@ export default function LandingPage() {
                     {prop.amenities.slice(0, 2).map((amenity, index) => (
                       <span
                         key={index}
-                        className="bg-primary-fixed/20 text-primary px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1"
+                        className="bg-primary-fixed/20 text-primary border border-primary/15 px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1.5 font-semibold"
                       >
                         <span className="material-symbols-outlined icon-pro text-[14px]">
-                          {amenity.toLowerCase().includes('pool') ? 'pool' : 'waves'}
+                          {getAmenityIcon(amenity)}
                         </span>
                         {amenity}
                       </span>

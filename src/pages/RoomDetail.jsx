@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { getAmenityIcon } from '../utils/amenities';
 
 const getDateOffset = (days) => {
   const date = new Date();
@@ -168,17 +169,12 @@ export default function RoomDetail() {
             <h2 className="font-headline-lg text-2xl text-primary mb-6 border-b border-surface-container-highest pb-2 font-bold">
               Fasilitas Utama
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {room.amenities.map((amen, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className="bg-surface-container-highest p-2.5 rounded-lg text-primary flex items-center justify-center">
-                    <span className="material-symbols-outlined text-lg">
-                      {amen.toLowerCase().includes('bed') ? 'bed' : 
-                       amen.toLowerCase().includes('ac') ? 'ac_unit' : 
-                       amen.toLowerCase().includes('tv') ? 'tv' : 
-                       amen.toLowerCase().includes('kerja') ? 'desk' : 
-                       amen.toLowerCase().includes('balkon') ? 'balcony' : 
-                       amen.toLowerCase().includes('bathtub') || amen.toLowerCase().includes('jacuzzi') ? 'hot_tub' : 'check_circle'}
+                <div key={idx} className="flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/30 p-3 rounded-xl hover:border-primary/30 transition-all">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-fixed/30 text-primary">
+                    <span className="material-symbols-outlined text-xl">
+                      {getAmenityIcon(amen)}
                     </span>
                   </div>
                   <span className="font-body-md text-sm text-on-surface font-semibold">{amen}</span>

@@ -5,6 +5,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import NotificationModal from '../components/NotificationModal';
 import { adminProperties } from '../services/admin';
 import { formatPrice, formatRupiahDisplay, parseRupiahValue } from '../utils/formatters';
+import { getAmenityIcon } from '../utils/amenities';
 
 const AMENITY_OPTIONS = [
   'Wi-Fi',
@@ -713,19 +714,26 @@ export default function AdminProperties() {
                         <h4 className="text-base font-bold text-on-surface">Fasilitas</h4>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {AMENITY_OPTIONS.map((amenity) => (
-                          <label key={amenity} className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${
-                            form.amenities.includes(amenity)
-                              ? 'border-primary bg-primary-fixed/20 text-primary'
-                              : 'border-outline-variant/50 bg-surface-container-low text-on-surface-variant hover:border-outline-variant'
-                          }`}>
-                            <input type="checkbox" checked={form.amenities.includes(amenity)} onChange={() => toggleAmenity(amenity)} className="sr-only" />
-                            <span className={`material-symbols-outlined text-[16px] ${form.amenities.includes(amenity) ? 'text-primary' : 'text-outline'}`}>
-                              {form.amenities.includes(amenity) ? 'check_circle' : 'add_circle_outline'}
-                            </span>
-                            {amenity}
-                          </label>
-                        ))}
+                        {AMENITY_OPTIONS.map((amenity) => {
+                          const isSelected = form.amenities.includes(amenity);
+                          const icon = getAmenityIcon(amenity);
+                          return (
+                            <label key={amenity} className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-all ${
+                              isSelected
+                                ? 'border-primary bg-primary-fixed/30 text-primary shadow-xs ring-1 ring-primary/20'
+                                : 'border-outline-variant/50 bg-surface-container-low text-on-surface-variant hover:border-primary/40 hover:bg-surface'
+                            }`}>
+                              <input type="checkbox" checked={isSelected} onChange={() => toggleAmenity(amenity)} className="sr-only" />
+                              <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-primary' : 'text-outline'}`}>
+                                {icon}
+                              </span>
+                              <span>{amenity}</span>
+                              {isSelected && (
+                                <span className="material-symbols-outlined text-[14px] text-primary ml-0.5">check</span>
+                              )}
+                            </label>
+                          );
+                        })}
                       </div>
                     </div>
                   </section>
@@ -846,19 +854,26 @@ export default function AdminProperties() {
                             <div className="flex flex-col gap-2 text-sm text-on-surface">
                               <span className="font-semibold">Fasilitas Kamar</span>
                               <div className="flex flex-wrap gap-2">
-                                {ROOM_AMENITY_OPTIONS.map((amenity) => (
-                                  <label key={`${roomIndex}-${amenity}`} className={`inline-flex cursor-pointer items-center gap-2 rounded-full border px-3.5 py-2 text-sm transition ${
-                                    room.amenities.includes(amenity)
-                                      ? 'border-primary bg-primary-fixed/20 text-primary'
-                                      : 'border-outline-variant/50 bg-surface-container-low text-on-surface-variant hover:border-outline-variant'
-                                  }`}>
-                                    <input type="checkbox" checked={room.amenities.includes(amenity)} onChange={() => toggleRoomAmenity(roomIndex, amenity)} className="sr-only" />
-                                    <span className={`material-symbols-outlined text-[16px] ${room.amenities.includes(amenity) ? 'text-primary' : 'text-outline'}`}>
-                                      {room.amenities.includes(amenity) ? 'check_circle' : 'add_circle_outline'}
-                                    </span>
-                                    {amenity}
-                                  </label>
-                                ))}
+                                {ROOM_AMENITY_OPTIONS.map((amenity) => {
+                                  const isSelected = room.amenities.includes(amenity);
+                                  const icon = getAmenityIcon(amenity);
+                                  return (
+                                    <label key={`${roomIndex}-${amenity}`} className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-medium transition-all ${
+                                      isSelected
+                                        ? 'border-primary bg-primary-fixed/30 text-primary shadow-xs ring-1 ring-primary/20'
+                                        : 'border-outline-variant/50 bg-surface-container-low text-on-surface-variant hover:border-primary/40 hover:bg-surface'
+                                    }`}>
+                                      <input type="checkbox" checked={isSelected} onChange={() => toggleRoomAmenity(roomIndex, amenity)} className="sr-only" />
+                                      <span className={`material-symbols-outlined text-[18px] ${isSelected ? 'text-primary' : 'text-outline'}`}>
+                                        {icon}
+                                      </span>
+                                      <span>{amenity}</span>
+                                      {isSelected && (
+                                        <span className="material-symbols-outlined text-[14px] text-primary ml-0.5">check</span>
+                                      )}
+                                    </label>
+                                  );
+                                })}
                               </div>
                             </div>
                           </article>

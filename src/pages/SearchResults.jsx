@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { getAmenityIcon } from '../utils/amenities';
 
 export default function SearchResults() {
   const [properties, setProperties] = useState([]);
@@ -97,33 +98,49 @@ export default function SearchResults() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price).replace("IDR", "Rp");
   };
 
+  const POPULAR_AMENITIES = [
+    { name: 'Private Pool', icon: 'pool' },
+    { name: 'Oceanfront', icon: 'water' },
+    { name: 'Hot Tub', icon: 'hot_tub' },
+    { name: 'Wi-Fi', icon: 'wifi' },
+    { name: 'Chef Pribadi', icon: 'restaurant' },
+  ];
+
+  const hasActiveFilters = priceFilter < 3000000 || ratingFilter > 0 || selectedAmenities.length > 0;
+
+  const handleResetFilters = () => {
+    setPriceFilter(3000000);
+    setRatingFilter(0);
+    setSelectedAmenities([]);
+  };
+
   const titleLocation = searchParams.search || searchParams.region || "All Destinations";
 
   return (
     <main className="page-shell flex flex-grow flex-col gap-5 py-6 text-left md:flex-row md:gap-gutter md:py-10">
       
-      <aside className="w-full md:w-[280px] flex-shrink-0 flex flex-col gap-6">
+      <aside className="w-full md:w-[270px] flex-shrink-0 flex flex-col gap-4">
         <button
           type="button"
           onClick={() => setFiltersOpen((open) => !open)}
           aria-expanded={filtersOpen}
           className="flex min-h-12 w-full items-center justify-between rounded-xl border border-outline-variant/50 bg-surface px-4 text-sm font-bold text-on-surface shadow-level-1 md:hidden"
         >
-          <span className="inline-flex items-center gap-2"><span className="material-symbols-outlined text-[20px] text-primary">tune</span> Refine search</span>
-          <span className="material-symbols-outlined text-[20px]">{filtersOpen ? 'expand_less' : 'expand_more'}</span>
+          <span className="inline-flex items-center gap-2"><span className="material-symbols-outlined text-[19px] text-primary">tune</span> Refine search</span>
+          <span className="material-symbols-outlined text-[19px]">{filtersOpen ? 'expand_less' : 'expand_more'}</span>
         </button>
-        <div className={`${filtersOpen ? 'flex' : 'hidden'} sticky top-32 flex-col gap-6 rounded-xl border border-outline-variant/30 bg-surface-container-low p-5 shadow-sm md:flex md:p-6`}>
-          <div>
-            <h2 className="font-headline-md text-headline-md text-primary">Refine Search</h2>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1">Narrow down your results</p>
+        <div className={`${filtersOpen ? 'flex' : 'hidden'} flex-col gap-5 rounded-2xl border border-outline-variant/40 bg-surface p-5 shadow-level-1 md:flex transition-all`}>
+          <div className="border-b border-outline-variant/30 pb-3">
+            <h2 className="font-headline-md text-lg text-primary font-bold">Refine Search</h2>
+            <p className="font-body-md text-xs text-on-surface-variant mt-0.5">Filter stays by your preference</p>
           </div>
 
           <form onSubmit={handleSearchSubmit} className="flex flex-col gap-2">
-            <label className="font-label-md text-label-md text-on-surface font-semibold">Change Destination</label>
-            <div className="flex items-center bg-surface rounded-lg px-3 py-2 border border-outline-variant focus-within:border-primary">
+            <label className="font-label-md text-xs tracking-wider text-on-surface-variant uppercase font-bold">Change Destination</label>
+            <div className="flex items-center bg-surface-container-low rounded-xl px-3 py-2 border border-outline-variant/50 focus-within:border-primary focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 transition-all">
               <span className="material-symbols-outlined icon-pro text-lg text-outline">search</span>
               <input 
-                className="bg-transparent border-none text-sm w-full outline-none ml-2 focus:ring-0" 
+                className="bg-transparent border-none text-xs w-full outline-none ml-2 focus:ring-0 text-on-surface placeholder:text-outline" 
                 placeholder="Where to?" 
                 type="text"
                 value={tempSearchInput}
@@ -135,8 +152,8 @@ export default function SearchResults() {
           {/* Price Range */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <label className="font-label-md text-label-md text-on-surface font-semibold">Max Price per Night</label>
-              <span className="font-label-md text-xs text-primary font-bold">{formatPrice(priceFilter)}</span>
+              <label className="font-label-md text-xs tracking-wider text-on-surface-variant uppercase font-bold">Max Price per Night</label>
+              <span className="font-label-md text-xs text-primary font-bold bg-primary-fixed/40 px-2 py-0.5 rounded-md">{formatPrice(priceFilter)}</span>
             </div>
             <input 
               type="range" 
@@ -145,57 +162,100 @@ export default function SearchResults() {
               step="100000"
               value={priceFilter}
               onChange={(e) => setPriceFilter(Number(e.target.value))}
-              className="w-full accent-primary cursor-pointer"
+              className="w-full accent-primary cursor-pointer h-2 bg-surface-container-high rounded-lg appearance-none"
             />
           </div>
 
-          {/* Rating */}
+          {/* Minimum Rating */}
           <div className="flex flex-col gap-2">
-            <label className="font-label-md text-label-md text-on-surface font-semibold">Minimum Rating</label>
-            <div className="flex gap-2">
-              {[0, 4.5, 4.8, 4.9].map((rating) => (
-                <button
-                  key={rating}
-                  type="button"
-                  onClick={() => setRatingFilter(rating)}
-                  className={`flex-1 inline-flex h-9 cursor-pointer items-center justify-center gap-1 rounded-lg border text-xs font-semibold transition-all ${
-                    ratingFilter === rating
-                      ? 'bg-primary text-on-primary border-primary'
-                      : 'bg-surface border-outline-variant hover:bg-surface-container-low text-on-surface'
-                  }`}
-                >
-                  {rating === 0 ? 'Any' : (
-                    <>
-                      {rating}
-                      <span className="material-symbols-outlined icon-pro fill-1 text-[14px] text-tertiary-fixed-dim">star</span>
-                    </>
-                  )}
-                </button>
-              ))}
+            <label className="font-label-md text-xs tracking-wider text-on-surface-variant uppercase font-bold">Minimum Rating</label>
+            <div className="grid grid-cols-4 gap-1.5">
+              {[
+                { label: 'Any', value: 0 },
+                { label: '4.5', value: 4.5 },
+                { label: '4.8', value: 4.8 },
+                { label: '4.9', value: 4.9 },
+              ].map((item) => {
+                const isSelected = ratingFilter === item.value;
+                return (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setRatingFilter(item.value)}
+                    className={`flex h-8.5 w-full cursor-pointer items-center justify-center gap-0.5 rounded-xl border text-[9px] font-bold px-1 transition-all ${
+                      isSelected
+                        ? 'bg-primary text-on-primary border-primary shadow-xs'
+                        : 'bg-surface-container-low border-outline-variant/40 hover:bg-surface-container text-on-surface hover:border-primary/30'
+                    }`}
+                  >
+                    {item.value === 0 ? (
+                      <span className="translate-y-[1px]">Any</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-0.5 translate-y-[1px]">
+                        <span>{item.label}</span>
+                        <svg className={`w-2.5 h-2.5 fill-current flex-shrink-0 ${isSelected ? 'text-tertiary-fixed-dim' : 'text-tertiary'}`} viewBox="0 0 24 24">
+                          <path strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" stroke="currentColor" fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Amenities checklist */}
+          {/* Popular Amenities Pills */}
           <div className="flex flex-col gap-2">
-            <label className="font-label-md text-label-md text-on-surface font-semibold">Popular Amenities</label>
-            <div className="flex flex-col gap-2.5">
-              {["Private Pool", "Oceanfront", "Ski-in/out", "Hot Tub", "Wi-Fi", "Chef Pribadi"].map((amenity) => (
-                <label key={amenity} className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedAmenities.includes(amenity)}
-                    onChange={() => toggleAmenity(amenity)}
-                    className="rounded text-primary focus:ring-primary border-outline-variant"
-                  />
-                  {amenity}
-                </label>
-              ))}
+            <div className="flex items-center justify-between gap-2 min-w-0">
+              <label className="font-label-md text-xs tracking-wider text-on-surface-variant uppercase font-bold truncate">Popular Amenities</label>
+              {selectedAmenities.length > 0 && (
+                <span className="text-[10px] font-bold text-primary bg-primary-fixed/50 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                  {selectedAmenities.length} selected
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {POPULAR_AMENITIES.map(({ name, icon }) => {
+                const isSelected = selectedAmenities.includes(name);
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => toggleAmenity(name)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? 'bg-primary text-on-primary border border-primary shadow-xs'
+                        : 'bg-surface-container-low text-on-surface-variant border border-outline-variant/50 hover:border-primary/40 hover:bg-primary-fixed/20'
+                    }`}
+                  >
+                    <span className={`material-symbols-outlined icon-pro text-[14px] ${isSelected ? 'text-on-primary' : 'text-primary'}`}>
+                      {icon}
+                    </span>
+                    <span>{name}</span>
+                    {isSelected && (
+                      <span className="material-symbols-outlined icon-pro text-[12px] ml-0.5 opacity-90">close</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Clear All Filter Button */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-error text-on-error hover:bg-error/90 py-2.5 px-3 font-label-md text-xs font-semibold shadow-xs transition-all cursor-pointer active:scale-95"
+            >
+              <span className="material-symbols-outlined icon-pro text-[16px]">restart_alt</span>
+              <span>Clear All</span>
+            </button>
+          )}
 
           <button 
             type="button"
-            className="mt-2 w-full rounded-lg bg-primary py-3 font-label-md text-label-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container active:scale-95 md:hidden"
+            className="mt-1 w-full rounded-xl bg-primary py-3 font-label-md text-xs font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container active:scale-95 md:hidden"
             onClick={handleApplyFilters}
           >
             View {properties.length} stays
@@ -224,7 +284,7 @@ export default function SearchResults() {
         {/* Active Filters Chips */}
         {selectedAmenities.length > 0 && (
           <div className="flex flex-wrap gap-2 items-center">
-            <span className="font-label-md text-xs text-on-surface-variant mr-2">Active:</span>
+            <span className="font-label-md text-xs text-on-surface-variant mr-1 font-bold">Active:</span>
             {selectedAmenities.map((amenity) => (
               <span 
                 key={amenity}
@@ -235,10 +295,12 @@ export default function SearchResults() {
               </span>
             ))}
             <button 
-              className="text-xs text-primary underline font-semibold ml-2 hover:opacity-80"
+              type="button"
               onClick={() => setSelectedAmenities([])}
+              className="bg-error text-on-error hover:bg-error/90 px-3 py-1 rounded-full font-label-md text-xs inline-flex items-center gap-1 cursor-pointer shadow-xs transition-all active:scale-95 ml-1 font-semibold"
             >
-              Clear all
+              <span className="material-symbols-outlined icon-pro text-[14px]">restart_alt</span>
+              <span>Clear All</span>
             </button>
           </div>
         )}
@@ -301,8 +363,11 @@ export default function SearchResults() {
                       {prop.amenities.map((amenity, index) => (
                         <span 
                           key={index}
-                          className="bg-surface-container-low text-primary px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1"
+                          className="bg-primary-fixed/20 text-primary border border-primary/15 px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1.5 font-semibold"
                         >
+                          <span className="material-symbols-outlined text-[14px]">
+                            {getAmenityIcon(amenity)}
+                          </span>
                           {amenity}
                         </span>
                       ))}
