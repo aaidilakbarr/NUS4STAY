@@ -94,20 +94,20 @@ export default function PropertyDetail() {
       </div>
 
       {/* Image Gallery Bento Grid */}
-      <div className="mb-10 grid h-[320px] grid-cols-1 gap-3 md:h-[500px] md:grid-cols-3 md:gap-4">
+      <div className="mb-10 grid h-[320px] grid-cols-1 gap-3 md:h-[500px] md:grid-cols-3 md:gap-4 animate-fade-in-up">
         {/* Main large image */}
-        <div className="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden shadow-sm">
+        <div className="md:col-span-2 md:row-span-2 relative rounded-2xl overflow-hidden shadow-sm img-zoom-container cursor-pointer">
           <img 
-            className="w-full h-full object-cover" 
+            className="img-zoom w-full h-full object-cover" 
             alt={property.name} 
             src={galleryImages[0] || property.image} 
           />
         </div>
         {/* Secondary images */}
-        <div className="relative rounded-xl overflow-hidden shadow-sm hidden md:block">
+        <div className="relative rounded-2xl overflow-hidden shadow-sm hidden md:block img-zoom-container cursor-pointer">
           {galleryImages[1] ? (
             <img 
-              className="w-full h-full object-cover" 
+              className="img-zoom w-full h-full object-cover" 
               alt={`${property.name} secondary view`} 
               src={galleryImages[1]} 
             />
@@ -115,10 +115,10 @@ export default function PropertyDetail() {
             <div className="flex h-full items-center justify-center bg-surface-container-low text-sm text-outline">Belum ada gambar pendukung</div>
           )}
         </div>
-        <div className="relative rounded-xl overflow-hidden shadow-sm hidden md:block">
+        <div className="relative rounded-2xl overflow-hidden shadow-sm hidden md:block img-zoom-container cursor-pointer">
           {galleryImages[2] ? (
             <img 
-              className="w-full h-full object-cover" 
+              className="img-zoom w-full h-full object-cover" 
               alt={`${property.name} tertiary view`} 
               src={galleryImages[2]} 
             />
@@ -133,7 +133,7 @@ export default function PropertyDetail() {
         <div className="lg:col-span-2 space-y-10">
           
           {/* About description */}
-          <section>
+          <section className="animate-fade-in-up stagger-1">
             <h2 className="font-headline-lg text-2xl text-primary mb-4 border-b border-surface-container-highest pb-2 font-bold">
               About This Property
             </h2>
@@ -143,13 +143,13 @@ export default function PropertyDetail() {
           </section>
 
           {/* Amenities */}
-          <section>
+          <section className="animate-fade-in-up stagger-2">
             <h2 className="font-headline-lg text-2xl text-primary mb-6 border-b border-surface-container-highest pb-2 font-bold">
               Amenities
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
               {property.amenities.map((amenity, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/30 p-3 rounded-xl hover:border-primary/30 transition-all">
+                <div key={idx} className="pill-interactive flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/30 p-3 rounded-xl hover:border-primary/40 hover:bg-surface-container-low hover:shadow-xs transition-all">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-fixed/30 text-primary">
                     <span className="material-symbols-outlined text-xl">
                       {getAmenityIcon(amenity)}

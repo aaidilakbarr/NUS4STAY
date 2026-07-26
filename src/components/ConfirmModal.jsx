@@ -36,7 +36,7 @@ export default function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-inverse-surface/55 p-5 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-inverse-surface/55 p-5 backdrop-blur-sm animate-modal-backdrop"
       role="presentation"
       onClick={(e) => { if (e.target === e.currentTarget && !processing) onCancel?.(); }}
     >
@@ -44,7 +44,7 @@ export default function ConfirmModal({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
-        className="w-full max-w-md animate-in zoom-in-95 rounded-3xl border border-white/30 bg-surface p-6 shadow-[0_28px_80px_rgba(23,28,21,0.28)] md:p-7"
+        className="w-full max-w-md animate-modal-content rounded-3xl border border-white/30 bg-surface p-6 shadow-[0_28px_80px_rgba(23,28,21,0.28)] md:p-7"
       >
         <div className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${
           isDanger

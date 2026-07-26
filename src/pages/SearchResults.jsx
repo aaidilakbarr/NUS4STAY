@@ -320,78 +320,81 @@ export default function SearchResults() {
           </div>
         ) : (
           <div className="flex flex-col gap-6">
-            {properties.map((prop) => (
-              <div 
-                key={prop.id}
-                className="interactive-card group flex flex-col overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-1 md:flex-row"
-              >
-                {/* Image Section */}
-                <div className="relative w-full md:w-1/3 aspect-[4/3] md:aspect-auto md:min-h-[220px] overflow-hidden cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
-                  <img 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                    alt={prop.name} 
-                    src={prop.image} 
-                  />
-                  <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                    <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
-                    <span className="font-label-md text-label-md text-on-surface">
-                      {prop.reviewCount > 0 ? prop.rating.toFixed(1) : 'Baru'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="flex flex-grow flex-col justify-between p-5 md:w-2/3 md:p-6">
-                  <div>
-                    <h3 
-                      className="font-headline-md text-headline-md text-on-surface hover:text-primary transition-colors cursor-pointer"
-                      onClick={() => window.location.hash = `#/detail/${prop.id}`}
-                    >
-                      {prop.name}
-                    </h3>
-                    <div className="flex items-center gap-1 text-on-surface-variant mb-4 mt-2">
-                      <span className="material-symbols-outlined icon-pro text-[16px] text-primary">location_on</span>
-                      <span className="font-body-md text-body-md text-sm">{prop.location}</span>
-                    </div>
-                    <p className="mb-4 flex items-center gap-1.5 text-xs text-on-surface-variant">
-                      <span className="material-symbols-outlined text-[16px] text-tertiary" aria-hidden="true">reviews</span>
-                      {prop.reviewCount > 0
-                        ? `${prop.reviewCount} ulasan tamu terverifikasi`
-                        : 'Belum ada ulasan tamu'}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {prop.amenities.map((amenity, index) => (
-                        <span 
-                          key={index}
-                          className="bg-primary-fixed/20 text-primary border border-primary/15 px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1.5 font-semibold"
-                        >
-                          <span className="material-symbols-outlined text-[14px]">
-                            {getAmenityIcon(amenity)}
-                          </span>
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-col items-stretch justify-between gap-4 border-t border-outline-variant/30 pt-4 sm:flex-row sm:items-end">
-                    <div>
-                      <span className="font-price-display text-price-display text-on-surface font-bold">
-                        Mulai dari {formatPrice(prop.price)}
+            {properties.map((prop, idx) => {
+              const staggerClass = `stagger-${(idx % 6) + 1}`;
+              return (
+                <div 
+                  key={prop.id}
+                  className={`interactive-card group flex flex-col overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-1 md:flex-row animate-fade-in-up ${staggerClass}`}
+                >
+                  {/* Image Section */}
+                  <div className="relative w-full md:w-1/3 aspect-[4/3] md:aspect-auto md:min-h-[220px] img-zoom-container cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
+                    <img 
+                      className="img-zoom w-full h-full object-cover" 
+                      alt={prop.name} 
+                      src={prop.image} 
+                    />
+                    <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm transition-transform duration-200 group-hover:scale-105">
+                      <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
+                      <span className="font-label-md text-label-md text-on-surface">
+                        {prop.reviewCount > 0 ? prop.rating.toFixed(1) : 'Baru'}
                       </span>
-                      <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
                     </div>
-                    <a 
-                      className="flex min-h-11 items-center justify-center rounded-lg bg-primary px-6 py-2.5 font-label-md text-label-md font-bold text-on-primary transition-all hover:bg-primary-container active:scale-95"
-                      href={`#/detail/${prop.id}`}
-                    >
-                      View Details
-                      <span className="material-symbols-outlined icon-pro ml-1 text-[16px]">arrow_forward</span>
-                    </a>
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="flex flex-grow flex-col justify-between p-5 md:w-2/3 md:p-6">
+                    <div>
+                      <h3 
+                        className="font-headline-md text-headline-md text-on-surface hover:text-primary transition-colors cursor-pointer"
+                        onClick={() => window.location.hash = `#/detail/${prop.id}`}
+                      >
+                        {prop.name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-on-surface-variant mb-4 mt-2">
+                        <span className="material-symbols-outlined icon-pro text-[16px] text-primary">location_on</span>
+                        <span className="font-body-md text-body-md text-sm">{prop.location}</span>
+                      </div>
+                      <p className="mb-4 flex items-center gap-1.5 text-xs text-on-surface-variant">
+                        <span className="material-symbols-outlined text-[16px] text-tertiary" aria-hidden="true">reviews</span>
+                        {prop.reviewCount > 0
+                          ? `${prop.reviewCount} ulasan tamu terverifikasi`
+                          : 'Belum ada ulasan tamu'}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {prop.amenities.map((amenity, index) => (
+                          <span 
+                            key={index}
+                            className="pill-interactive bg-primary-fixed/20 text-primary border border-primary/15 px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1.5 font-semibold hover:bg-primary-fixed/30"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">
+                              {getAmenityIcon(amenity)}
+                            </span>
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-col items-stretch justify-between gap-4 border-t border-outline-variant/30 pt-4 sm:flex-row sm:items-end">
+                      <div>
+                        <span className="font-price-display text-price-display text-on-surface font-bold">
+                          Mulai dari {formatPrice(prop.price)}
+                        </span>
+                        <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
+                      </div>
+                      <a 
+                        className="btn-interactive flex min-h-11 items-center justify-center rounded-xl bg-primary px-6 py-2.5 font-label-md text-label-md font-bold text-on-primary transition-smooth hover:bg-primary-container active:scale-95 group/btn"
+                        href={`#/detail/${prop.id}`}
+                      >
+                        View Details
+                        <span className="material-symbols-outlined icon-pro ml-1 text-[16px] transition-transform duration-200 group-hover/btn:translate-x-1">arrow_forward</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

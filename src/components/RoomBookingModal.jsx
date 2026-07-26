@@ -117,7 +117,7 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-[#101F0D]/55 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-[#101F0D]/55 px-0 py-0 backdrop-blur-sm sm:items-center sm:px-4 sm:py-6 animate-modal-backdrop"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -126,7 +126,7 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
         role="dialog"
         aria-modal="true"
         aria-labelledby="room-booking-modal-title"
-        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-5xl flex-col overflow-hidden rounded-t-[1.75rem] border border-white/70 bg-surface shadow-[0_28px_90px_rgba(23,28,21,0.25)] sm:rounded-[1.75rem]"
+        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-5xl flex-col overflow-hidden rounded-t-[1.75rem] border border-white/70 bg-surface shadow-[0_28px_90px_rgba(23,28,21,0.25)] sm:rounded-[1.75rem] animate-modal-content"
       >
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-outline-variant/30 px-5 py-4 sm:px-7 sm:py-5">
           <div>
