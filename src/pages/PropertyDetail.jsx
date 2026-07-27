@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import RoomBookingModal from '../components/RoomBookingModal';
 import StarRating from '../components/StarRating';
+import { Badge } from '../components/ui/badge';
+import { CarouselProvider, CarouselContent, CarouselItem, CarouselPrev, CarouselNext, CarouselDots } from '../components/ui/carousel';
+
 
 export default function PropertyDetail() {
   const [property, setProperty] = useState(null);
@@ -92,39 +95,34 @@ export default function PropertyDetail() {
         </button>
       </div>
 
-      {/* Image Gallery Bento Grid */}
-      <div className="mb-10 grid h-[320px] grid-cols-1 gap-3 md:h-[500px] md:grid-cols-3 md:gap-4">
-        {/* Main large image */}
-        <div className="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden shadow-sm">
-          <img 
-            className="w-full h-full object-cover" 
-            alt={property.name} 
-            src={galleryImages[0] || property.image} 
-          />
-        </div>
-        {/* Secondary images */}
-        <div className="relative rounded-xl overflow-hidden shadow-sm hidden md:block">
-          {galleryImages[1] ? (
-            <img 
-              className="w-full h-full object-cover" 
-              alt={`${property.name} secondary view`} 
-              src={galleryImages[1]} 
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-surface-container-low text-sm text-outline">Belum ada gambar pendukung</div>
+      {/* Image Gallery Carousel */}
+      <div className="mb-10">
+        <CarouselProvider className="group">
+          <CarouselContent>
+            {galleryImages.map((img, idx) => (
+              <CarouselItem key={idx}>
+                <div className="relative h-[320px] md:h-[500px]">
+                  <img
+                    className="h-full w-full object-cover"
+                    alt={`${property.name} - gambar ${idx + 1}`}
+                    src={img}
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          {galleryImages.length > 1 && (
+            <>
+              <div className="absolute inset-y-0 left-4 hidden items-center md:flex">
+                <CarouselPrev className="bg-[#101F0D]/65 text-white hover:bg-primary border-0" />
+              </div>
+              <div className="absolute inset-y-0 right-4 hidden items-center md:flex">
+                <CarouselNext className="bg-[#101F0D]/65 text-white hover:bg-primary border-0" />
+              </div>
+              <CarouselDots className="absolute bottom-4 left-1/2 -translate-x-1/2" />
+            </>
           )}
-        </div>
-        <div className="relative rounded-xl overflow-hidden shadow-sm hidden md:block">
-          {galleryImages[2] ? (
-            <img 
-              className="w-full h-full object-cover" 
-              alt={`${property.name} tertiary view`} 
-              src={galleryImages[2]} 
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-surface-container-low text-sm text-outline">Belum ada gambar pendukung</div>
-          )}
-        </div>
+        </CarouselProvider>
       </div>
 
       <div className="grid grid-cols-1 items-start gap-9 lg:grid-cols-3 lg:gap-12">
@@ -197,10 +195,10 @@ export default function PropertyDetail() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <StarRating value={review.rating} readOnly size="sm" />
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary-fixed/35 px-2.5 py-1 text-[10px] font-bold text-primary">
+                        <Badge variant="amenity" className="gap-1 px-2.5 py-1 text-[10px]">
                           <span className="material-symbols-outlined text-[14px]" aria-hidden="true">verified</span>
                           Tamu terverifikasi
-                        </span>
+                        </Badge>
                       </div>
                       <blockquote className="mt-4 flex-1 font-headline-md text-base leading-7 text-on-surface">
                         “{review.comment || `Memberikan ${review.rating} bintang untuk pengalaman menginap ini.`}”

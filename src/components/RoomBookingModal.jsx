@@ -1,23 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { DatePicker } from './ui/date-picker';
+import { Button } from './ui/button';
 
 const FALLBACK_ROOM_IMAGES = [
   'https://lh3.googleusercontent.com/aida-public/AB6AXuBsc5jf1_kaXY_cBC2FjtybWt36Y6otnwwFTG-mVetccMP0id9p14q2aOSPH_evhzlsgrsjALLRzEhv_vlZqAcNs7hh19BAf0Lzw1FPa-Oi7rJ35k0OjobgUkhS81SyxzNK8P1k7Pur0G5H2NUtE9L5sXXc1tXXJxivrhrdGOBYWn7jOBKY4uIncKxJFxEv67qiN6qMXWUIpW8RZdLv9I5Px51DnqLEXkOytpwyMuG22wTSfbvxBY0D',
   'https://lh3.googleusercontent.com/aida-public/AB6AXuAqAAEkV9HUXIDbdwIEPmJqnpANFv-r6bw7XX1RMJgZby53nw7als7yY5Nlb8uL1wt5Whq1xAEelgVoSO3BGJBWi2FhDEdqoPrhzFQqM3IuJJ4BEA_-nkP4Ac_y9DzmmpbV8uQeQ7na7de4rzVXS_S54WttB-33wfzDuY-WWN_bJ7hSnHKL8cL-ZXwP2Du--ABkorNPK00_uTTfJyrW_bUSgCcsgnM7_4PnX2F4weRAgT_8GyPlNiRi',
 ];
 
-const getDateOffset = (days) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-};
-
-const addDay = (dateString) => {
-  if (!dateString) return getDateOffset(1);
-
-  const date = new Date(`${dateString}T00:00:00`);
-  date.setDate(date.getDate() + 1);
+const formatDateStr = (date) => {
+  if (!date) return '';
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${date.getFullYear()}-${month}-${day}`;
@@ -42,8 +33,8 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
   const checkInRef = useRef(null);
   const touchStartX = useRef(null);
   const [activeImage, setActiveImage] = useState(0);
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
+  const [checkIn, setCheckIn] = useState(null);
+  const [checkOut, setCheckOut] = useState(null);
   const [guests, setGuests] = useState('2 Dewasa');
   const [dateError, setDateError] = useState('');
 
@@ -87,12 +78,15 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
     touchStartX.current = null;
   };
 
-  const handleCheckInChange = (event) => {
-    const nextCheckIn = event.target.value;
-    setCheckIn(nextCheckIn);
+  const handleCheckInChange = (date) => {
+    setCheckIn(date);
     setDateError('');
+    if (checkOut && checkOut <= date) setCheckOut(null);
+  };
 
-    if (checkOut && checkOut <= nextCheckIn) setCheckOut('');
+  const handleCheckOutChange = (date) => {
+    setCheckOut(date);
+    setDateError('');
   };
 
   const handleBookNow = (event) => {
@@ -104,12 +98,15 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
       return;
     }
 
+    const checkInStr = formatDateStr(checkIn);
+    const checkOutStr = formatDateStr(checkOut);
+
     if (checkOut <= checkIn) {
       setDateError('Tanggal check-out harus setelah tanggal check-in.');
       return;
     }
 
-    const query = new URLSearchParams({ checkIn, checkOut, guests });
+    const query = new URLSearchParams({ checkIn: checkInStr, checkOut: checkOutStr, guests });
     onClose();
     window.location.hash = `#/checkout/${property.id}/${room.id}?${query.toString()}`;
   };
@@ -262,36 +259,19 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="room-modal-check-in" className="font-label-md text-xs font-semibold text-on-surface">Check-in</label>
-                <input
-                  ref={checkInRef}
-                  id="room-modal-check-in"
-                  type="text"
-                  min={getDateOffset(0)}
-                  value={checkIn}
-                  onChange={handleCheckInChange}
+                <DatePicker
                   placeholder="Pilih Tanggal Check-in"
-                  onFocus={(e) => e.target.type = 'date'}
-                  onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
-                  className="h-12 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  required
+                  selected={checkIn}
+                  onSelect={handleCheckInChange}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="room-modal-check-out" className="font-label-md text-xs font-semibold text-on-surface">Check-out</label>
-                <input
-                  id="room-modal-check-out"
-                  type="text"
-                  min={addDay(checkIn)}
-                  value={checkOut}
-                  onChange={(event) => {
-                    setCheckOut(event.target.value);
-                    setDateError('');
-                  }}
+                <DatePicker
                   placeholder="Pilih Tanggal Checkout"
-                  onFocus={(e) => e.target.type = 'date'}
-                  onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
-                  className="h-12 w-full rounded-xl border border-outline-variant bg-surface px-3 text-sm text-on-surface outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  required
+                  selected={checkOut}
+                  onSelect={handleCheckOutChange}
+                  disabled={!checkIn}
                 />
               </div>
             </div>
@@ -316,20 +296,13 @@ export default function RoomBookingModal({ property, room, intent = 'details', o
             ) : null}
 
             <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex h-12 cursor-pointer items-center justify-center rounded-xl border border-outline-variant bg-surface px-5 text-sm font-semibold text-on-surface transition hover:border-primary/30 hover:bg-primary-fixed/15 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
+              <Button type="button" variant="outline" size="lg" onClick={onClose}>
                 Tutup
-              </button>
-              <button
-                type="submit"
-                className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-[0_12px_28px_rgba(52,78,43,0.2)] transition hover:-translate-y-0.5 hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-0"
-              >
+              </Button>
+              <Button type="submit" variant="default" size="lg">
                 Pesan sekarang
                 <span className="material-symbols-outlined text-[19px]">arrow_forward</span>
-              </button>
+              </Button>
             </div>
           </form>
         </div>

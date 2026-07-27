@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
+import { DatePicker } from '../components/ui/date-picker';
+import { Button } from '../components/ui/button';
 
-const getDateOffset = (days) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
-};
-
-const addDay = (dateString) => {
-  if (!dateString) return getDateOffset(1);
-
-  const date = new Date(`${dateString}T00:00:00`);
-  date.setDate(date.getDate() + 1);
+const formatDateStr = (date) => {
+  if (!date) return '';
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${date.getFullYear()}-${month}-${day}`;
@@ -24,9 +15,8 @@ export default function RoomDetail() {
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Form states for booking summary widget
-  const [checkInDate, setCheckInDate] = useState('');
-  const [checkOutDate, setCheckOutDate] = useState('');
+  const [checkInDate, setCheckInDate] = useState(null);
+  const [checkOutDate, setCheckOutDate] = useState(null);
   const [guests, setGuests] = useState('2 Dewasa');
   const [dateError, setDateError] = useState('');
 
@@ -59,9 +49,7 @@ export default function RoomDetail() {
 
   const calculateNights = () => {
     if (!checkInDate || !checkOutDate) return 0;
-    const start = new Date(checkInDate);
-    const end = new Date(checkOutDate);
-    const diff = end.getTime() - start.getTime();
+    const diff = checkOutDate.getTime() - checkInDate.getTime();
     const nights = Math.ceil(diff / (1000 * 3600 * 24));
     return nights > 0 ? nights : 1;
   };
@@ -79,8 +67,8 @@ export default function RoomDetail() {
 
     setDateError('');
     const query = new URLSearchParams();
-    query.set('checkIn', checkInDate);
-    query.set('checkOut', checkOutDate);
+    query.set('checkIn', formatDateStr(checkInDate));
+    query.set('checkOut', formatDateStr(checkOutDate));
     query.set('guests', guests);
     window.location.hash = `#/checkout/${property.id}/${room.id}?${query.toString()}`;
   };
@@ -204,35 +192,25 @@ export default function RoomDetail() {
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-in</label>
-              <input 
-                type="text"
-                min={getDateOffset(0)}
-                value={checkInDate}
-                onChange={(e) => {
-                  setCheckInDate(e.target.value);
-                  setDateError('');
-                  if (checkOutDate && checkOutDate <= e.target.value) setCheckOutDate('');
-                }}
+              <DatePicker
                 placeholder="Pilih Tanggal Check-in"
-                onFocus={(e) => e.target.type = 'date'}
-                onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
-                className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
+                selected={checkInDate}
+                onSelect={(date) => {
+                  setCheckInDate(date);
+                  setDateError('');
+                  if (checkOutDate && checkOutDate <= date) setCheckOutDate(null);
+                }}
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="font-label-md text-xs text-on-surface font-semibold">Check-out</label>
-              <input 
-                type="text"
-                min={addDay(checkInDate)}
-                value={checkOutDate}
-                onChange={(e) => {
-                  setCheckOutDate(e.target.value);
+              <DatePicker
+                placeholder="Pilih Tanggal Checkout"
+                selected={checkOutDate}
+                onSelect={(date) => {
+                  setCheckOutDate(date);
                   setDateError('');
                 }}
-                placeholder="Pilih Tanggal Checkout"
-                onFocus={(e) => e.target.type = 'date'}
-                onBlur={(e) => { if (!e.target.value) e.target.type = 'text'; }}
-                className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -270,12 +248,13 @@ export default function RoomDetail() {
             </div>
           </div>
 
-          <button 
+          <Button
+            className="w-full py-4 text-base"
+            size="lg"
             onClick={handleBookNow}
-            className="w-full bg-primary text-on-primary py-4 rounded-xl font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-md text-base font-bold active:scale-95 transition-transform"
           >
             Pesan Sekarang
-          </button>
+          </Button>
         </div>
       </div>
     </main>

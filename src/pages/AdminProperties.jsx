@@ -5,6 +5,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import NotificationModal from '../components/NotificationModal';
 import { adminProperties } from '../services/admin';
 import { formatPrice, formatRupiahDisplay, parseRupiahValue } from '../utils/formatters';
+import { Badge } from '../components/ui/badge';
 
 const AMENITY_OPTIONS = [
   'Wi-Fi',
@@ -517,9 +518,9 @@ export default function AdminProperties() {
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-xl font-bold text-on-surface">{property.name}</h2>
-                        <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${property.is_active ? 'bg-primary-fixed/30 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                        <Badge variant={property.is_active ? 'default' : 'secondary'} className="px-3 py-1 text-[11px]">
                           {property.is_active ? 'Aktif' : 'Nonaktif'}
-                        </span>
+                        </Badge>
                       </div>
                       <p className="mt-1 text-sm text-on-surface-variant">{property.location}</p>
                     </div>

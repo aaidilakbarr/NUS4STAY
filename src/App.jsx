@@ -48,6 +48,10 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentRoute]);
+
   const { page, showNav, showFooter, protected: isProtected, roles } = getRouteInfo(currentRoute);
 
   const PageComponent = pageComponents[page] ?? LandingPage;

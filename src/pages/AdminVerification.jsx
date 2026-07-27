@@ -3,6 +3,7 @@ import AdminNavigation from '../components/AdminNavigation';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { adminPayments } from '../services/admin';
 import { formatPrice, formatDateTime, formatStayDate, getProofFileName, getProofType } from '../utils/formatters';
+import { Badge } from '../components/ui/badge';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,12 +46,13 @@ const getVerificationState = (record) => {
 
 function VerificationBadge({ state }) {
   const config = VERIFICATION_STATES[state] || VERIFICATION_STATES.unknown;
+  const variantMap = { review: 'warning', approved: 'default', rejected: 'error', unknown: 'outline' };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold ${config.badgeClass}`}>
+    <Badge variant={variantMap[state] || 'outline'} className="gap-1.5 px-2.5 py-1 text-[11px]">
       <span className="material-symbols-outlined text-[15px]" aria-hidden="true">{config.icon}</span>
       {config.label}
-    </span>
+    </Badge>
   );
 }
 
