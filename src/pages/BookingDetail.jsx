@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { useAuth } from '../contexts/useAuth';
 import StarRating from '../components/StarRating';
+import { Badge } from '../components/ui/badge';
 
 export default function BookingDetail() {
   const { user, profile } = useAuth();
@@ -458,10 +459,10 @@ export default function BookingDetail() {
                 <div className="p-5 md:p-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <StarRating value={booking.review.rating} readOnly />
-                    <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary-fixed/35 px-3 py-1.5 text-[11px] font-bold text-primary">
+                    <Badge variant="amenity" className="gap-1.5 px-3 py-1.5 text-[11px]">
                       <span className="material-symbols-outlined text-[16px]" aria-hidden="true">public</span>
                       Tayang publik
-                    </span>
+                    </Badge>
                   </div>
                   <blockquote className="mt-4 rounded-xl border-l-4 border-tertiary bg-surface-container-low px-4 py-3 font-headline-md text-base leading-7 text-on-surface">
                     “{booking.review.comment || `Memberikan ${booking.review.rating} bintang untuk pengalaman menginap ini.`}”
