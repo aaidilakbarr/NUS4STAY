@@ -85,7 +85,7 @@ export default function LoginPage() {
       ? supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })
       : supabase.auth.signInWithPassword({ email, password });
 
-    const { data: authData, error } = await action;
+    const { error } = await action;
 
     if (error) {
       setMessage(error.message);
@@ -95,14 +95,6 @@ export default function LoginPage() {
       }
       setLoading(false);
       return;
-    }
-
-    if (mode === 'register' && authData?.user) {
-      await supabase.from('profiles').upsert({
-        id: authData.user.id,
-        full_name: name,
-        role: 'guest',
-      }, { onConflict: 'id' });
     }
 
     setLoading(false);
