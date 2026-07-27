@@ -4,6 +4,9 @@ import { useAuth } from './useAuth';
 
 const NotificationContext = createContext(null);
 
+const NOTIF_BOOKING_TYPES = ['booking_confirmed', 'booking_pending', 'rating_reminder', 'payment_approved', 'payment_rejected'];
+const NOTIF_PROMO_TYPES = ['promotion', 'promo'];
+
 export function useNotifications() {
   const ctx = useContext(NotificationContext);
   if (!ctx) throw new Error('useNotifications must be used within NotificationProvider');
@@ -13,9 +16,23 @@ export function useNotifications() {
 export function NotificationProvider({ children }) {
   const { isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [, setUnreadCount] = useState(0);
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const filteredNotifications = useMemo(() => {
+    if (!preferences) return notifications;
+    return notifications.filter((n) => {
+      if (NOTIF_BOOKING_TYPES.includes(n.type) && !preferences.booking_updates) return false;
+      if (NOTIF_PROMO_TYPES.includes(n.type) && !preferences.promotions) return false;
+      return true;
+    });
+  }, [notifications, preferences]);
+
+  const filteredUnreadCount = useMemo(
+    () => filteredNotifications.filter((n) => !n.is_read).length,
+    [filteredNotifications],
+  );
 
   const loadNotifications = useCallback(async () => {
     if (!isAuthenticated) {
@@ -63,16 +80,24 @@ export function NotificationProvider({ children }) {
     setPreferences(updated);
   }, []);
 
+  const createMockNotification = useCallback(async (type, title, message) => {
+    const created = await notificationDb.createMockNotification(type, title, message);
+    setNotifications((prev) => [created, ...prev]);
+    setUnreadCount((prev) => prev + 1);
+    return created;
+  }, []);
+
   const value = useMemo(() => ({
-    notifications,
-    unreadCount,
+    notifications: filteredNotifications,
+    unreadCount: filteredUnreadCount,
     preferences,
     loading,
     markAsRead,
     markAllAsRead,
     updatePreferences,
+    createMockNotification,
     refresh: loadNotifications,
-  }), [notifications, unreadCount, preferences, loading, markAsRead, markAllAsRead, updatePreferences, loadNotifications]);
+  }), [filteredNotifications, filteredUnreadCount, preferences, loading, markAsRead, markAllAsRead, updatePreferences, createMockNotification, loadNotifications]);
 
   return (
     <NotificationContext.Provider value={value}>

@@ -69,11 +69,14 @@ function AccountRow({ icon, label, hint, href, onClick, danger }) {
 
 export default function ProfilePage() {
   const { user, profile, refreshProfile } = useAuth();
-  const { preferences, updatePreferences } = useNotifications();
+  const { preferences, updatePreferences, createMockNotification } = useNotifications();
   const [showNotifPrefs, setShowNotifPrefs] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState({ booking_updates: true, promotions: false });
   const [notifPrefsLoading, setNotifPrefsLoading] = useState(false);
   const [notifPrefsMsg, setNotifPrefsMsg] = useState('');
+  const [simLoading, setSimLoading] = useState(null);
+  const [simMsg, setSimMsg] = useState('');
+  const [simMsgType, setSimMsgType] = useState('success');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -153,6 +156,21 @@ export default function ProfilePage() {
     }
   };
 
+  const triggerMockNotification = async (type, title, message) => {
+    setSimLoading(type);
+    setSimMsg('');
+    try {
+      await createMockNotification(type, title, message);
+      setSimMsg(`Notifikasi "${title}" berhasil dikirim!`);
+      setSimMsgType('success');
+    } catch (err) {
+      setSimMsg(err?.message || 'Gagal mengirim notifikasi.');
+      setSimMsgType('error');
+    } finally {
+      setSimLoading(null);
+    }
+  };
+
   const memberSince = profile?.created_at
     ? new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(new Date(profile.created_at))
     : null;
@@ -207,7 +225,7 @@ export default function ProfilePage() {
         {/* Kolom kanan: statistik, form, dan pengaturan akun */}
         <div className="flex-1 min-w-0 space-y-8">
           {/* Statistik booking */}
-          {stats.total > 0 && (
+          {stats.total > 0 && profile?.role !== 'admin' && (
             <section>
               <h3 className="font-headline-md text-base text-on-surface font-bold mb-4">Ringkasan Booking</h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -394,6 +412,66 @@ export default function ProfilePage() {
                 >
                   {notifPrefsLoading ? 'Menyimpan...' : 'Simpan Preferensi'}
                 </button>
+              </div>
+            </section>
+          )}
+          {showNotifPrefs && (
+            <section className="animate-scale-in">
+              <h3 className="font-headline-md text-base text-on-surface font-bold mb-4">Simulasi Notifikasi (Uji Coba)</h3>
+              <div className="bg-surface-container-low rounded-2xl border border-outline-variant/30 p-6 md:p-8 shadow-level-1 space-y-4">
+                <p className="text-sm text-on-surface-variant">Kirim notifikasi simulasi untuk menguji tampilan dan penyaringan preferensi.</p>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled={simLoading === 'payment_approved'}
+                    onClick={() => triggerMockNotification('payment_approved', 'Pembayaran Disetujui', 'Pembayaran untuk booking Anda telah dikonfirmasi. Selamat menikmati penginapan!')}
+                    className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary-fixed/20 px-4 py-3 text-left text-sm font-semibold text-primary transition-all duration-200 hover:bg-primary-fixed/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <Icon name="check_circle" className="text-[20px] shrink-0" />
+                    <span>{simLoading === 'payment_approved' ? 'Mengirim...' : 'Simulasi Pembayaran Disetujui'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={simLoading === 'payment_rejected'}
+                    onClick={() => triggerMockNotification('payment_rejected', 'Pembayaran Ditolak', 'Maaf, pembayaran Anda tidak dapat diverifikasi. Silakan unggah ulang bukti pembayaran.')}
+                    className="flex items-center gap-3 rounded-xl border border-error/30 bg-error-container/20 px-4 py-3 text-left text-sm font-semibold text-error transition-all duration-200 hover:bg-error-container/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <Icon name="cancel" className="text-[20px] shrink-0" />
+                    <span>{simLoading === 'payment_rejected' ? 'Mengirim...' : 'Simulasi Pembayaran Ditolak'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={simLoading === 'rating_reminder'}
+                    onClick={() => triggerMockNotification('rating_reminder', 'Yuk Beri Rating!', 'Bagaimana pengalaman menginap Anda? Berikan rating dan ulasan untuk membantu tamu lain.')}
+                    className="flex items-center gap-3 rounded-xl border border-tertiary/30 bg-tertiary-container/20 px-4 py-3 text-left text-sm font-semibold text-tertiary transition-all duration-200 hover:bg-tertiary-container/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <Icon name="rate_review" className="text-[20px] shrink-0" />
+                    <span>{simLoading === 'rating_reminder' ? 'Mengirim...' : 'Simulasi Reminder Rating'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={simLoading === 'promotion'}
+                    onClick={() => triggerMockNotification('promotion', 'Promo Spesial!', 'Diskon hingga 40% untuk penginapan akhir pekan ini. Pesan sekarang sebelum kehabisan!')}
+                    className="flex items-center gap-3 rounded-xl border border-error/30 bg-error-container/20 px-4 py-3 text-left text-sm font-semibold text-error transition-all duration-200 hover:bg-error-container/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    <Icon name="campaign" className="text-[20px] shrink-0" />
+                    <span>{simLoading === 'promotion' ? 'Mengirim...' : 'Simulasi Promosi & Penawaran'}</span>
+                  </button>
+                </div>
+
+                {simMsg && (
+                  <div className={`flex items-start gap-2.5 rounded-xl border px-3.5 py-2.5 text-xs transition-all duration-200 ${simMsgType === 'error'
+                    ? 'border-error/20 bg-error-container/60 text-on-error-container'
+                    : 'border-primary/15 bg-primary-fixed/30 text-on-primary-fixed-variant'
+                    }`}>
+                    <Icon name={simMsgType === 'error' ? 'error' : 'check_circle'} className="mt-0.5 text-[16px] shrink-0" />
+                    <p className="leading-relaxed">{simMsg}</p>
+                  </div>
+                )}
               </div>
             </section>
           )}
