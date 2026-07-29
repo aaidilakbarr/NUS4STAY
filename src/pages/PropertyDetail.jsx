@@ -4,6 +4,7 @@ import RoomBookingModal from '../components/RoomBookingModal';
 import StarRating from '../components/StarRating';
 import { Badge } from '../components/ui/badge';
 import { CarouselProvider, CarouselContent, CarouselItem, CarouselPrev, CarouselNext, CarouselDots } from '../components/ui/carousel';
+import { getAmenityIcon } from '../utils/formatters';
 
 
 export default function PropertyDetail() {
@@ -144,15 +145,19 @@ export default function PropertyDetail() {
             <h2 className="font-headline-lg text-2xl text-primary mb-6 border-b border-surface-container-highest pb-2 font-bold">
               Amenities
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+            <div className="flex flex-wrap gap-3">
               {property.amenities.map((amenity, idx) => (
-                <div key={idx} className="pill-interactive flex items-center gap-3 bg-surface-container-low/70 border border-outline-variant/30 p-3 rounded-xl hover:border-primary/40 hover:bg-surface-container-low hover:shadow-xs transition-all">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-fixed/30 text-primary">
-                    <span className="material-symbols-outlined text-xl">
-                      {getAmenityIcon(amenity)}
+                <div key={idx} className="group">
+                  <span className="inline-flex items-center h-10 rounded-full bg-primary-fixed/30 border border-primary/20 text-primary shadow-xs overflow-hidden transition-all duration-300 ease-out max-w-[160px] md:max-w-[40px] md:group-hover:max-w-[160px] cursor-default">
+                    <span className="flex items-center justify-center w-10 h-10 shrink-0">
+                      <span className="material-symbols-outlined text-xl transition-transform duration-200 md:group-hover:rotate-6">
+                        {getAmenityIcon(amenity)}
+                      </span>
                     </span>
-                  </div>
-                  <span className="font-body-md text-sm text-on-surface font-semibold">{amenity}</span>
+                    <span className="pr-3 text-xs font-medium whitespace-nowrap opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 md:delay-100">
+                      {amenity}
+                    </span>
+                  </span>
                 </div>
               ))}
             </div>

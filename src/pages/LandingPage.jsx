@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
-import { getAmenityIcon } from '../utils/amenities';
+import { getAmenityIcon } from '../utils/formatters';
 
 export default function LandingPage() {
   const [destinations, setDestinations] = useState([]);
@@ -59,25 +59,25 @@ export default function LandingPage() {
       <section className="relative flex min-h-[690px] w-full items-center justify-center overflow-hidden px-margin-mobile py-14 md:min-h-[610px] md:px-margin-desktop md:py-20">
         <div className="absolute inset-0 z-0">
           <img
-            className="w-full h-full object-cover scale-105 transition-transform duration-1000 ease-out"
+            className="w-full h-full object-cover"
             alt="Luxury villa overlooking ocean"
             src="/Hero_LandPge.svg"
           />
           <div className="absolute inset-0 hero-gradient"></div>
         </div>
         <div className="relative z-10 mx-auto flex w-full max-w-container-max flex-col items-center px-0 text-center md:px-4">
-          <p className="animate-fade-in-up stagger-1 mb-4 text-xs font-bold uppercase tracking-[0.22em] text-white/80">Handpicked stays · Seamless booking</p>
-          <h1 className="animate-fade-in-up stagger-2 font-headline-xl text-headline-xl-mobile md:text-headline-xl mb-5 max-w-3xl text-white drop-shadow-lg leading-tight">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-white/80">Handpicked stays · Seamless booking</p>
+          <h1 className="font-headline-xl text-headline-xl-mobile md:text-headline-xl mb-5 max-w-3xl text-white drop-shadow-lg leading-tight">
             Find Your Perfect Escape
           </h1>
-          <p className="animate-fade-in-up stagger-3 font-body-lg mb-8 max-w-2xl text-base text-white/90 drop-shadow-md md:text-lg">
+          <p className="font-body-lg mb-8 max-w-2xl text-base text-white/90 drop-shadow-md md:text-lg">
             Discover exclusive villas and premium hotels in the world's most breathtaking destinations.
           </p>
 
           {/* Search Bar Form */}
           <form
             onSubmit={handleSearchSubmit}
-            className="animate-fade-in-up stagger-4 flex w-full max-w-5xl flex-col items-center gap-1 rounded-2xl border border-white/50 bg-surface-container-lowest p-2 shadow-level-2 md:flex-row md:rounded-3xl transition-smooth hover:border-white/80"
+            className="flex w-full max-w-5xl flex-col items-center gap-1 rounded-2xl border border-white/50 bg-surface-container-lowest p-2 shadow-level-2 md:flex-row md:rounded-3xl"
           >
             <div className="flex w-full flex-1 flex-col items-start border-b border-outline-variant/50 px-4 py-3 md:border-b-0 md:border-r md:px-5">
               <label className="font-label-md text-label-md text-on-surface-variant mb-1 uppercase text-[10px]">Location</label>
@@ -111,7 +111,7 @@ export default function LandingPage() {
             </div>
             <button
               type="submit"
-              className="btn-interactive flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-on-primary shadow-md hover:bg-surface-tint active:scale-95 md:w-auto md:rounded-2xl"
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-on-primary shadow-md transition-all duration-200 hover:bg-surface-tint active:scale-95 md:w-auto md:rounded-2xl"
             >
               <span className="material-symbols-outlined icon-pro fill-1 text-[20px]">search</span>
               <span className="font-label-md text-label-md">Search</span>
@@ -120,7 +120,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Top-Rated Villas (Bento Grid) */}
+      {/* Top Picked Villas (Bento Grid) */}
       <section className="page-shell py-14 md:py-20">
         <div className="mb-7 flex items-end justify-between gap-4">
           <div>
@@ -130,7 +130,7 @@ export default function LandingPage() {
         </div>
         <div className="grid auto-rows-[280px] grid-cols-1 gap-4 md:h-[600px] md:grid-cols-4 md:grid-rows-2 md:gap-card-gap">
           {destinations.map((dest, idx) => {
-            let bentoClass = "interactive-card img-zoom-container rounded-2xl overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-level-2";
+            let bentoClass = "interactive-card rounded-2xl overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-level-2";
             if (idx === 0) bentoClass += " md:col-span-2 md:row-span-2";
             else if (idx === 1) bentoClass += " md:col-span-2 md:row-span-1";
             else bentoClass += " md:col-span-1 md:row-span-1";
@@ -143,12 +143,12 @@ export default function LandingPage() {
                 onClick={() => handleDestinationClick(dest)}
               >
                 <img
-                  className="img-zoom w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   alt={dest.name}
                   src={dest.image}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent transition-opacity duration-300 group-hover:opacity-90"></div>
-                <div className="absolute bottom-0 left-0 p-6 text-left transform transition-transform duration-300 group-hover:translate-y-[-2px]">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <div className="absolute bottom-0 left-0 p-6 text-left">
                   <span className="font-headline-md mb-1 block text-headline-md text-white">{dest.name}</span>
                   <span className="mt-1 flex items-center gap-1.5 font-body-md text-sm text-white/85">
                     <span className="material-symbols-outlined fill-1 text-[17px] text-tertiary-fixed-dim" aria-hidden="true">star</span>
@@ -172,24 +172,24 @@ export default function LandingPage() {
           </div>
           <a
             href="#/search"
-            className="hidden md:flex items-center gap-2 text-primary font-label-md text-label-md hover:opacity-80 transition-all font-semibold group"
+            className="hidden md:flex items-center gap-2 text-primary font-label-md text-label-md hover:opacity-80 transition-all font-semibold"
           >
-            View All <span className="material-symbols-outlined icon-pro text-[18px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+            View All <span className="material-symbols-outlined icon-pro text-[18px]">arrow_forward</span>
           </a>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-card-gap">
-          {featuredProperties.map((prop, idx) => (
+          {featuredProperties.map((prop) => (
             <div
               key={prop.id}
-              className={`interactive-card group flex flex-col overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest text-left shadow-level-1 animate-fade-in-up ${idx === 0 ? 'stagger-1' : idx === 1 ? 'stagger-2' : 'stagger-3'}`}
+              className="interactive-card group flex flex-col overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest text-left shadow-level-1 animate-scale-in"
             >
-              <div className="relative aspect-[4/3] img-zoom-container cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
+              <div className="relative aspect-[4/3] overflow-hidden cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
                 <img
-                  className="img-zoom w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   alt={prop.name}
                   src={prop.image}
                 />
-                <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm transition-transform duration-200 group-hover:scale-105">
+                <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                   <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
                   <span className="font-label-md text-label-md text-on-surface">
                     {prop.reviewCount > 0 ? prop.rating.toFixed(1) : 'Baru'}
@@ -218,12 +218,12 @@ export default function LandingPage() {
                     {prop.amenities.slice(0, 2).map((amenity, index) => (
                       <span
                         key={index}
-                        className="pill-interactive bg-primary-fixed/20 text-primary border border-primary/15 px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1.5 font-semibold hover:bg-primary-fixed/30"
+                        title={amenity}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-fixed/20 text-primary text-sm"
                       >
-                        <span className="material-symbols-outlined icon-pro text-[14px]">
+                        <span className="material-symbols-outlined icon-pro text-[16px]">
                           {getAmenityIcon(amenity)}
                         </span>
-                        {amenity}
                       </span>
                     ))}
                   </div>
@@ -236,7 +236,7 @@ export default function LandingPage() {
                     <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
                   </div>
                   <a
-                    className="btn-interactive font-label-md text-label-md flex min-h-11 items-center justify-center rounded-xl border border-primary bg-transparent px-5 py-2.5 font-bold text-primary transition-smooth hover:bg-primary hover:text-on-primary active:scale-95"
+                    className="font-label-md text-label-md flex min-h-11 items-center justify-center rounded-xl border border-primary bg-transparent px-5 py-2.5 font-bold text-primary transition-bounce hover:-translate-y-0.5 hover:bg-primary-fixed/10 active:scale-95"
                     href={`#/detail/${prop.id}`}
                   >
                     Book

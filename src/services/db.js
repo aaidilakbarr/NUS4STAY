@@ -411,15 +411,11 @@ export const db = {
     });
     if (updateError) throw new Error(updateError.message);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({ full_name, phone })
-      .eq('id', userData.user.id)
-      .select();
+      .eq('id', userData.user.id);
 
     if (error) throw new Error(error.message || 'Gagal memperbarui profil.');
-    if (!data || data.length === 0) {
-      throw new Error('Gagal memperbarui profil: data profil tidak ditemukan atau akses ditolak.');
-    }
   },
 };

@@ -46,3 +46,30 @@ export const getProofType = (path) => {
   if (['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extension)) return 'image';
   return 'other';
 };
+
+export function getAmenityIcon(amenity) {
+  if (!amenity) return 'check_circle';
+  const iconMap = {
+    'Wi-Fi': 'wifi',
+    'Kolam Renang': 'pool',
+    'Private Pool': 'pool',
+    'Ocean View': 'water',
+    'Gym': 'fitness_center',
+    'Spa': 'spa',
+    'Breakfast': 'restaurant',
+    'Parking': 'local_parking',
+    'AC': 'ac_unit',
+    'Bathtub': 'bathtub',
+    'Balcony': 'balcony',
+    'Restaurant': 'restaurant',
+    'King Bed': 'king_bed',
+    'Queen Bed': 'bed',
+    'Twin Bed': 'single_bed',
+    'Smart TV': 'tv',
+    'Jacuzzi': 'hot_tub',
+    'Workspace': 'desk',
+    'Mini Bar': 'local_bar',
+  };
+  return iconMap[amenity] || 'check_circle';
+}
+

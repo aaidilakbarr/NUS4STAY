@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { db } from '../services/db';
+import ConfirmModal from '../components/ConfirmModal';
 
 const getBookingIdFromHash = () => {
   const parts = window.location.hash.split('/');
@@ -31,6 +32,9 @@ export default function PendingPayment() {
   const [proofUploading, setProofUploading] = useState(false);
   const [error, setError] = useState('');
   const [proofModal, setProofModal] = useState({ open: false, success: false, text: '' });
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const [infoModal, setInfoModal] = useState({ open: false, title: '', message: '' });
   const fileInputRef = useRef(null);
 
   const loadBooking = useCallback(async () => {
@@ -91,7 +95,19 @@ export default function PendingPayment() {
       const refreshed = await loadBooking();
       if (refreshed?.bookingStatus === 'confirmed' || refreshed?.bookingStatus === 'completed') {
         window.location.hash = `#/history-detail/${refreshed.id}`;
+      } else {
+        setInfoModal({
+          open: true,
+          title: 'Status Pembayaran',
+          message: 'Mohon Tunggu Admin Akan Segera Memverifikasi',
+        });
       }
+    } catch {
+      setInfoModal({
+        open: true,
+        title: 'Status Pembayaran',
+        message: 'Mohon Tunggu Admin Akan Segera Memverifikasi',
+      });
     } finally {
       setRefreshing(false);
     }
@@ -123,17 +139,23 @@ export default function PendingPayment() {
     }
   };
 
-  const handleCancelBooking = async () => {
-    if (!booking || !window.confirm('Batalkan booking ini? Ketersediaan kamar akan dikembalikan.')) return;
+  const handleCancelBookingClick = () => {
+    setCancelModalOpen(true);
+  };
 
-    setRefreshing(true);
+  const handleConfirmCancel = async () => {
+    if (!booking) return;
+
+    setCanceling(true);
     setError('');
     try {
       await db.cancelBooking(booking.id);
+      setCancelModalOpen(false);
       window.location.hash = '#/history';
     } catch (cancelError) {
       setError(cancelError.message);
-      setRefreshing(false);
+    } finally {
+      setCanceling(false);
     }
   };
 
@@ -260,15 +282,27 @@ export default function PendingPayment() {
 
         <div className="flex flex-col gap-3">
           {isPending || isReview ? (
-            <button
-              type="button"
-              onClick={handleCheckStatus}
-              disabled={refreshing}
-              className="w-full bg-primary text-on-primary font-label-md text-sm py-4 rounded-full hover:opacity-90 transition-opacity flex items-center justify-center gap-2 font-bold disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <span className="material-symbols-outlined text-[20px]">refresh</span>
-              {refreshing ? 'Memeriksa...' : 'Cek status pembayaran'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleCheckStatus}
+                disabled={refreshing || canceling}
+                className="flex-[2] bg-primary text-on-primary font-label-md text-sm py-4 rounded-full hover:opacity-90 transition-opacity flex items-center justify-center gap-2 font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined text-[20px]">refresh</span>
+                {refreshing ? 'Memeriksa...' : 'Cek status pembayaran'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCancelBookingClick}
+                disabled={refreshing || canceling}
+                className="flex-[1] bg-error-container text-on-error-container border border-error/30 hover:bg-error-container/80 font-label-md text-xs sm:text-sm py-4 rounded-full transition-all flex items-center justify-center gap-1.5 font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined text-[18px]">cancel</span>
+                <span>Batalkan</span>
+              </button>
+            </div>
           ) : null}
 
           {isExpired ? (
@@ -277,12 +311,6 @@ export default function PendingPayment() {
 
           {booking.bookingStatus === 'confirmed' || booking.bookingStatus === 'completed' ? (
             <a href={`#/history-detail/${booking.id}`} className="w-full bg-primary text-on-primary font-label-md text-sm py-4 rounded-full text-center font-bold">Lihat detail booking</a>
-          ) : null}
-
-          {isPending || isReview ? (
-            <button type="button" onClick={handleCancelBooking} disabled={refreshing} className="font-label-md text-xs text-on-surface-variant underline hover:text-primary transition-colors disabled:opacity-50">
-              Batalkan booking
-            </button>
           ) : null}
         </div>
       </div>
@@ -328,6 +356,33 @@ export default function PendingPayment() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={cancelModalOpen}
+        title="Batalkan Pemesanan?"
+        message="Akan membutuhkan waktu untuk refund."
+        confirmLabel="Batalkan Pemesanan"
+        showCancelButton={false}
+        cancelLabel={null}
+        confirmVariant="danger"
+        icon="warning"
+        processing={canceling}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => setCancelModalOpen(false)}
+      />
+
+      <ConfirmModal
+        open={infoModal.open}
+        title={infoModal.title || 'Status Pembayaran'}
+        message={infoModal.message}
+        confirmLabel="Mengerti"
+        showCancelButton={false}
+        cancelLabel={null}
+        confirmVariant="default"
+        icon="hourglass_top"
+        onConfirm={() => setInfoModal({ open: false, title: '', message: '' })}
+        onCancel={() => setInfoModal({ open: false, title: '', message: '' })}
+      />
     </main>
   );
 }
