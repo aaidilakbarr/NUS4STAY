@@ -15,6 +15,9 @@ import LoginPage from './pages/LoginPage';
 import AdminProperties from './pages/AdminProperties';
 import AdminVerification from './pages/AdminVerification';
 import ProfilePage from './pages/ProfilePage';
+import ManagerDashboard from './pages/ManagerDashboard';
+import ManagerReports from './pages/ManagerReports';
+import ManagerAnalytics from './pages/ManagerAnalytics';
 import { getRouteInfo } from './routes/getRouteInfo';
 
 const pageComponents = {
@@ -30,6 +33,9 @@ const pageComponents = {
   'admin-properties': AdminProperties,
   'admin-payments': AdminVerification,
   profile: ProfilePage,
+  'manager-dashboard': ManagerDashboard,
+  'manager-reports': ManagerReports,
+  'manager-analytics': ManagerAnalytics,
 };
 
 function App() {

@@ -7,9 +7,12 @@ const routes = [
   { pattern: /^#\/login$/,                page: 'login',           showNav: true,  showFooter: false, protected: false, roles: [] },
   { pattern: /^#\/history$/,              page: 'history',         showNav: true,  showFooter: true, protected: true, roles: ['guest'] },
   { pattern: /^#\/search/,                page: 'search',          showNav: true,  showFooter: true, protected: false, roles: [] },
-  { pattern: /^#\/profile$/,                      page: 'profile',         showNav: true,  showFooter: true, protected: true,  roles: ['guest', 'admin'] },
+  { pattern: /^#\/profile$/,                      page: 'profile',         showNav: true,  showFooter: true, protected: true,  roles: ['guest', 'admin', 'manager'] },
   { pattern: /^#\/admin\/properties$/,    page: 'admin-properties',showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
   { pattern: /^#\/admin\/payments$/,      page: 'admin-payments',  showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
+  { pattern: /^#\/manager\/dashboard$/,   page: 'manager-dashboard',showNav: true, showFooter: true, protected: true, roles: ['manager'] },
+  { pattern: /^#\/manager\/reports$/,     page: 'manager-reports', showNav: true,  showFooter: true, protected: true, roles: ['manager'] },
+  { pattern: /^#\/manager\/analytics$/,   page: 'manager-analytics',showNav: true, showFooter: true, protected: true, roles: ['manager'] },
 ];
 
 export function getRouteInfo(currentRoute) {

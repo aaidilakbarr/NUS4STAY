@@ -96,6 +96,16 @@ export default function Navbar({ currentPage }) {
               <span className="font-label-md hidden text-xs sm:inline">Admin</span>
             </a>
           )}
+          {role === 'manager' && (
+            <a
+              href="#/manager/dashboard"
+              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-primary/40 bg-primary-fixed/20 px-3 text-primary transition hover:border-primary hover:bg-primary-fixed/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 sm:px-3"
+              aria-label="Manager Panel"
+            >
+              <span className="material-symbols-outlined icon-pro text-[18px]">monitoring</span>
+              <span className="font-label-md hidden text-xs sm:inline">Manager</span>
+            </a>
+          )}
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
               {/* Notification Bell */}

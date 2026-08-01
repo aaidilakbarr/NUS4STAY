@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Button } from './button';
 import { cn } from '../../lib/utils';
 
-const DatePicker = React.forwardRef(({ className, selected, onSelect, placeholder = 'Pilih tanggal', disabled, ..._props }, _ref) => {
+const DatePicker = React.forwardRef(({ className, selected, onSelect, placeholder = 'Pilih tanggal', disabled, allowPastDates = false, disabledDates, ..._props }, _ref) => {
   const [open, setOpen] = React.useState(false);
 
   const handleSelect = (date) => {
@@ -15,6 +15,8 @@ const DatePicker = React.forwardRef(({ className, selected, onSelect, placeholde
   };
 
   const isDateDisabled = (date) => {
+    if (allowPastDates) return false;
+    if (typeof disabledDates === 'function') return disabledDates(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date < today;
