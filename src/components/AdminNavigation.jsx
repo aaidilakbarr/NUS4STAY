@@ -2,6 +2,12 @@ import React from 'react';
 
 const ADMIN_ITEMS = [
   {
+    key: 'dashboard',
+    href: '#/admin/dashboard',
+    label: 'Dashboard',
+    icon: 'monitoring',
+  },
+  {
     key: 'properties',
     href: '#/admin/properties',
     label: 'Properti',

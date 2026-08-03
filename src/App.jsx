@@ -12,6 +12,7 @@ import PendingPayment from './pages/PendingPayment';
 import BookingHistory from './pages/BookingHistory';
 import BookingDetail from './pages/BookingDetail';
 import LoginPage from './pages/LoginPage';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminProperties from './pages/AdminProperties';
 import AdminVerification from './pages/AdminVerification';
 import ProfilePage from './pages/ProfilePage';
@@ -30,6 +31,7 @@ const pageComponents = {
   history: BookingHistory,
   'history-detail': BookingDetail,
   login: LoginPage,
+  'admin-dashboard': AdminDashboard,
   'admin-properties': AdminProperties,
   'admin-payments': AdminVerification,
   profile: ProfilePage,

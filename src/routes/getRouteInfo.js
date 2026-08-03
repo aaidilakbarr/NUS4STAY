@@ -8,6 +8,7 @@ const routes = [
   { pattern: /^#\/history$/,              page: 'history',         showNav: true,  showFooter: true, protected: true, roles: ['guest'] },
   { pattern: /^#\/search/,                page: 'search',          showNav: true,  showFooter: true, protected: false, roles: [] },
   { pattern: /^#\/profile$/,                      page: 'profile',         showNav: true,  showFooter: true, protected: true,  roles: ['guest', 'admin', 'manager'] },
+  { pattern: /^#\/admin\/dashboard$/,    page: 'admin-dashboard', showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
   { pattern: /^#\/admin\/properties$/,    page: 'admin-properties',showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
   { pattern: /^#\/admin\/payments$/,      page: 'admin-payments',  showNav: true,  showFooter: true, protected: true, roles: ['admin'] },
   { pattern: /^#\/manager\/dashboard$/,   page: 'manager-dashboard',showNav: true, showFooter: true, protected: true, roles: ['manager'] },

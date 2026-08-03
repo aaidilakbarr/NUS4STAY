@@ -412,3 +412,268 @@ export const adminPayments = {
     return Array.isArray(data) ? data[0] : data;
   },
 };
+
+export const adminBookings = {
+  list: async ({ page = 1, limit = 10 } = {}) => {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
+      .from('bookings')
+      .select(`
+        booking_id,
+        booking_code,
+        user_id,
+        guest_name,
+        guest_email,
+        guest_phone,
+        check_in,
+        check_out,
+        guest_count,
+        total_price,
+        payment_method,
+        booking_status,
+        payment_status,
+        expires_at,
+        paid_at,
+        created_at,
+        updated_at,
+        properties(name, location),
+        rooms(name)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) throw mapAdminError(error, 'booking');
+
+    return {
+      data: (data ?? []).map((record) => {
+        const property = getSingleRelation(record.properties);
+        const room = getSingleRelation(record.rooms);
+        return {
+          bookingId: record.booking_id,
+          bookingCode: record.booking_code,
+          userId: record.user_id,
+          guestName: record.guest_name,
+          guestEmail: record.guest_email,
+          guestPhone: record.guest_phone,
+          checkIn: record.check_in,
+          checkOut: record.check_out,
+          guestCount: Number(record.guest_count || 1),
+          totalPrice: Number(record.total_price || 0),
+          paymentMethod: record.payment_method,
+          bookingStatus: record.booking_status,
+          paymentStatus: record.payment_status,
+          expiresAt: record.expires_at,
+          paidAt: record.paid_at,
+          createdAt: record.created_at,
+          updatedAt: record.updated_at,
+          propertyName: property.name || 'Properti',
+          propertyLocation: property.location || '',
+          roomName: room.name || 'Kamar',
+        };
+      }),
+      total: count ?? 0,
+      page,
+      limit,
+    };
+  },
+
+  cancel: async (bookingId) => {
+    const { data, error } = await supabase.rpc('cancel_booking', {
+      p_booking_id: bookingId,
+    });
+
+    if (error) throw mapPaymentVerificationError(error);
+    return Array.isArray(data) ? data[0] : data;
+  },
+};
+
+export const adminUsers = {
+  list: async ({ page = 1, limit = 20 } = {}) => {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
+      .from('profiles')
+      .select('id, full_name, phone, role, created_at, updated_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) throw mapAdminError(error, 'user');
+
+    return {
+      data: data ?? [],
+      total: count ?? 0,
+      page,
+      limit,
+    };
+  },
+
+  updateRole: async (userId, newRole) => {
+    const { error } = await supabase.rpc('admin_update_user_role', {
+      p_user_id: userId,
+      p_role: newRole,
+    });
+
+    if (error) throw mapAdminError(error, 'role user');
+  },
+};
+
+export const adminRooms = {
+  list: async ({ page = 1, limit = 10 } = {}) => {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabase
+      .from('rooms')
+      .select('*, properties(name, location)', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (error) throw mapAdminError(error, 'kamar');
+
+    return {
+      data: (data ?? []).map((room) => ({
+        ...room,
+        propertyName: getSingleRelation(room.properties).name || 'Properti',
+        propertyLocation: getSingleRelation(room.properties).location || '',
+        price: Number(room.price || 0),
+        inventoryCount: Number(room.inventory_count || 1),
+        maxGuests: Number(room.max_guests || 2),
+      })),
+      total: count ?? 0,
+      page,
+      limit,
+    };
+  },
+
+  properties: async () => {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('id, name, location')
+      .order('name', { ascending: true });
+
+    if (error) throw mapAdminError(error, 'properti');
+    return data ?? [];
+  },
+
+  create: async (payload) => {
+    const { data, error } = await supabase
+      .from('rooms')
+      .insert({
+        property_id: payload.propertyId,
+        name: payload.name.trim(),
+        price: Number(payload.price) || 0,
+        description: payload.description?.trim() || null,
+        is_active: Boolean(payload.isActive),
+        inventory_count: Number(payload.inventoryCount) || 1,
+        max_guests: Number(payload.maxGuests) || 2,
+      })
+      .select('*, properties(name, location)')
+      .single();
+
+    if (error) throw mapAdminError(error, 'kamar');
+    return data;
+  },
+
+  update: async (id, payload) => {
+    const { data, error } = await supabase
+      .from('rooms')
+      .update({
+        property_id: payload.propertyId,
+        name: payload.name.trim(),
+        price: Number(payload.price) || 0,
+        description: payload.description?.trim() || null,
+        is_active: Boolean(payload.isActive),
+        inventory_count: Number(payload.inventoryCount) || 1,
+        max_guests: Number(payload.maxGuests) || 2,
+      })
+      .eq('id', id)
+      .select('*, properties(name, location)')
+      .single();
+
+    if (error) throw mapAdminError(error, 'kamar');
+    return data;
+  },
+
+  remove: async (id) => {
+    const { error } = await supabase
+      .from('rooms')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw mapAdminError(error, 'kamar');
+    return true;
+  },
+};
+
+export const adminDashboard = {
+  getStats: async () => {
+    const { data: bookings, error: bookingsError } = await supabase
+      .from('bookings')
+      .select(`
+        booking_id,
+        booking_status,
+        payment_status,
+        total_price,
+        created_at,
+        properties(name)
+      `);
+
+    if (bookingsError) throw mapAdminError(bookingsError, 'dashboard');
+
+    const all = bookings ?? [];
+    const totalBookings = all.length;
+
+    const confirmed = all.filter(
+      (b) => b.payment_status === 'paid' || b.booking_status === 'confirmed',
+    );
+    const pending = all.filter(
+      (b) => b.booking_status === 'pending_payment' || b.booking_status === 'payment_review',
+    );
+    const cancelled = all.filter(
+      (b) => b.booking_status === 'cancelled' || b.booking_status === 'expired',
+    );
+
+    const totalRevenue = confirmed.reduce(
+      (sum, b) => sum + Number(b.total_price || 0), 0,
+    );
+
+    const { count: totalProperties } = await supabase
+      .from('properties')
+      .select('id', { count: 'exact', head: true });
+
+    const { count: totalRooms } = await supabase
+      .from('rooms')
+      .select('id', { count: 'exact', head: true });
+
+    const { count: totalUsers } = await supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true });
+
+    const recentBookings = all
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .slice(0, 5)
+      .map((b) => ({
+        bookingId: b.booking_id,
+        bookingStatus: b.booking_status,
+        paymentStatus: b.payment_status,
+        totalPrice: Number(b.total_price || 0),
+        createdAt: b.created_at,
+        propertyName: getSingleRelation(b.properties).name || 'Properti',
+      }));
+
+    return {
+      totalBookings,
+      confirmedCount: confirmed.length,
+      pendingCount: pending.length,
+      cancelledCount: cancelled.length,
+      totalRevenue,
+      totalProperties: totalProperties ?? 0,
+      totalRooms: totalRooms ?? 0,
+      totalUsers: totalUsers ?? 0,
+      recentBookings,
+    };
+  },
+};

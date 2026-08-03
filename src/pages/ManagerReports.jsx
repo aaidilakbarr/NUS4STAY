@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { DatePicker } from '../components/ui/date-picker';
 import { ScrollArea } from '../components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { getFilteredManagerBookings, exportToCSV, formatCurrency } from '../services/manager';
 
 export default function ManagerReports() {
@@ -249,18 +250,19 @@ export default function ManagerReports() {
                   <label className="block text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider mb-1">
                     Status
                   </label>
-                  <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-3 py-2.5 text-xs text-on-surface focus:border-primary focus:outline-none h-11"
-                  >
-                    <option value="all">Semua Status</option>
-                    <option value="confirmed">Terkonfirmasi (Confirmed)</option>
-                    <option value="pending_payment">Menunggu Pembayaran</option>
-                    <option value="payment_review">Verifikasi Pembayaran</option>
-                    <option value="cancelled">Dibatalkan</option>
-                    <option value="expired">Kedaluwarsa</option>
-                  </select>
+                  <Select value={status} onValueChange={setStatus}>
+                    <SelectTrigger className="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-3 py-2.5 text-xs text-on-surface focus:border-primary focus:outline-none h-11">
+                      <SelectValue placeholder="Semua Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua Status</SelectItem>
+                      <SelectItem value="confirmed">Terkonfirmasi (Confirmed)</SelectItem>
+                      <SelectItem value="pending_payment">Menunggu Pembayaran</SelectItem>
+                      <SelectItem value="payment_review">Verifikasi Pembayaran</SelectItem>
+                      <SelectItem value="cancelled">Dibatalkan</SelectItem>
+                      <SelectItem value="expired">Kedaluwarsa</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
 
