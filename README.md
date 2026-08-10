@@ -1,5 +1,5 @@
-<div align="center">
-  <img src="./docs/readme/nus4stay-hero.svg" alt="NUS4STAY animated glowing title" width="100%" />
+
+  ## NUS4STAY
 
   <p>
     <img src="https://img.shields.io/badge/React-19-111827?style=flat-square&logo=react&logoColor=61DAFB&labelColor=020617" alt="React 19" />
