@@ -180,18 +180,29 @@ export default function SearchResults() {
           {/* Amenities checklist */}
           <div className="flex flex-col gap-2">
             <label className="font-label-md text-label-md text-on-surface font-semibold">Popular Amenities</label>
-            <div className="flex flex-col gap-2.5">
-              {["Private Pool", "Oceanfront", "Ski-in/out", "Hot Tub", "Wi-Fi", "Chef Pribadi"].map((amenity) => (
-                <label key={amenity} className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedAmenities.includes(amenity)}
-                    onChange={() => toggleAmenity(amenity)}
-                    className="rounded text-primary focus:ring-primary border-outline-variant"
-                  />
-                  {amenity}
-                </label>
-              ))}
+            <div className="flex flex-col gap-2">
+              {["Private Pool", "Hot Tub", "Wi-Fi", "Chef Pribadi"].map((amenity) => {
+                const isActive = selectedAmenities.includes(amenity);
+                return (
+                  <button
+                    key={amenity}
+                    type="button"
+                    onClick={() => toggleAmenity(amenity)}
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-all cursor-pointer ${isActive
+                        ? 'bg-primary/10 border-primary text-primary ring-1 ring-primary/20'
+                        : 'bg-surface border-outline-variant text-on-surface-variant hover:bg-surface-container-low hover:border-outline'
+                      }`}
+                  >
+                    <span className={`material-symbols-outlined icon-pro text-[16px] ${isActive ? 'fill-1 text-primary' : 'text-outline'}`}>
+                      {getAmenityIcon(amenity)}
+                    </span>
+                    {amenity}
+                    {isActive && (
+                      <span className="material-symbols-outlined icon-pro fill-1 text-[14px] text-primary -mr-0.5">check_circle</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -237,9 +248,10 @@ export default function SearchResults() {
               </span>
             ))}
             <button
-              className="text-xs text-primary underline font-semibold ml-2 hover:opacity-80"
+              className="inline-flex items-center gap-1 text-xs font-bold text-red-600 ml-2 hover:text-red-700 transition-colors"
               onClick={() => setSelectedAmenities([])}
             >
+              <span className="material-symbols-outlined icon-pro text-[14px]">delete</span>
               Clear all
             </button>
           </div>

@@ -67,6 +67,10 @@ export function getAmenityIcon(amenity) {
     'Twin Bed': 'single_bed',
     'Smart TV': 'tv',
     'Jacuzzi': 'hot_tub',
+    'Hot Tub': 'hot_tub',
+    'Oceanfront': 'waves',
+    'Ski-in/out': 'downhill_skiing',
+    'Chef Pribadi': 'restaurant',
     'Workspace': 'desk',
     'Mini Bar': 'local_bar',
   };
