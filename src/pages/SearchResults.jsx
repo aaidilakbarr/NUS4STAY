@@ -159,7 +159,7 @@ export default function SearchResults() {
                   key={rating}
                   type="button"
                   onClick={() => setRatingFilter(rating)}
-                  className={`flex-1 inline-flex h-9 cursor-pointer items-center justify-center gap-1 rounded-lg border text-xs font-semibold transition-all ${
+                  className={`flex-1 inline-flex h-9 md:h-8 cursor-pointer items-center justify-center gap-1 rounded-lg border text-xs md:text-[11px] font-medium transition-all ${
                     ratingFilter === rating
                       ? 'bg-primary text-on-primary border-primary'
                       : 'bg-surface border-outline-variant hover:bg-surface-container-low text-on-surface'
@@ -168,7 +168,9 @@ export default function SearchResults() {
                   {rating === 0 ? 'Any' : (
                     <>
                       {rating}
-                      <span className="material-symbols-outlined icon-pro fill-1 text-[14px] text-tertiary-fixed-dim">star</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-3 h-3 ${ratingFilter === rating ? 'text-amber-300' : 'text-amber-500'}`}>
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
                     </>
                   )}
                 </button>
