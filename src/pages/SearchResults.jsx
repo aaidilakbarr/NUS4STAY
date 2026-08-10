@@ -6,7 +6,7 @@ export default function SearchResults() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useState({ search: '', region: '' });
-  
+
   // Local Filter States
   const [priceFilter, setPriceFilter] = useState(3000000);
   const [ratingFilter, setRatingFilter] = useState(0);
@@ -21,10 +21,10 @@ export default function SearchResults() {
       const hash = window.location.hash;
       const queryStr = hash.includes('?') ? hash.split('?')[1] : '';
       const params = new URLSearchParams(queryStr);
-      
+
       const search = params.get('search') || '';
       const region = params.get('region') || '';
-      
+
       setSearchParams({ search, region });
       setTempSearchInput(search || region);
       loadProperties({ search, region });
@@ -101,8 +101,8 @@ export default function SearchResults() {
   const titleLocation = searchParams.search || searchParams.region || "All Destinations";
 
   return (
-    <main className="page-shell flex flex-grow flex-col gap-5 py-6 text-left md:flex-row md:gap-gutter md:py-10">
-      
+    <main className="page-shell flex flex-grow flex-col gap-5 py-6 text-left md:flex-row md:items-start md:gap-gutter md:py-10">
+
       <aside className="w-full md:w-[280px] flex-shrink-0 flex flex-col gap-6">
         <button
           type="button"
@@ -123,9 +123,9 @@ export default function SearchResults() {
             <label className="font-label-md text-label-md text-on-surface font-semibold">Change Destination</label>
             <div className="flex items-center bg-surface rounded-lg px-3 py-2 border border-outline-variant focus-within:border-primary">
               <span className="material-symbols-outlined icon-pro text-lg text-outline">search</span>
-              <input 
-                className="bg-transparent border-none text-sm w-full outline-none ml-2 focus:ring-0" 
-                placeholder="Where to?" 
+              <input
+                className="bg-transparent border-none text-sm w-full outline-none ml-2 focus:ring-0"
+                placeholder="Where to?"
                 type="text"
                 value={tempSearchInput}
                 onChange={(e) => setTempSearchInput(e.target.value)}
@@ -139,10 +139,10 @@ export default function SearchResults() {
               <label className="font-label-md text-label-md text-on-surface font-semibold">Max Price per Night</label>
               <span className="font-label-md text-xs text-primary font-bold">{formatPrice(priceFilter)}</span>
             </div>
-            <input 
-              type="range" 
-              min="500000" 
-              max="3000000" 
+            <input
+              type="range"
+              min="500000"
+              max="3000000"
               step="100000"
               value={priceFilter}
               onChange={(e) => setPriceFilter(Number(e.target.value))}
@@ -159,17 +159,16 @@ export default function SearchResults() {
                   key={rating}
                   type="button"
                   onClick={() => setRatingFilter(rating)}
-                  className={`flex-1 inline-flex h-9 md:h-8 cursor-pointer items-center justify-center gap-1 rounded-lg border text-xs md:text-[11px] font-medium transition-all ${
-                    ratingFilter === rating
-                      ? 'bg-primary text-on-primary border-primary'
-                      : 'bg-surface border-outline-variant hover:bg-surface-container-low text-on-surface'
-                  }`}
+                  className={`flex-1 inline-flex h-9 md:h-8 cursor-pointer items-center justify-center gap-1 rounded-lg border text-xs md:text-[11px] font-medium transition-all ${ratingFilter === rating
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'bg-surface border-outline-variant hover:bg-surface-container-low text-on-surface'
+                    }`}
                 >
                   {rating === 0 ? 'Any' : (
                     <>
                       {rating}
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-3 h-3 ${ratingFilter === rating ? 'text-amber-300' : 'text-amber-500'}`}>
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-4 h-4 ${ratingFilter === rating ? 'text-amber-300' : 'text-amber-500'}`}>
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                     </>
                   )}
@@ -184,8 +183,8 @@ export default function SearchResults() {
             <div className="flex flex-col gap-2.5">
               {["Private Pool", "Oceanfront", "Ski-in/out", "Hot Tub", "Wi-Fi", "Chef Pribadi"].map((amenity) => (
                 <label key={amenity} className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={selectedAmenities.includes(amenity)}
                     onChange={() => toggleAmenity(amenity)}
                     className="rounded text-primary focus:ring-primary border-outline-variant"
@@ -196,7 +195,7 @@ export default function SearchResults() {
             </div>
           </div>
 
-          <button 
+          <button
             type="button"
             className="mt-2 w-full rounded-lg bg-primary py-3 font-label-md text-label-md font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary-container active:scale-95 md:hidden"
             onClick={handleApplyFilters}
@@ -208,7 +207,7 @@ export default function SearchResults() {
 
       {/* Results Main Section */}
       <section className="flex min-w-0 flex-grow flex-col gap-6">
-        
+
         {/* Results Header Bar */}
         <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30 shadow-level-1 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -229,7 +228,7 @@ export default function SearchResults() {
           <div className="flex flex-wrap gap-2 items-center">
             <span className="font-label-md text-xs text-on-surface-variant mr-2">Active:</span>
             {selectedAmenities.map((amenity) => (
-              <span 
+              <span
                 key={amenity}
                 onClick={() => clearAmenity(amenity)}
                 className="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-md text-xs flex items-center gap-1 cursor-pointer hover:bg-primary/20 transition-all font-semibold"
@@ -237,7 +236,7 @@ export default function SearchResults() {
                 {amenity} <span className="material-symbols-outlined icon-pro text-[14px]">close</span>
               </span>
             ))}
-            <button 
+            <button
               className="text-xs text-primary underline font-semibold ml-2 hover:opacity-80"
               onClick={() => setSelectedAmenities([])}
             >
@@ -262,16 +261,16 @@ export default function SearchResults() {
         ) : (
           <div className="flex flex-col gap-6">
             {properties.map((prop) => (
-              <div 
+              <div
                 key={prop.id}
                 className="interactive-card group flex flex-col overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-level-1 md:flex-row"
               >
                 {/* Image Section */}
                 <div className="relative w-full md:w-1/3 aspect-[4/3] md:aspect-auto md:min-h-[220px] overflow-hidden cursor-pointer" onClick={() => window.location.hash = `#/detail/${prop.id}`}>
-                  <img 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                    alt={prop.name} 
-                    src={prop.image} 
+                  <img
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    alt={prop.name}
+                    src={prop.image}
                   />
                   <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
                     <span className="material-symbols-outlined icon-pro text-tertiary-fixed-dim text-sm fill-1">star</span>
@@ -284,7 +283,7 @@ export default function SearchResults() {
                 {/* Content Section */}
                 <div className="flex flex-grow flex-col justify-between p-5 md:w-2/3 md:p-6">
                   <div>
-                    <h3 
+                    <h3
                       className="font-headline-md text-headline-md text-on-surface hover:text-primary transition-colors cursor-pointer"
                       onClick={() => window.location.hash = `#/detail/${prop.id}`}
                     >
@@ -302,7 +301,7 @@ export default function SearchResults() {
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {prop.amenities.map((amenity, index) => (
-                        <span 
+                        <span
                           key={index}
                           title={amenity}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-fixed/20 text-primary text-sm"
@@ -322,7 +321,7 @@ export default function SearchResults() {
                       </span>
                       <span className="font-body-md text-body-md text-on-surface-variant text-sm"> / malam</span>
                     </div>
-                    <a 
+                    <a
                       className="flex min-h-11 items-center justify-center rounded-lg bg-primary px-6 py-2.5 font-label-md text-label-md font-bold text-on-primary transition-all hover:bg-primary-container active:scale-95"
                       href={`#/detail/${prop.id}`}
                     >
