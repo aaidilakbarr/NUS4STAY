@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { createSafeError } from '../utils/errorHandler';
 
 const NOTIF_HREF_FALLBACK = {
   payment_approved: '#/history',
@@ -46,7 +47,7 @@ export const notificationDb = {
       .update({ is_read: true })
       .eq('id', notificationId);
 
-    if (error) throw new Error(error.message);
+    if (error) throw createSafeError(error, 'Gagal memperbarui status notifikasi.');
   },
 
   markAllAsRead: async () => {
@@ -55,7 +56,7 @@ export const notificationDb = {
       .update({ is_read: true })
       .eq('is_read', false);
 
-    if (error) throw new Error(error.message);
+    if (error) throw createSafeError(error, 'Gagal menandai semua notifikasi sudah dibaca.');
   },
 
   getPreferences: async () => {
@@ -84,7 +85,7 @@ export const notificationDb = {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw createSafeError(error, 'Gagal menyimpan preferensi notifikasi.');
     return data;
   },
 
@@ -108,7 +109,7 @@ export const notificationDb = {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) throw createSafeError(error, 'Gagal membuat notifikasi.');
     return data;
   },
 };

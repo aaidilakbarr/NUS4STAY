@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { createSafeError } from '../utils/errorHandler';
 
 const MANAGER_BOOKING_SELECT = `
   booking_id,
@@ -47,8 +48,7 @@ export async function fetchAllManagerBookings() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching manager bookings:', error);
-    throw new Error(error.message || 'Gagal mengambil data booking manager.');
+    throw createSafeError(error, 'Gagal mengambil data reservasi manager.');
   }
 
   return (data || []).map((item) => {

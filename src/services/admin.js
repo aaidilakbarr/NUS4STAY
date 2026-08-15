@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { getLowestRoomPrice } from '../utils/pricing';
+import { createSafeError } from '../utils/errorHandler';
 
 const PROPERTY_BUCKET = 'property-images';
 const PAYMENT_PROOF_BUCKET = 'payment-proofs';
@@ -27,44 +28,12 @@ const ADMIN_PAYMENT_SELECT = `
   payments!inner(status, proof_url, submitted_at, paid_at, reviewed_at, reviewed_by, updated_at)
 `;
 
-const mapAdminError = (error, context = 'property') => {
-  const message = error?.message ?? 'Terjadi kesalahan saat memproses data.';
-
-  if (/row-level security|permission denied|not allowed/i.test(message)) {
-    return new Error(`Akses ditolak saat mengelola ${context}. Pastikan akun kamu punya role admin di tabel profiles Supabase.`);
-  }
-
-  if (/bucket|storage|object/i.test(message)) {
-    return new Error('Upload gambar gagal. Cek bucket `property-images` dan policy Storage Supabase untuk akun admin.');
-  }
-
-  if (/relation .*profiles.* does not exist|relation .*properties.* does not exist|relation .*rooms.* does not exist/i.test(message)) {
-    return new Error('Tabel Supabase belum lengkap. Pastikan schema `profiles`, `properties`, dan `rooms` sudah dibuat di database.');
-  }
-
-  return new Error(message);
+const mapAdminError = (error, context = 'data') => {
+  return createSafeError(error, `Gagal memproses ${context}. Silakan coba lagi nanti.`);
 };
 
 const mapPaymentVerificationError = (error) => {
-  const rawMessage = [error?.message, error?.details, error?.hint].filter(Boolean).join(' ');
-
-  if (/FORBIDDEN|row-level security|permission denied/i.test(rawMessage)) {
-    return new Error('Akses verifikasi ditolak. Pastikan akun yang digunakan memiliki role admin.');
-  }
-
-  if (/INVALID_STATUS_TRANSITION/i.test(rawMessage)) {
-    return new Error('Status pembayaran sudah berubah. Muat ulang antrean sebelum mengambil keputusan.');
-  }
-
-  if (/BOOKING_NOT_FOUND/i.test(rawMessage)) {
-    return new Error('Booking tidak ditemukan atau sudah tidak tersedia.');
-  }
-
-  if (/PAYMENT_ALREADY_PROCESSED/i.test(rawMessage)) {
-    return new Error('Pembayaran ini sudah pernah diproses.');
-  }
-
-  return new Error(error?.message || 'Verifikasi pembayaran gagal diproses.');
+  return createSafeError(error, 'Verifikasi pembayaran gagal diproses. Silakan coba lagi.');
 };
 
 const getSingleRelation = (relation) => (Array.isArray(relation) ? relation[0] : relation) || {};

@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { getLowestRoomPrice } from '../utils/pricing';
+import { sanitizeAppError } from '../utils/errorHandler';
 
 const normalizeDestination = (property) => ({
   id: property.id,
@@ -231,7 +232,8 @@ const BOOKING_ERROR_MESSAGES = {
 
 export const mapBookingError = (error) => {
   const code = getBookingErrorCode(error);
-  const mappedError = new Error(BOOKING_ERROR_MESSAGES[code] || error?.message || 'Booking gagal diproses.');
+  const safeMessage = BOOKING_ERROR_MESSAGES[code] || sanitizeAppError(error, 'Booking gagal diproses.');
+  const mappedError = new Error(safeMessage);
   mappedError.code = code;
   mappedError.cause = error;
   return mappedError;
@@ -409,13 +411,13 @@ export const db = {
     const { error: updateError } = await supabase.auth.updateUser({
       data: { full_name, phone },
     });
-    if (updateError) throw new Error(updateError.message);
+    if (updateError) throw new Error(sanitizeAppError(updateError, 'Gagal memperbarui akun.'));
 
     const { error } = await supabase
       .from('profiles')
       .update({ full_name, phone })
       .eq('id', userData.user.id);
 
-    if (error) throw new Error(error.message || 'Gagal memperbarui profil.');
+    if (error) throw new Error(sanitizeAppError(error, 'Gagal memperbarui profil.'));
   },
 };
