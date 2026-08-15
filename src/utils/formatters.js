@@ -52,8 +52,6 @@ export function getAmenityIcon(amenity) {
   const iconMap = {
     'Wi-Fi': 'wifi',
     'Kolam Renang': 'pool',
-    'Private Pool': 'pool',
-    'Ocean View': 'water',
     'Gym': 'fitness_center',
     'Spa': 'spa',
     'Breakfast': 'restaurant',
@@ -68,8 +66,6 @@ export function getAmenityIcon(amenity) {
     'Smart TV': 'tv',
     'Jacuzzi': 'hot_tub',
     'Hot Tub': 'hot_tub',
-    'Oceanfront': 'waves',
-    'Ski-in/out': 'downhill_skiing',
     'Chef Pribadi': 'restaurant',
     'Workspace': 'desk',
     'Mini Bar': 'local_bar',

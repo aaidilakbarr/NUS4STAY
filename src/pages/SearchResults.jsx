@@ -181,7 +181,7 @@ export default function SearchResults() {
           <div className="flex flex-col gap-2">
             <label className="font-label-md text-label-md text-on-surface font-semibold">Popular Amenities</label>
             <div className="flex flex-col gap-2">
-              {["Private Pool", "Hot Tub", "Wi-Fi", "Chef Pribadi"].map((amenity) => {
+              {["Kolam Renang", "Hot Tub", "Wi-Fi", "Chef Pribadi"].map((amenity) => {
                 const isActive = selectedAmenities.includes(amenity);
                 return (
                   <button

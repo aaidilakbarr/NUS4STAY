@@ -4,14 +4,12 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ConfirmModal from '../components/ConfirmModal';
 import NotificationModal from '../components/NotificationModal';
 import { adminProperties } from '../services/admin';
-import { formatPrice, formatRupiahDisplay, parseRupiahValue } from '../utils/formatters';
+import { formatPrice, formatRupiahDisplay, parseRupiahValue, getAmenityIcon } from '../utils/formatters';
 import { Badge } from '../components/ui/badge';
 
 const AMENITY_OPTIONS = [
   'Wi-Fi',
   'Kolam Renang',
-  'Private Pool',
-  'Ocean View',
   'Gym',
   'Spa',
   'Breakfast',
@@ -29,7 +27,6 @@ const ROOM_AMENITY_OPTIONS = [
   'Smart TV',
   'Bathtub',
   'Balcony',
-  'Ocean View',
   'Jacuzzi',
   'Workspace',
   'Mini Bar',
@@ -142,8 +139,8 @@ export default function AdminProperties() {
     }
 
     return properties.filter((property) => (
-      property.name.toLowerCase().includes(query)
-      || property.location.toLowerCase().includes(query)
+      (property.name ?? '').toLowerCase().includes(query)
+      || (property.location ?? '').toLowerCase().includes(query)
     ));
   }, [properties, search]);
 
@@ -676,7 +673,7 @@ export default function AdminProperties() {
                       <label className="md:col-span-2 flex flex-col gap-1.5 text-sm text-on-surface">
                         <span className="font-semibold">Deskripsi</span>
                         <textarea value={form.description} onChange={(event) => handleChange('description', event.target.value)} placeholder="Deskripsikan properti secara detail..." rows="3" className="h-24 rounded-xl border border-outline-variant bg-surface px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-outline focus:border-primary focus:shadow-[0_0_0_3px_rgba(52,78,43,0.10)] resize-none" />
-                        <span className="text-xs text-outline text-right">{form.description.length}/500</span>
+                        <span className="text-xs text-outline text-right">{(form.description ?? '').length}/500</span>
                       </label>
                     </div>
 
