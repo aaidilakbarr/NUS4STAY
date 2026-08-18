@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/db';
 import { DatePicker } from '../components/ui/date-picker';
 import { Button } from '../components/ui/button';
+import { getAmenityIcon } from '../utils/formatters';
 
 const formatDateStr = (date) => {
   if (!date) return '';

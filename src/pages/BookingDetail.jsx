@@ -67,6 +67,7 @@ export default function BookingDetail() {
 
   const getPaymentMethodLabel = (method) => {
     if (method === 'transfer') return 'Transfer Bank';
+    if (method === 'bank_transfer') return 'Transfer Bank';
     if (method === 'card') return 'Kartu Kredit';
     return 'E-Wallet';
   };

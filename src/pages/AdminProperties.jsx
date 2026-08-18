@@ -340,10 +340,10 @@ export default function AdminProperties() {
       setNotification({
         show: true,
         type: 'success',
-        title: isCreate ? 'Properti Berhasil Ditambahkan' : 'Perubahan Berhasil',
+        title: isCreate ? 'Properti Berhasil Ditambahkan' : 'Data Berhasil Diperbarui',
         message: isCreate
           ? 'Properti baru beserta tipe kamar telah berhasil disimpan dan siap dikelola.'
-          : 'Perubahan pada properti telah berhasil disimpan.',
+          : 'Informasi data properti telah berhasil diperbarui.',
       });
     } catch (error) {
       const wasEditing = editingProperty;

@@ -2,9 +2,9 @@ import React from 'react';
 import { useAuth } from '../contexts/useAuth';
 
 export default function RoleGuard({ roles = [], children, fallbackHash = '#/' }) {
-  const { isAuthenticated, authLoading, hasRole } = useAuth();
+  const { isAuthenticated, initializing, hasRole } = useAuth();
 
-  if (authLoading) {
+  if (initializing) {
     return <div className="py-20 text-center font-body-md text-on-surface-variant">Loading access...</div>;
   }
 

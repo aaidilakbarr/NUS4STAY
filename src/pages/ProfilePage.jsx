@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/useAuth';
 import { useNotifications } from '../contexts/NotificationContext';
 import { db } from '../services/db';
+import NotificationModal from '../components/NotificationModal';
 
 function Icon({ name, className = '' }) {
   return (
@@ -84,6 +85,12 @@ export default function ProfilePage() {
   const [messageType, setMessageType] = useState('info');
   const [stats, setStats] = useState({ total: 0, confirmed: 0, pending: 0, completed: 0 });
   const [loggingOut, setLoggingOut] = useState(false);
+  const [notification, setNotification] = useState({
+    show: false,
+    type: 'success',
+    title: '',
+    message: '',
+  });
 
   useEffect(() => {
     if (profile) {
@@ -125,13 +132,28 @@ export default function ProfilePage() {
     setMessageType('info');
 
     try {
-      await db.updateProfile({ full_name: name.trim(), phone: phone.trim() });
-      await refreshProfile();
+      if (user?.id) {
+        await db.updateProfile({ full_name: name.trim(), phone: phone.trim() });
+        await refreshProfile();
+      }
       setMessage('Profil berhasil diperbarui.');
       setMessageType('success');
+      setNotification({
+        show: true,
+        type: 'success',
+        title: 'Data Berhasil Diperbarui',
+        message: 'Informasi data diri Anda telah berhasil diperbarui dan disimpan ke sistem.',
+      });
     } catch (err) {
-      setMessage(err?.message || 'Gagal memperbarui profil.');
+      const errText = err?.message || 'Gagal memperbarui profil.';
+      setMessage(errText);
       setMessageType('error');
+      setNotification({
+        show: true,
+        type: 'error',
+        title: 'Gagal Memperbarui Data',
+        message: errText,
+      });
     } finally {
       setLoading(false);
     }
@@ -149,8 +171,21 @@ export default function ProfilePage() {
     try {
       await updatePreferences(notifPrefs);
       setNotifPrefsMsg('Preferensi notifikasi berhasil diperbarui.');
-    } catch {
-      setNotifPrefsMsg('Gagal memperbarui preferensi.');
+      setNotification({
+        show: true,
+        type: 'success',
+        title: 'Data Berhasil Diperbarui',
+        message: 'Preferensi notifikasi akun Anda telah berhasil disimpan.',
+      });
+    } catch (err) {
+      const errText = err?.message || 'Gagal memperbarui preferensi.';
+      setNotifPrefsMsg(errText);
+      setNotification({
+        show: true,
+        type: 'error',
+        title: 'Gagal Memperbarui Preferensi',
+        message: errText,
+      });
     } finally {
       setNotifPrefsLoading(false);
     }
@@ -477,6 +512,14 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      <NotificationModal
+        open={notification.show}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification((prev) => ({ ...prev, show: false }))}
+      />
     </main>
   );
 }

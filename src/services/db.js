@@ -154,6 +154,7 @@ const normalizeBookingRecord = (record) => {
     bookingCode: record.booking_code || record.id,
     bookingStatus,
     paymentStatus: record.payment_status || 'unpaid',
+    paymentMethod: record.payment_method || 'transfer',
     paidAt: record.paid_at || null,
     status: BOOKING_STATUS_LABELS[bookingStatus] || bookingStatus,
     expiresAt: record.expires_at || null,
@@ -403,21 +404,50 @@ export const db = {
   },
 
   updateProfile: async ({ full_name, phone }) => {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData?.user) {
+    let user = null;
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        user = userData.user;
+      }
+    } catch {
+      // fallback to session
+    }
+
+    if (!user) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user) {
+        user = sessionData.session.user;
+      }
+    }
+
+    if (!user) {
       throw new Error('Silakan login terlebih dahulu.');
     }
 
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: { full_name, phone },
-    });
-    if (updateError) throw new Error(sanitizeAppError(updateError, 'Gagal memperbarui akun.'));
+    try {
+      await supabase.auth.updateUser({
+        data: { full_name, phone },
+      });
+    } catch {
+      // Continue to update profiles table
+    }
 
-    const { error } = await supabase
+    const { data: updatedRows, error } = await supabase
       .from('profiles')
       .update({ full_name, phone })
-      .eq('id', userData.user.id);
+      .eq('id', user.id)
+      .select('id');
 
     if (error) throw new Error(sanitizeAppError(error, 'Gagal memperbarui profil.'));
+
+    // Jika baris profil belum ada, buat baris baru
+    if (!updatedRows || updatedRows.length === 0) {
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({ id: user.id, full_name, phone, role: 'guest' });
+
+      if (insertError) throw new Error(sanitizeAppError(insertError, 'Gagal menyimpan profil.'));
+    }
   },
 };

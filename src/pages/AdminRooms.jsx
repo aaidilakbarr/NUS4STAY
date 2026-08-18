@@ -172,8 +172,8 @@ export default function AdminRooms() {
       setNotification({
         show: true,
         type: 'success',
-        title: isCreate ? 'Kamar berhasil ditambahkan' : 'Kamar berhasil diperbarui',
-        message: isCreate ? 'Data kamar baru sudah tersimpan.' : 'Perubahan data kamar sudah tersimpan.',
+        title: isCreate ? 'Kamar Berhasil Ditambahkan' : 'Data Berhasil Diperbarui',
+        message: isCreate ? 'Data kamar baru sudah tersimpan.' : 'Informasi data kamar telah berhasil diperbarui.',
       });
     } catch (saveError) {
       setNotification({
